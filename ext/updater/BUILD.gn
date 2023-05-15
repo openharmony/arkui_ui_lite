@@ -81,7 +81,10 @@ if (os_level == "standard") {
       "//third_party/libpng:libpng",
     ]
 
-    install_images = [ "updater" ]
+    install_images = [
+      "updater",
+      "system",
+    ]
     part_name = "ui_lite"
     subsystem_name = "arkui"
   }
