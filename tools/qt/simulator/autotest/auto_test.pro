@@ -60,12 +60,12 @@ HEADERS += \
 	
 INCLUDEPATH += \
     ../../../../frameworks \
-    ../../../../../utils/frameworks/windows \
-    ../../../../../utils/interfaces/innerkits \
-    ../../../../../utils/interfaces/kits \
-    ../../../../../ui/interfaces/frameworks \
-    ../../../../../ui/interfaces/innerkits \
-    ../../../../../ui/interfaces/kits \
+    ../../../../../../graphic/graphic_utils_lite/frameworks/windows \
+    ../../../../../../graphic/graphic_utils_lite/interfaces/innerkits \
+    ../../../../../../graphic/graphic_utils_lite/interfaces/kits \
+    ../../../../../ui_lite/interfaces/frameworks \
+    ../../../../../ui_lite/interfaces/innerkits \
+    ../../../../../ui_lite/interfaces/kits \
     ../../../../test/framework \
     ../../../../test/framework/include \
     ../../../../test/autotest/src \
