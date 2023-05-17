@@ -34,6 +34,7 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 
 
 DEFINES += QT_COMPILER
+#DEFINES += ENABLE_GIFLIB
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -369,8 +370,8 @@ INCLUDEPATH += \
     ../../../../../../../third_party/cJSON \
     ../../../../../../../third_party/libjpeg-turbo \
     ../../../../../../../third_party/libpng \
-    ../../../../../../../third_party/qrcodegen/cpp \
-    ../../../../../../../third_party/giflib
+    ../../../../../../../third_party/qrcodegen/cpp 
+
 
 LIBS += $$OUT_PWD/../libs/libpng.dll
 LIBS += $$OUT_PWD/../libs/libjpeg-turbo.dll
@@ -378,4 +379,9 @@ LIBS += $$OUT_PWD/../libs/qrcodegen.dll
 LIBS += $$OUT_PWD/../libs/freetype.dll
 LIBS += $$OUT_PWD/../libs/libharfbuzz.a
 LIBS += $$OUT_PWD/../libs/icu.dll
-LIBS += $$OUT_PWD/../libs/giflib.dll
+
+if(contains(DEFINES, ENABLE_GIFLIB)){
+    INCLUDEPATH += ../../../../../../../third_party/giflib
+
+    LIBS += $$OUT_PWD/../libs/giflib.dll
+}
