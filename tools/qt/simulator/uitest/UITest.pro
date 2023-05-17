@@ -52,12 +52,12 @@ INCLUDEPATH += \
     ../drivers/display \
     ../drivers/indev \
     ../drivers \
-    ../../../../../ui/frameworks \
-    ../../../../../ui/interfaces/innerkits \
-    ../../../../../ui/interfaces/kits \
-    ../../../../../ui/test/framework \
-    ../../../../../utils/interfaces/innerkits \
-    ../../../../../utils/interfaces/kits \
+    ../../../../../ui_lite/frameworks \
+    ../../../../../ui_lite/interfaces/innerkits \
+    ../../../../../ui_lite/interfaces/kits \
+    ../../../../../ui_lite/test/framework \
+    ../../../../../../graphic/graphic_utils_lite/interfaces/innerkits \
+    ../../../../../../graphic/graphic_utils_lite/interfaces/kits \
     ../../../../../../../third_party/freetype/include \
     ../../../../test/framework/include \
     ../../../../../../../third_party/bounds_checking_function/include \
