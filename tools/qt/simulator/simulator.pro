@@ -1,9 +1,9 @@
 TEMPLATE = subdirs
 
 CONFIG += ordered
+#DEFINES += ENABLE_GIFLIB
 
 SUBDIRS += \
-    third_party/giflib \
     third_party/harfbuzz \
     third_party/icu \
     third_party/libjpeg-turbo \
@@ -18,3 +18,9 @@ SUBDIRS += \
 
 HEADERS += \
     ../../../test/framework/common/ui_test_canvas_common.h
+
+if(contains(DEFINES, ENABLE_GIFLIB)){
+    SUBDIRS += \
+        third_party/giflib \
+        third_party/giflib/giflib.pro
+}

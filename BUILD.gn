@@ -232,7 +232,6 @@ if (os_level != "standard") {
         "//build/lite/config/component/cJSON:cjson_static",
         "//third_party/bounds_checking_function:libsec_static",
         "//third_party/freetype:freetype",
-        "//third_party/giflib:libgif",
         "//third_party/icu/icu4c/source/common:icu_font",
         "//third_party/libjpeg-turbo:libjpeg",
         "//third_party/libpng:libpng",
@@ -248,7 +247,6 @@ if (os_level != "standard") {
         "//foundation/window/window_manager_lite:window_manager_lite",
         "//third_party/bounds_checking_function:libsec_shared",
         "//third_party/freetype:freetype",
-        "//third_party/giflib:libgif",
         "//third_party/icu/icu4c/source/common:icu_font",
         "//third_party/libjpeg-turbo:libjpeg",
         "//third_party/libpng:libpng",
@@ -267,6 +265,10 @@ if (os_level != "standard") {
       }
 
       ldflags = [ "-Wl,-rpath-link=$ohos_root_path/$root_out_dir" ]
+    }
+    if (defined(enable_gif)) {
+      defines += [ "ENABLE_GIF=1" ]
+      deps += [ "//third_party/giflib:libgif" ]
     }
 
     public_deps = [ "//foundation/graphic/graphic_utils_lite:utils_lite" ]

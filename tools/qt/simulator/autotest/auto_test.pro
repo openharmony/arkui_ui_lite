@@ -33,6 +33,7 @@ DEFINES += QT_DEPRECATED_WARNINGS \
     "DEFAULT_ANIMATION=1" \
 
 DEFINES += QT_COMPILER
+#DEFINES += ENABLE_GIFLIB
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -77,9 +78,11 @@ INCLUDEPATH += \
     ../../../../../../../third_party/freetype/include \
     ../../../../../../../third_party/cJSON \
     ../../../../../../../third_party/libjpeg-turbo \
-    ../../../../../../../third_party/libpng \
-    ../../../../../../../third_party/giflib
+    ../../../../../../../third_party/libpng 
+
+if(contains(DEFINES, ENABLE_GIFLIB)){
+    INCLUDEPATH += ../../../../../../../third_party/giflib
+}
 
 LIBS += $$OUT_PWD/../libs/libui.dll
 LIBS += $$OUT_PWD/../libs/test.dll
-
