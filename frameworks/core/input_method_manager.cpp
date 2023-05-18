@@ -79,6 +79,18 @@ void InputMethodManager::InsertText(std::string text)
     }
 }
 
+void InputMethodManager::SetCursorIndex(uint16_t cursorIndex_)
+{
+    UIEditText* tmpView = reinterpret_cast<UIEditText*>(inputView_);
+    tmpView->SetCursorIndex(cursorIndex_);
+}
+
+uint16_t InputMethodManager::GetCursorIndex()
+{
+    UIEditText* tmpView = reinterpret_cast<UIEditText*>(inputView_);
+    return tmpView->GetCursorIndex();
+}
+
 void InputMethodManager::DeleteBackward(uint16_t length)
 {
     if (inputView_ == nullptr) {

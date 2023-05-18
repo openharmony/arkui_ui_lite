@@ -91,6 +91,16 @@ public:
     bool OnPressEvent(const PressEvent& event) override;
 
     /**
+     * @brief   Executes the long press event action
+     *
+     * @param   [in] event   The long press event, contain press position.
+     * @return Returns <b>true</b> if the event is consumed; returns <b>false</b> otherwise.
+     */
+    bool OnLongPressEvent(const LongPressEvent& event) override;
+
+    void DealPressEvents(const Event &event);
+
+    /**
      * @brief Sets the view style.
      *
      * @param style Indicates the view style.
@@ -325,6 +335,28 @@ public:
         return onChangeListener_;
     }
 
+    /**
+     * @brief set the cursor position by the index.
+     */
+    void SetCursorPosXByCursorIndex(uint16_t letterIndex);
+
+    /**
+     * @brief insert text by using cursor index.
+     */
+    void InsertTextByCursorIndex(std::string text);
+
+    /**
+     * @brief update the cursor position when change the text type.
+     */
+    void UpdateCursor();
+
+    /**
+     * @brief set the cursor index.
+     */
+    void SetCursorIndex(uint16_t cursorIndex);
+
+    uint16_t GetCursorIndex();
+
 protected:
     Text* inputText_;
     Text* placeholderText_;
@@ -351,6 +383,8 @@ private:
     uint16_t maxLength_;
     uint16_t placeholderEllipsisIndex_;
     int16_t offsetX_;
+    int16_t cursorPosX_;
+    int16_t cursorIndex_;
     ColorType textColor_;
     ColorType placeholderColor_;
     ColorType cursorColor_;

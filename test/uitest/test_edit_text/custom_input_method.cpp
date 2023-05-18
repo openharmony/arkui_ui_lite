@@ -24,6 +24,7 @@
 #include "components/ui_label.h"
 #include "font/ui_font.h"
 #include "ui_test.h"
+#include "graphic_timer.h"
 
 namespace OHOS {
 namespace {
@@ -113,7 +114,7 @@ KeyInfo GetKeyInfo(KeyboardType type)
 
 void CustomInputMethod::OnShow(InputMethodManager::InputMethodParam& param)
 {
-    // init method
+    bool needFocus = editView_ == nullptr ? true : false;
     SetupView(keyboardType_);
 
     // update value
@@ -124,10 +125,14 @@ void CustomInputMethod::OnShow(InputMethodManager::InputMethodParam& param)
         editView_->SetPlaceholder(paramView->GetPlaceholder());
         editView_->SetPlaceholderColor(paramView->GetPlaceholderColor());
         editView_->SetCursorColor(paramView->GetCursorColor());
+        editView_->SetCursorIndex(paramView->GetCursorIndex());
         editView_->SetTextColor(paramView->GetTextColor());
         editView_->SetMaxLength(paramView->GetMaxLength());
     }
-    editView_->Focus();
+    if (needFocus) {
+        editView_->RequestFocus();
+    }
+
     container_->Invalidate();
 
     // keyboard show callback
@@ -253,6 +258,9 @@ UILabelButton* CustomInputMethod::SetupButton(const char* title)
     keyBtn->SetStyleForState(STYLE_BACKGROUND_COLOR, BUTTON_STYLE_BACKGROUND_COLOR_VALUE, UIButton::INACTIVE);
     keyBtn->Resize(KEY_WIDTH, KEY_HEIGHT);
 
+    keyBtn->SetOnLongPressListener(this);
+    keyBtn->SetOnTouchListener(this);
+
     if ((strcmp(title, "shift") == 0) || (strcmp(title, "del") == 0) || (strcmp(title, "123") == 0) ||
         (strcmp(title, "ABC") == 0) || (strcmp(title, "#+=") == 0)) {
         keyBtn->Resize(FUNC_KEY_WIDTH, KEY_HEIGHT);
@@ -282,6 +290,7 @@ bool CustomInputMethod::OnClick(UIView& view, const ClickEvent& event)
             editView_->SetInputType(InputType::TEXT_TYPE);
             InputMethodManager::GetInstance().SetInputType(InputType::TEXT_TYPE);
         }
+        editView_->UpdateCursor();
     } else {
         DealKeyEvent(view);
     }
@@ -296,6 +305,7 @@ void CustomInputMethod::DealKeyEvent(UIView& view)
         return;
     }
 
+    InputMethodManager::GetInstance().SetCursorIndex(editView_->GetCursorIndex());
     if (strcmp(key, "shift") == 0) {
         if (keyboardType_ == KeyboardType::LOW_CASE) {
             keyboardType_ = KeyboardType::UPPER_CASE;
@@ -323,6 +333,62 @@ void CustomInputMethod::DealKeyEvent(UIView& view)
     } else {
         InputMethodManager::GetInstance().InsertText(key);
         editView_->InsertText(key);
+    }
+}
+
+bool CustomInputMethod::OnLongPress(UIView &view, const LongPressEvent &event)
+{
+    longPressed_ = true;
+    if (inputTypeBtn_ == &view) {
+        InputType type = editView_->GetInputType();
+        if (type == InputType::TEXT_TYPE) {
+            editView_->SetInputType(InputType::PASSWORD_TYPE);
+            InputMethodManager::GetInstance().SetInputType(InputType::PASSWORD_TYPE);
+        } else {
+            editView_->SetInputType(InputType::TEXT_TYPE);
+            InputMethodManager::GetInstance().SetInputType(InputType::TEXT_TYPE);
+        }
+        editView_->UpdateCursor();
+    } else {
+        key_ = reinterpret_cast<UILabelButton*>(&view)->GetText();
+        timer_.Start();
+    }
+    return true;
+}
+
+bool CustomInputMethod::OnRelease(UIView& view, const ReleaseEvent& event)
+{
+    if (longPressed_) {
+        longPressed_ = false;
+        timer_.Stop();
+    }
+    return true;
+}
+
+void CustomInputMethod::DealLongPressKeyEvent()
+{
+    if (key_ == nullptr) {
+        return;
+    }
+
+    if (strcmp(key_, "del") == 0) {
+        InputMethodManager::GetInstance().DeleteBackward(1);
+        editView_->DeleteBackward(1);
+    } else if (strcmp(key_, "space") == 0) {
+        InputMethodManager::GetInstance().InsertText(" ");
+        editView_->InsertText(" ");
+    } else if (strcmp(key_, "return") == 0 || strcmp(key_, "123") == 0 || strcmp(key_, "ABC") == 0
+               || strcmp(key_, "#+=") == 0 || strcmp(key_, "shift") == 0) {
+        // do nothing
+    } else {
+        InputMethodManager::GetInstance().InsertText(key_);
+        editView_->InsertText(key_);
+    }
+
+    if (!longPressed_) {
+        timer_.Stop();
+    } else {
+        timer_.Start();
     }
 }
 
