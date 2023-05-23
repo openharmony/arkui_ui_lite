@@ -103,6 +103,13 @@ public:
      */
     void OnKeyboardHide();
 
+    /**
+     * @brief Sets the cursor index.
+     */
+    void SetCursorIndex(uint16_t cursorIndex_);
+
+    uint16_t GetCursorIndex();
+
 private:
     InputMethodManager() {}
     ~InputMethodManager() {}

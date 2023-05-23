@@ -483,6 +483,25 @@ uint16_t Text::GetEllipsisIndex(const Rect& textRect, const Style& style)
     return GetLetterIndexByPosition(textRect, style, p);
 }
 
+uint16_t Text::GetLetterIndexByLinePosition(const Style &style, const Point &pos)
+{
+    uint16_t letterIndex = 0;
+    int16_t width = pos.x;
+    int16_t lineHeight = style.lineHeight_;
+    UIFontAdaptor::GetNextLineAndWidth(text_, fontId_, fontSize_, style.letterSpace_,
+                                       width, lineHeight, letterIndex, sizeSpans_);
+    return letterIndex;
+}
+
+uint16_t Text::GetPosXByLetterIndex(const Rect &textRect, const Style &style, uint16_t letterIndex)
+{
+    std::string preText = text_;
+    int16_t maxWidth = (expandWidth_ ? COORD_MAX : textRect.GetWidth());
+    Point textSize = TypedText::GetTextSize(preText.substr(0, letterIndex).c_str(), fontId_, fontSize_,
+        style.letterSpace_, style.lineHeight_, maxWidth, style.lineSpace_, sizeSpans_);
+    return textSize.x;
+}
+
 uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style, const Point& pos)
 {
     if (text_ == nullptr) {
