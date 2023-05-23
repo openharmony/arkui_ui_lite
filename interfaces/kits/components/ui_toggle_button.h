@@ -105,6 +105,16 @@ public:
         return (state_ != UNSELECTED);
     }
 
+    /**
+     * @brief Sets the layout dirention for this toggle button.
+     *
+     * @param isRtl Indicates the layout dirention of this toggle button. The value <b>true</b> indicates layout
+     * direntionis right-to-left, which means the white circle in button is at left side when the state is ON,
+     * at right side when the state is OFF. The value <b>false</b> indicates layout direntionis left-to-right.
+     */
+    void EnableRtl(bool isRtl);
+
+    bool IsRtl();
 protected:
     void CalculateSize() override;
 #if DEFAULT_ANIMATION
@@ -121,6 +131,7 @@ private:
     Point currentCenter_ = {0, 0};
     ColorType bgColor_ = Color::White();
     Rect rectMid_ = {0, 0, 0, 0};
+    bool isRtl_ = false;
 }; // class UIToggleButton
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_TOGGLE_BUTTON_H

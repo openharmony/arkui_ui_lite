@@ -73,12 +73,20 @@ void UIToggleButton::CalculateSize()
     rightCenter_ = {static_cast<int16_t>(x + rectWidth_ - corner_), static_cast<int16_t>(y + corner_)};
 #if DEFAULT_ANIMATION
     if (checkBoxAnimator_.GetState() != Animator::START) {
-        currentCenter_ = (state_ == SELECTED) ? rightCenter_ : leftCenter_;
+        if (IsRtl()) {
+            currentCenter_ = (state_ == SELECTED) ? leftCenter_ : rightCenter_;
+        } else {
+            currentCenter_ = (state_ == SELECTED) ? rightCenter_ : leftCenter_;
+        }
         backgroundOpacity_ = (state_ == SELECTED) ? OPA_OPAQUE : TOGGLE_BTN_UNSELECTED_OPA;
         bgColor_ = (state_ == SELECTED) ? selectedStateColor_ : Color::White();
     }
 #else
-    currentCenter_ = (state_ == SELECTED) ? rightCenter_ : leftCenter_;
+    if (IsRtl()) {
+        currentCenter_ = (state_ == SELECTED) ? leftCenter_ : rightCenter_;
+    } else {
+        currentCenter_ = (state_ == SELECTED) ? rightCenter_ : leftCenter_;
+    }
     backgroundOpacity_ = (state_ == SELECTED) ? OPA_OPAQUE : TOGGLE_BTN_UNSELECTED_OPA;
     bgColor_ = (state_ == SELECTED) ? selectedStateColor_ : Color::White();
 #endif
@@ -118,14 +126,22 @@ void UIToggleButton::Callback(UIView* view)
     float coefficient = Interpolation::GetBezierY(x, BEZIER_CONTROL_POINT_X_1, 0, BEZIER_CONTROL_POINT_X_2, 1);
     if (state_ == SELECTED) {
         currentCenter_.y = rightCenter_.y;
-        currentCenter_.x = static_cast<int16_t>((rightCenter_.x - leftCenter_.x) * coefficient) + leftCenter_.x;
+        if (IsRtl()) {
+            currentCenter_.x = rightCenter_.x - static_cast<uint16_t>((rightCenter_.x - leftCenter_.x) * coefficient);
+        } else {
+            currentCenter_.x = static_cast<int16_t>((rightCenter_.x - leftCenter_.x) * coefficient) + leftCenter_.x;
+        }
         backgroundOpacity_ =
             static_cast<uint8_t>(TOGGLE_BTN_UNSELECTED_OPA + (OPA_OPAQUE - TOGGLE_BTN_UNSELECTED_OPA) * coefficient);
         bgColor_ =
             Color::GetMixColor(selectedStateColor_, Color::White(), static_cast<uint8_t>(OPA_OPAQUE * coefficient));
     } else {
         currentCenter_.y = leftCenter_.y;
-        currentCenter_.x = rightCenter_.x - static_cast<uint16_t>((rightCenter_.x - leftCenter_.x) * coefficient);
+        if (IsRtl()) {
+            currentCenter_.x = static_cast<int16_t>((rightCenter_.x - leftCenter_.x) * coefficient) + leftCenter_.x;
+        } else {
+            currentCenter_.x = rightCenter_.x - static_cast<uint16_t>((rightCenter_.x - leftCenter_.x) * coefficient);
+        }
         backgroundOpacity_ = static_cast<uint8_t>(OPA_OPAQUE - (OPA_OPAQUE - TOGGLE_BTN_UNSELECTED_OPA) * coefficient);
         bgColor_ = Color::GetMixColor(selectedStateColor_, Color::White(),
                                       static_cast<uint8_t>(OPA_OPAQUE * (1 - coefficient)));
@@ -144,4 +160,14 @@ void UIToggleButton::OnStop(UIView& view)
     Invalidate();
 }
 #endif
+
+void UIToggleButton::EnableRtl(bool isRtl)
+{
+    isRtl_ = isRtl;
+}
+
+bool UIToggleButton::IsRtl()
+{
+    return isRtl_;
+}
 } // namespace OHOS
