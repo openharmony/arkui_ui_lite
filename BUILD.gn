@@ -10,6 +10,7 @@
 # limitations under the License.
 
 if (os_level != "standard") {
+  defines = []
   import("//build/lite/config/component/lite_component.gni")
   import("//build/lite/config/subsystem/graphic/config.gni")
   import("//build/lite/ndk/ndk.gni")
@@ -24,7 +25,7 @@ if (os_level != "standard") {
       "interfaces/kits",
       "interfaces/innerkits",
     ]
-    defines = [
+    defines += [
       "GRAPHIC_ENABLE_ELLIPSE_FLAG=1",
       "GRAPHIC_ENABLE_BEZIER_ARC_FLAG=1",
       "GRAPHIC_ENABLE_LINECAP_FLAG=1",
@@ -269,6 +270,8 @@ if (os_level != "standard") {
     if (defined(enable_gif)) {
       defines += [ "ENABLE_GIF=1" ]
       deps += [ "//third_party/giflib:libgif" ]
+    } else {
+      defines += [ "ENABLE_GIF=0" ]
     }
 
     public_deps = [ "//foundation/graphic/graphic_utils_lite:utils_lite" ]
@@ -280,7 +283,7 @@ if (os_level != "standard") {
       ]
       cflags_cc = cflags
     } else {
-      defines = [ "ENABLE_ICU=1" ]
+      defines += [ "ENABLE_ICU=1" ]
       include_dirs +=
           [ "//base/hiviewdfx/hilog_lite/interfaces/native/kits/hilog_lite" ]
     }
