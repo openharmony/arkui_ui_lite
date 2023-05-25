@@ -305,7 +305,16 @@ void CustomInputMethod::DealKeyEvent(UIView& view)
         return;
     }
 
-    InputMethodManager::GetInstance().SetCursorIndex(editView_->GetCursorIndex());
+    if (editView_ == nullptr) {
+        return;
+    }
+
+    if (editView_->GetIsFocus()) {
+        InputMethodManager::GetInstance().SetCursorIndex(editView_->GetCursorIndex());
+    } else {
+        editView_->SetCursorIndex(InputMethodManager::GetInstance().GetCursorIndex());
+    }
+
     if (strcmp(key, "shift") == 0) {
         if (keyboardType_ == KeyboardType::LOW_CASE) {
             keyboardType_ = KeyboardType::UPPER_CASE;

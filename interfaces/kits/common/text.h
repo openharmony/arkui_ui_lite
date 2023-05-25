@@ -471,7 +471,8 @@ public:
 
     void SetAbsoluteSizeSpan(uint16_t start, uint16_t end, uint8_t size);
     void SetRelativeSizeSpan(uint16_t start, uint16_t end, float size);
-    virtual uint16_t GetLetterIndexByLinePosition(const Style& style, const Point& pos);
+    virtual uint16_t GetLetterIndexByLinePosition(const Rect& textRect, const Style& style,
+                                                  const Point& pos, int16_t offsetX);
     virtual uint16_t GetPosXByLetterIndex(const Rect& textRect, const Style& style, uint16_t letterIndex);
 
     uint16_t GetSizeSpan()

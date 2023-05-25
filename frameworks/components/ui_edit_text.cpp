@@ -143,8 +143,8 @@ void UIEditText::DealPressEvents(const Event &event)
         pressPos.x = pressPos.x - GetOrigRect().GetX();
         pressPos.y = pressPos.y - GetOrigRect().GetY();
         Style style = GetStyleConst();
-        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(style, pressPos);
-        SetCursorPosXByCursorIndex(cursorIndex_);
+        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(GetContentRect(), style, pressPos,
+            std::abs(offsetX_) - DEFAULT_TEXT_OFFSET);
         RequestFocus();
         Invalidate();
     }
@@ -214,7 +214,6 @@ void UIEditText::SetText(const char* text)
     std::string inputText = std::string(text);
     SetText(inputText);
     cursorIndex_ = TypedText::GetUTF8CharacterSize(text, inputText.length());
-    SetCursorPosXByCursorIndex(cursorIndex_);
 }
 
 void UIEditText::SetText(std::string text)
@@ -388,6 +387,8 @@ void UIEditText::DrawCursor(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         return;
     }
 
+    CalculatedCursorPos();
+
     Style* cursorStyle = new Style();
     cursorStyle->SetStyle(STYLE_BACKGROUND_COLOR, cursorColor_.full);
     cursorStyle->SetStyle(STYLE_BACKGROUND_OPA, OPA_OPAQUE);
@@ -424,21 +425,24 @@ void UIEditText::InsertTextByCursorIndex(std::string text)
     SetText(updatedString);
 
     if (isFocused_) {
-        SetCursorPosXByCursorIndex(cursorIndex_);
         if (cursorAnimator_ != nullptr) {
             static_cast<CursorAnimator*>(cursorAnimator_)->StartAnimator();
         }
     }
 }
 
-void UIEditText::SetCursorPosXByCursorIndex(uint16_t cursorIndex)
+void UIEditText::CalculatedCursorPos()
 {
     Style style = GetStyleConst();
     Rect contentRect = GetContentRect();
     int16_t width = contentRect.GetWidth() - DEFAULT_TEXT_OFFSET * 2; // 2: left and right space
     contentRect.SetWidth(width > 0 ? width : 0);
-    cursorPosX_ = GetOrigRect().GetX() + inputText_->GetPosXByLetterIndex(contentRect, style, cursorIndex)
+    cursorPosX_ = GetOrigRect().GetX() + inputText_->GetPosXByLetterIndex(contentRect, style, cursorIndex_)
                   + DEFAULT_TEXT_OFFSET;
+
+    if (offsetX_ < 0) {
+        cursorPosX_ = cursorPosX_ - DEFAULT_TEXT_OFFSET + offsetX_;
+    }
 }
 
 void UIEditText::UpdateCursor()
@@ -454,7 +458,6 @@ uint16_t UIEditText::GetCursorIndex()
 void UIEditText::SetCursorIndex(uint16_t cursorIndex)
 {
     cursorIndex_ = cursorIndex;
-    SetCursorPosXByCursorIndex(cursorIndex_);
     if (cursorAnimator_ != nullptr) {
         static_cast<CursorAnimator*>(cursorAnimator_)->StartAnimator();
     }
@@ -477,7 +480,6 @@ void UIEditText::DeleteBackward(uint32_t length)
     std::string newText = convert.to_bytes(newWideText);
     cursorIndex_ -= length;
     SetText(newText);
-    SetCursorPosXByCursorIndex(cursorIndex_);
     if (cursorAnimator_ != nullptr) {
         static_cast<CursorAnimator*>(cursorAnimator_)->StartAnimator();
     }
