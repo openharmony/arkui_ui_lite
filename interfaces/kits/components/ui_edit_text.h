@@ -336,11 +336,6 @@ public:
     }
 
     /**
-     * @brief set the cursor position by the index.
-     */
-    void SetCursorPosXByCursorIndex(uint16_t letterIndex);
-
-    /**
      * @brief insert text by using cursor index.
      */
     void InsertTextByCursorIndex(std::string text);
@@ -354,6 +349,14 @@ public:
      * @brief set the cursor index.
      */
     void SetCursorIndex(uint16_t cursorIndex);
+
+    /**
+     * @brief Is it focused or not.
+     */
+    bool GetIsFocus()
+    {
+        return isFocused_;
+    }
 
     uint16_t GetCursorIndex();
 
@@ -371,6 +374,7 @@ private:
     void CheckValueChange(std::string text);
     void SetText(std::string text);
     void UpdateTextString(std::string text);
+    void CalculatedCursorPos();
     std::string GetInnerText();
     std::string GetInnerPassword();
     void UpdateOffsetX();
