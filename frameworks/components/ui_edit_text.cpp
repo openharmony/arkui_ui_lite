@@ -143,8 +143,7 @@ void UIEditText::DealPressEvents(const Event &event)
         pressPos.x = pressPos.x - GetOrigRect().GetX();
         pressPos.y = pressPos.y - GetOrigRect().GetY();
         Style style = GetStyleConst();
-        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(GetContentRect(), style, pressPos,
-            std::abs(offsetX_) - DEFAULT_TEXT_OFFSET);
+        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(style, pressPos, offsetX_);
         RequestFocus();
         Invalidate();
     }
