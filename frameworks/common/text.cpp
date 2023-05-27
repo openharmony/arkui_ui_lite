@@ -483,24 +483,16 @@ uint16_t Text::GetEllipsisIndex(const Rect& textRect, const Style& style)
     return GetLetterIndexByPosition(textRect, style, p);
 }
 
-uint16_t Text::GetLetterIndexByLinePosition(const Rect& textRect, const Style& style,
+uint16_t Text::GetLetterIndexByLinePosition(const Style& style,
                                             const Point& pos, int16_t offsetX)
 {
     uint16_t letterIndex = 0;
-    int16_t width = pos.x;
+    int16_t width = offsetX > 0 ? pos.x : pos.x - offsetX;
     int16_t lineHeight = style.lineHeight_;
-
-    uint32_t beginIndex = 0;
-    for (int i = 0; i < GetTextStrLen(); i++) {
-        if (GetPosXByLetterIndex(textRect, style, i) >= offsetX) {
-            beginIndex = i;
-            break;
-        }
-    }
 
     UIFontAdaptor::GetNextLineAndWidth(text_, fontId_, fontSize_, style.letterSpace_,
                                        width, lineHeight, letterIndex, sizeSpans_);
-    return letterIndex + beginIndex;
+    return letterIndex;
 }
 
 uint16_t Text::GetPosXByLetterIndex(const Rect &textRect, const Style &style, uint16_t letterIndex)
