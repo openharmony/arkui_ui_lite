@@ -484,10 +484,10 @@ uint16_t Text::GetEllipsisIndex(const Rect& textRect, const Style& style)
 }
 
 uint16_t Text::GetLetterIndexByLinePosition(const Style& style,
-                                            const Point& pos, int16_t offsetX)
+                                            const int16_t& posX, int16_t offsetX)
 {
     uint16_t letterIndex = 0;
-    int16_t width = offsetX > 0 ? pos.x : pos.x - offsetX;
+    int16_t width = offsetX > 0 ? posX : posX - offsetX;
     int16_t lineHeight = style.lineHeight_;
 
     UIFontAdaptor::GetNextLineAndWidth(text_, fontId_, fontSize_, style.letterSpace_,
@@ -495,11 +495,12 @@ uint16_t Text::GetLetterIndexByLinePosition(const Style& style,
     return letterIndex;
 }
 
-uint16_t Text::GetPosXByLetterIndex(const Rect &textRect, const Style &style, uint16_t letterIndex)
+uint16_t Text::GetPosXByLetterIndex(const Rect &textRect, const Style &style,
+                                    uint16_t beginIndex, uint16_t count)
 {
     std::string preText = text_;
     int16_t maxWidth = (expandWidth_ ? COORD_MAX : textRect.GetWidth());
-    Point textSize = TypedText::GetTextSize(preText.substr(0, letterIndex).c_str(), fontId_, fontSize_,
+    Point textSize = TypedText::GetTextSize(preText.substr(beginIndex, count).c_str(), fontId_, fontSize_,
         style.letterSpace_, style.lineHeight_, maxWidth, style.lineSpace_, sizeSpans_);
     return textSize.x;
 }

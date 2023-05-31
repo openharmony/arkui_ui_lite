@@ -377,13 +377,14 @@ private:
     void CalculatedCursorPos();
     std::string GetInnerText();
     std::string GetInnerPassword();
-    void UpdateOffsetX();
+    void UpdateOffsetX(bool isDeleteCharacter = false);
     void DrawCursor(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, bool drawPlaceholder);
 
     bool needRefresh_;
     bool useTextColor_;
     bool isFocused_;
     bool drawCursor_;
+    bool isSetTextByInterface_;
     uint16_t maxLength_;
     uint16_t placeholderEllipsisIndex_;
     int16_t offsetX_;

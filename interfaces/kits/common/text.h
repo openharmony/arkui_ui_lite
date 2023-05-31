@@ -472,12 +472,23 @@ public:
     void SetAbsoluteSizeSpan(uint16_t start, uint16_t end, uint8_t size);
     void SetRelativeSizeSpan(uint16_t start, uint16_t end, float size);
     virtual uint16_t GetLetterIndexByLinePosition(const Style& style,
-                                                  const Point& pos, int16_t offsetX);
-    virtual uint16_t GetPosXByLetterIndex(const Rect& textRect, const Style& style, uint16_t letterIndex);
+                                                  const int16_t& posX, int16_t offsetX);
+    virtual uint16_t GetPosXByLetterIndex(const Rect& textRect, const Style& style,
+                                          uint16_t beginIndex, uint16_t count);
 
     uint16_t GetSizeSpan()
     {
         return characterSize_;
+    }
+
+    /**
+     * @brief Get Text Length
+     *
+     * @return Return text length
+     */
+    uint16_t GetTextLength()
+    {
+        return std::strlen(text_);
     }
 
 protected:
