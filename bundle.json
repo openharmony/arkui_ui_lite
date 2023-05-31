@@ -21,8 +21,8 @@
         "libjpeg-turbo",
         "cjson",
         "freetype",
-        "third_party_bounds_checking_function",
-        "third_party_libpng"
+        "bounds_checking_function",
+        "libpng"
       ]
     },
     "build": {
