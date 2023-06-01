@@ -20,7 +20,9 @@
       "third_party": [
         "libjpeg-turbo",
         "cjson",
-        "freetype"
+        "freetype",
+        "bounds_checking_function",
+        "libpng"
       ]
     },
     "build": {
