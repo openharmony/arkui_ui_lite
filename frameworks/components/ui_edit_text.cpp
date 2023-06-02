@@ -90,6 +90,7 @@ UIEditText::UIEditText()
       useTextColor_(false),
       isFocused_(false),
       drawCursor_(false),
+      isSetTextByInterface_(false),
       maxLength_(MAX_TEXT_LENGTH),
       placeholderEllipsisIndex_(Text::TEXT_ELLIPSIS_END_INV),
       cursorIndex_(0),
@@ -143,7 +144,8 @@ void UIEditText::DealPressEvents(const Event &event)
         pressPos.x = pressPos.x - GetOrigRect().GetX();
         pressPos.y = pressPos.y - GetOrigRect().GetY();
         Style style = GetStyleConst();
-        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(style, pressPos, offsetX_);
+        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(style, pressPos.x, offsetX_);
+        UpdateOffsetX();
         RequestFocus();
         Invalidate();
     }
@@ -158,7 +160,6 @@ void UIEditText::Focus()
         static_cast<CursorAnimator*>(cursorAnimator_)->StartAnimator();
         isFocused_ = true;
     }
-    UpdateOffsetX();
     Invalidate();
     UIView::Focus();
 }
@@ -169,7 +170,6 @@ void UIEditText::Blur()
         static_cast<CursorAnimator*>(cursorAnimator_)->StopAnimator();
     }
     isFocused_ = false;
-    UpdateOffsetX();
     Invalidate();
     UIView::Blur();
 }
@@ -213,6 +213,7 @@ void UIEditText::SetText(const char* text)
     std::string inputText = std::string(text);
     SetText(inputText);
     cursorIndex_ = TypedText::GetUTF8CharacterSize(text, inputText.length());
+    isSetTextByInterface_ = true;
 }
 
 void UIEditText::SetText(std::string text)
@@ -339,19 +340,51 @@ void UIEditText::ReMeasure()
     UpdateOffsetX();
 }
 
-void UIEditText::UpdateOffsetX()
+void UIEditText::UpdateOffsetX(bool isDeleteCharacter)
 {
-    if (isFocused_) {
-        Point textSize = inputText_->GetTextSize();
-        Rect contentRect = GetContentRect();
-        int16_t curWidth = textSize.x + DEFAULT_TEXT_OFFSET * 2;
-        if (contentRect.GetWidth() > curWidth) {
-            offsetX_ = DEFAULT_TEXT_OFFSET;
-        } else {
-            offsetX_ = contentRect.GetWidth() - curWidth;
-        }
-    } else {
+    if (!inputText_ || inputText_->GetTextLength() == 0) {
+        return;
+    }
+
+    Point textSize = inputText_->GetTextSize();
+    Rect contentRect = GetContentRect();
+    Style style = GetStyleConst();
+    uint16_t firstVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, 0,
+        offsetX_ - DEFAULT_TEXT_OFFSET);
+    uint16_t lastVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, contentRect.GetWidth(),
+        offsetX_);
+    if (firstVisibleIndex == 0 && lastVisibleIndex == inputText_->GetTextLength()) {
         offsetX_ = DEFAULT_TEXT_OFFSET;
+    } else {
+        if (isSetTextByInterface_) {
+            isSetTextByInterface_ = false;
+            offsetX_ = contentRect.GetWidth() - textSize.x - DEFAULT_TEXT_OFFSET;
+            return;
+        }
+
+        cursorPosX_ = inputText_->GetPosXByLetterIndex(contentRect, style, 0, static_cast<uint16_t>(cursorIndex_));
+        uint16_t characterSize = 0;
+        uint16_t beginIndex = 0;
+        const uint16_t oneCharacter = 1;
+        if (isDeleteCharacter) {
+            beginIndex = cursorIndex_ - oneCharacter > 0 ? cursorIndex_ - oneCharacter : cursorIndex_;
+            characterSize= inputText_->GetPosXByLetterIndex(contentRect, style, beginIndex, oneCharacter);
+            if (offsetX_ + DEFAULT_TEXT_OFFSET < 0) {
+                offsetX_ += characterSize;
+            }
+        } else {
+            if (cursorIndex_ - firstVisibleIndex <= oneCharacter && firstVisibleIndex != 0) {
+                beginIndex = (firstVisibleIndex - oneCharacter) > 0 ? (firstVisibleIndex - oneCharacter) : 0;
+                characterSize= inputText_->GetPosXByLetterIndex(contentRect, style, beginIndex, oneCharacter);
+                int tmp = firstVisibleIndex == 1 ? DEFAULT_TEXT_OFFSET + characterSize : characterSize;
+                offsetX_ += tmp;
+            } else if (lastVisibleIndex - cursorIndex_ <= oneCharacter &&
+                       lastVisibleIndex != inputText_->GetTextLength()) {
+                beginIndex = (lastVisibleIndex - oneCharacter) > 0 ? (lastVisibleIndex - oneCharacter) : 0;
+                characterSize = inputText_->GetPosXByLetterIndex(contentRect, style, beginIndex, oneCharacter);
+                offsetX_ -= characterSize;
+            }
+        }
     }
 }
 
@@ -436,7 +469,7 @@ void UIEditText::CalculatedCursorPos()
     Rect contentRect = GetContentRect();
     int16_t width = contentRect.GetWidth() - DEFAULT_TEXT_OFFSET * 2; // 2: left and right space
     contentRect.SetWidth(width > 0 ? width : 0);
-    cursorPosX_ = GetOrigRect().GetX() + inputText_->GetPosXByLetterIndex(contentRect, style, cursorIndex_)
+    cursorPosX_ = GetOrigRect().GetX() + inputText_->GetPosXByLetterIndex(contentRect, style, 0, cursorIndex_)
                   + DEFAULT_TEXT_OFFSET;
 
     if (offsetX_ < 0) {
@@ -479,6 +512,7 @@ void UIEditText::DeleteBackward(uint32_t length)
     std::string newText = convert.to_bytes(newWideText);
     cursorIndex_ -= length;
     SetText(newText);
+    UpdateOffsetX(true);
     if (cursorAnimator_ != nullptr) {
         static_cast<CursorAnimator*>(cursorAnimator_)->StartAnimator();
     }
