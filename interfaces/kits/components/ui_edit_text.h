@@ -386,9 +386,9 @@ private:
     bool drawCursor_;
     uint16_t maxLength_;
     uint16_t placeholderEllipsisIndex_;
+    uint16_t cursorIndex_;
     int16_t offsetX_;
     int16_t cursorPosX_;
-    int16_t cursorIndex_;
     ColorType textColor_;
     ColorType placeholderColor_;
     ColorType cursorColor_;
