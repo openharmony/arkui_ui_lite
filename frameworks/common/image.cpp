@@ -129,23 +129,35 @@ bool Image::SetLiteSrc(const char* src)
         return false;
     }
 
-    size_t strLen = strlen(src) + 1;
+    const char* suffixName = ".bin";
+    size_t strLen = strlen(src) + strlen(suffixName) + 1;
     char* imagePath = static_cast<char*>(UIMalloc(static_cast<uint32_t>(strLen)));
     if (imagePath == nullptr) {
         return false;
     }
     if (IsImgValid(ptr)) {
-        const char* suffixName = "bin";
         if (memcpy_s(imagePath, strLen, src, strLen) != EOK) {
             UIFree(reinterpret_cast<void*>(imagePath));
             imagePath = nullptr;
             return false;
         }
-        (ptr - src + imagePath)[1] = '\0'; // remove suffix
-        if (strcat_s(imagePath, strLen, suffixName) != EOK) {
+        if (strcat_s(imagePath, strLen, suffixName) != EOK) {        // The format is xxx.xxx.bin
             UIFree(reinterpret_cast<void*>(imagePath));
             imagePath = nullptr;
             return false;
+        }
+        if (access(imagePath, F_OK) != EOK) {                        // Check whether the xxx.xxx.bin file exists
+            if (memcpy_s(imagePath, strLen, src, strLen) != EOK) {
+                UIFree(reinterpret_cast<void*>(imagePath));
+                imagePath = nullptr;
+                return false;
+            }
+            (ptr - src + imagePath)[0] = '\0'; // remove suffix
+            if (strcat_s(imagePath, strLen, suffixName) != EOK) {    // The format is xxx.bin
+                UIFree(reinterpret_cast<void*>(imagePath));
+                imagePath = nullptr;
+                return false;
+            }
         }
     } else {
         if (memcpy_s(imagePath, strLen, src, strLen) != EOK) {
