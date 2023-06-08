@@ -31,6 +31,8 @@
 #ifndef GRAPHIC_LITE_UI_EDIT_TEXT
 #define GRAPHIC_LITE_UI_EDIT_TEXT
 
+#include <cstring>
+
 #include "animator/animator.h"
 #include "common/text.h"
 #include "components/ui_view.h"

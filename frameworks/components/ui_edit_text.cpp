@@ -346,7 +346,6 @@ void UIEditText::UpdateOffsetX(bool isDeleteCharacter)
         return;
     }
 
-    Point textSize = inputText_->GetTextSize();
     Rect contentRect = GetContentRect();
     Style style = GetStyleConst();
     uint16_t firstVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, 0,
@@ -358,7 +357,7 @@ void UIEditText::UpdateOffsetX(bool isDeleteCharacter)
     } else {
         if (isSetTextByInterface_) {
             isSetTextByInterface_ = false;
-            offsetX_ = contentRect.GetWidth() - textSize.x - DEFAULT_TEXT_OFFSET;
+            offsetX_ = DEFAULT_TEXT_OFFSET;
             return;
         }
 
