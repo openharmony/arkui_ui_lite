@@ -19,10 +19,19 @@
     "deps": {
       "third_party": [
         "libjpeg-turbo",
-        "cjson",
+        "cJSON",
         "freetype",
         "bounds_checking_function",
-        "libpng"
+        "libpng",
+        "qrcodegen",
+        "giflib",
+        "icu"
+      ],
+      "components": [
+        "graphic_utils_lite",
+        "surface_lite",
+        "window_manager_lite",
+        "media_lite"
       ]
     },
     "build": {
