@@ -40,11 +40,12 @@ void BaseFont::SetPsramMemory(uintptr_t psramAddr, uint32_t psramLen)
 
 int8_t BaseFont::GetDefaultParamByLangId(uint8_t langId, LangTextParam** pParam) const
 {
-    if ((langId >= UIFontBuilder::GetInstance()->GetTotalLangId()) || (pParam == nullptr)) {
+    UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
+    if ((langId >= fontBuilder->GetTotalLangId()) || (pParam == nullptr)) {
         return INVALID_RET_VALUE;
     }
 
-    LangTextParam *pTable = UIFontBuilder::GetInstance()->GetLangTextDefaultParamTable();
+    LangTextParam *pTable = fontBuilder->GetLangTextDefaultParamTable();
     if (pTable == nullptr) {
         return INVALID_RET_VALUE;
     }

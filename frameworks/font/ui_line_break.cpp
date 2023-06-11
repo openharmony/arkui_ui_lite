@@ -174,21 +174,22 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
 int16_t UILineBreakEngine::GetLetterWidth(uint32_t unicode, uint16_t& letterIndex, int16_t& height,
                                           uint16_t fontId, uint8_t fontSize, SizeSpan* sizeSpans)
 {
+    UIFont* fontEngine = UIFont::GetInstance();
     if (sizeSpans != nullptr && sizeSpans[letterIndex].isSizeSpan) {
-        int16_t width = UIFont::GetInstance()->GetWidth(unicode, sizeSpans[letterIndex].fontId,
-                                                        sizeSpans[letterIndex].size, 0);
+        int16_t width = fontEngine->GetWidth(unicode, sizeSpans[letterIndex].fontId,
+                                             sizeSpans[letterIndex].size, 0);
 
         if (sizeSpans[letterIndex].height == 0) {
-            height = UIFont::GetInstance()->GetHeight(sizeSpans[letterIndex].fontId,
-                                                      sizeSpans[letterIndex].size);
+            height = fontEngine->GetHeight(sizeSpans[letterIndex].fontId,
+                                           sizeSpans[letterIndex].size);
             sizeSpans[letterIndex].height = height;
         } else {
             height = sizeSpans[letterIndex].height;
         }
         return width;
     } else {
-        height = UIFont::GetInstance()->GetHeight(fontId, fontSize);
-        return UIFont::GetInstance()->GetWidth(unicode, fontId, fontSize, 0);
+        height = fontEngine->GetHeight(fontId, fontSize);
+        return fontEngine->GetWidth(unicode, fontId, fontSize, 0);
     }
 }
 

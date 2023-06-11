@@ -117,22 +117,24 @@ void DrawRect::DrawRectRadiusWithoutBorderCon1(BufferInfo& gfxDstBuffer, const R
     arcInfo.endAngle = CIRCLE_IN_DEGREE;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw right sector
     arcInfo.center = {col3X, row2Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw top rectangle
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
     Rect topRect(col2X, row1Y, col3X - 1, row2Y - 1);
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.bgColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.bgColor_, opa);
 
     // draw bottom rectangle
     Rect bottomRect(col2X + 1, row2Y, col3X - 1, row3Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.bgColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.bgColor_, opa);
 }
 
 void DrawRect::DrawRectRadiusWithoutBorderCon2(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -158,13 +160,14 @@ void DrawRect::DrawRectRadiusWithoutBorderCon2(BufferInfo& gfxDstBuffer, const R
     arcInfo.radius = radius;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw bottom sector
     arcInfo.center = {col2X, row3Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw middle rectangle
     Rect middleRect(col1X, row2Y + 1, col3X, row3Y - 1);
@@ -211,15 +214,16 @@ void DrawRect::DrawRectRadiusWithoutBorderCon4(BufferInfo& gfxDstBuffer, const R
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // draw top rectangle
     Rect topRect(col2X, row1Y, col3X - 1, row2Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.bgColor_, opa);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.bgColor_, opa);
 
     // draw middle rectangle
     Rect middleRect(col1X, row2Y + 1, col4X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opa);
 
     // draw bottom rectangle
     Rect bottomRect(col2X + 1, row3Y, col3X - 1, row4Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.bgColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.bgColor_, opa);
 
     Style arcStyle = style;
     arcStyle.lineWidth_ = radius;
@@ -233,25 +237,26 @@ void DrawRect::DrawRectRadiusWithoutBorderCon4(BufferInfo& gfxDstBuffer, const R
     arcInfo.radius = radius;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // top right sector
     arcInfo.center = {col3X, row2Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // bottom left sector
     arcInfo.center = {col2X, row3Y};
     arcInfo.startAngle = SEMICIRCLE_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // bottom right sector
     arcInfo.center = {col3X, row3Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 }
 
 void DrawRect::DrawRectBorderWithoutRadius(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -270,24 +275,25 @@ void DrawRect::DrawRectBorderWithoutRadius(BufferInfo& gfxDstBuffer, const Rect&
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.borderOpa_);
     // draw top border
     Rect topRect(col1X, row1Y, col4X, row2Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.borderColor_, opa);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.borderColor_, opa);
 
     // draw left border
     Rect leftRect(col1X, row2Y + 1, col2X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, leftRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, leftRect, dirtyRect, style.borderColor_, opa);
 
     OpacityType opaBg = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // draw middle rectangle
     Rect middleRect(col2X + 1, row2Y + 1, col3X - 1, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opaBg);
 
     // draw right border
     Rect rightRect(col3X, row2Y + 1, col4X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, rightRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, rightRect, dirtyRect, style.borderColor_, opa);
 
     // draw bottom border
     Rect bottomRect(col1X, row3Y, col4X, row4Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.borderColor_, opa);
 }
 
 void DrawRect::DrawRectRadiusEqualBorder(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -315,25 +321,26 @@ void DrawRect::DrawRectRadiusEqualBorder(BufferInfo& gfxDstBuffer, const Rect& r
     arcInfo.radius = style.borderRadius_;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw top right sector in border
     arcInfo.center = {col3X, row2Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw bottom left sector in border
     arcInfo.center = {col2X, row3Y};
     arcInfo.startAngle = SEMICIRCLE_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw bottom right sector in border
     arcInfo.center = {col3X, row3Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.borderOpa_);
     // draw top rectangle in border
@@ -342,20 +349,21 @@ void DrawRect::DrawRectRadiusEqualBorder(BufferInfo& gfxDstBuffer, const Rect& r
 
     // draw left rectangle in border
     Rect leftRect(col1X, row2Y + 1, col2X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, leftRect, dirtyRect, style.borderColor_, opa);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, leftRect, dirtyRect, style.borderColor_, opa);
 
     OpacityType opaBg = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // draw middle rectangle
     Rect middleRect(col2X + 1, row2Y + 1, col3X - 1, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opaBg);
 
     // draw right rectangle in border
     Rect rightRect(col3X, row2Y + 1, col4X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, rightRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, rightRect, dirtyRect, style.borderColor_, opa);
 
     // draw bottom rectangle in border
     Rect bottomRect(col2X + 1, row3Y, col3X - 1, row4Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.borderColor_, opa);
 }
 
 void DrawRect::DrawRectRadiusSmallThanBorder(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -392,51 +400,53 @@ void DrawRect::DrawRectRadiusSmallThanBorder(BufferInfo& gfxDstBuffer, const Rec
     arcInfo.radius = style.borderRadius_;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw top right sector in border
     arcInfo.center = {radiusCol3X, radiusRow2Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw bottom left sector in border
     arcInfo.center = {radiusCol2X, radiusRow3Y};
     arcInfo.startAngle = SEMICIRCLE_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     // draw bottom right sector in border
     arcInfo.center = {radiusCol3X, radiusRow3Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.borderOpa_);
     // draw top rectangle in border
     Rect topRect(radiusCol2X, radiusRow1Y, radiusCol3X - 1, radiusRow2Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.borderColor_, opa);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, topRect, dirtyRect, style.borderColor_, opa);
     Rect topRect2(rectCol1X, rectRow1Y + 1, rectCol4X, rectRow2Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topRect2, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, topRect2, dirtyRect, style.borderColor_, opa);
 
     // draw left rectangle in border
     Rect leftRect(rectCol1X, rectRow2Y + 1, rectCol2X, rectRow3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, leftRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, leftRect, dirtyRect, style.borderColor_, opa);
 
     OpacityType opaBg = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // draw middle rectangle
     Rect middleRect(rectCol2X + 1, rectRow2Y + 1, rectCol3X - 1, rectRow3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleRect, dirtyRect, style.bgColor_, opaBg);
 
     // draw right rectangle in border
     Rect rightRect(rectCol3X, rectRow2Y + 1, rectCol4X, rectRow3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, rightRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, rightRect, dirtyRect, style.borderColor_, opa);
 
     // draw bottom rectangle in border
     Rect bottomRect(radiusCol2X + 1, radiusRow3Y, radiusCol3X - 1, radiusRow4Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomRect, dirtyRect, style.borderColor_, opa);
     Rect bottomRect2(rectCol1X, rectRow3Y, rectCol4X, radiusRow3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomRect2, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomRect2, dirtyRect, style.borderColor_, opa);
 }
 
 void DrawRect::DrawRectRadiusBiggerThanBorder(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -480,12 +490,14 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon1(BufferInfo& gfxDstBuffer, cons
     arcInfo.radius = radius;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw right arc in border
     arcInfo.center = {col3X, row3Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     radius = radius - borderWidth;
     arcStyle.lineWidth_ = radius;
@@ -497,27 +509,28 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon1(BufferInfo& gfxDstBuffer, cons
     arcInfo.startAngle = SEMICIRCLE_IN_DEGREE;
     arcInfo.endAngle = CIRCLE_IN_DEGREE;
     arcInfo.radius = radius;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw right sector in rectangle
     arcInfo.center = {col3X, row3Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.borderOpa_);
     // top rectangle in border
     Rect topBorderRect(col2X, row1Y, col3X - 1, row2Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topBorderRect, dirtyRect, style.borderColor_, opa);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, topBorderRect, dirtyRect, style.borderColor_, opa);
     OpacityType opaBg = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // middle rectangle inner
     Rect middleInnerRect(col2X, row2Y + 1, col3X - 1, row3Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleInnerRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleInnerRect, dirtyRect, style.bgColor_, opaBg);
     Rect middleInnerRect2(col2X + 1, row3Y + 1, col3X - 1, row4Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleInnerRect2, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleInnerRect2, dirtyRect, style.bgColor_, opaBg);
 
     // bottom rectangle in border
     Rect bottomBorderRect(col2X + 1, row4Y, col3X - 1, row5Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomBorderRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomBorderRect, dirtyRect, style.borderColor_, opa);
 }
 
 void DrawRect::DrawRectRadiusBiggerThanBorderCon2(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -546,12 +559,13 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon2(BufferInfo& gfxDstBuffer, cons
     arcInfo.radius = radius;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw bottom arc in border
     arcInfo.center = {col3X, row3Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     radius = radius - borderWidth;
     arcStyle.lineWidth_ = radius;
@@ -563,26 +577,27 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon2(BufferInfo& gfxDstBuffer, cons
     arcInfo.startAngle = THREE_QUARTER_IN_DEGREE;
     arcInfo.endAngle = QUARTER_IN_DEGREE;
     arcInfo.radius = radius;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw bottom sector in rectangle
     arcInfo.center = {col3X, row3Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.borderOpa_);
     // left rectangle in border
     Rect topBorderRect(col1X, row2Y + 1, col2X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topBorderRect, dirtyRect, style.borderColor_, opa);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, topBorderRect, dirtyRect, style.borderColor_, opa);
 
     OpacityType opaBg = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // middle rectangle inner
     Rect middleInnerRect(col2X + 1, row2Y + 1, col4X - 1, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleInnerRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleInnerRect, dirtyRect, style.bgColor_, opaBg);
 
     // right rectangle in border
     Rect bottomBorderRect(col4X, row2Y + 1, col5X, row3Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomBorderRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomBorderRect, dirtyRect, style.borderColor_, opa);
 }
 
 void DrawRect::DrawRectRadiusBiggerThanBorderCon3(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -605,7 +620,8 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon3(BufferInfo& gfxDstBuffer, cons
     arcInfo.radius = radius;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     radius = radius - borderWidth;
     arcStyle.lineWidth_ = radius;
@@ -617,7 +633,7 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon3(BufferInfo& gfxDstBuffer, cons
     arcInfo.startAngle = 0;
     arcInfo.endAngle = CIRCLE_IN_DEGREE;
     arcInfo.radius = radius;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 }
 
 void DrawRect::DrawRectRadiusBiggerThanBorderCon4(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& dirtyRect,
@@ -652,22 +668,23 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon4(BufferInfo& gfxDstBuffer, cons
     arcInfo.radius = radius;
     arcInfo.imgPos = {0, 0};
     arcInfo.imgSrc = nullptr;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw top right arc in border
     arcInfo.center = {col4X, row3Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw bottom left arc in border
     arcInfo.center = {col3X, row4Y};
     arcInfo.startAngle = SEMICIRCLE_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw bottom right arc in border
     arcInfo.center = {col4X, row4Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     radius = radius - borderWidth;
     arcStyle.lineWidth_ = radius;
@@ -679,22 +696,22 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon4(BufferInfo& gfxDstBuffer, cons
     arcInfo.startAngle = THREE_QUARTER_IN_DEGREE;
     arcInfo.endAngle = CIRCLE_IN_DEGREE;
     arcInfo.radius = radius;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw top right sector in rectangle
     arcInfo.center = {col4X, row3Y};
     arcInfo.startAngle = 0;
     arcInfo.endAngle = QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw bottom left sector in rectangle
     arcInfo.center = {col3X, row4Y};
     arcInfo.startAngle = SEMICIRCLE_IN_DEGREE;
     arcInfo.endAngle = THREE_QUARTER_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
     // draw bottom right sector in rectangle
     arcInfo.center = {col4X, row4Y};
     arcInfo.startAngle = QUARTER_IN_DEGREE;
     arcInfo.endAngle = SEMICIRCLE_IN_DEGREE;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, dirtyRect, arcStyle, opaScale, CapType::CAP_NONE);
 
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.borderOpa_);
     // top rectangle in border
@@ -704,26 +721,27 @@ void DrawRect::DrawRectRadiusBiggerThanBorderCon4(BufferInfo& gfxDstBuffer, cons
     OpacityType opaBg = DrawUtils::GetMixOpacity(opaScale, style.bgOpa_);
     // top rectangle inner
     Rect topInnerRect(col3X, row2Y + 1, col4X - 1, row3Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, topInnerRect, dirtyRect, style.bgColor_, opaBg);
+    DrawUtils* drawUtils = DrawUtils::GetInstance();
+    drawUtils->DrawColorArea(gfxDstBuffer, topInnerRect, dirtyRect, style.bgColor_, opaBg);
 
     // left rectangle in border
     Rect leftBorderRect(col1X, row3Y + 1, col2X, row4Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, leftBorderRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, leftBorderRect, dirtyRect, style.borderColor_, opa);
 
     // middle rectangle inner
     Rect middleInnerRect(col2X + 1, row3Y + 1, col5X - 1, row4Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, middleInnerRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, middleInnerRect, dirtyRect, style.bgColor_, opaBg);
 
     // right rectangle in border
     Rect rightBorderRect(col5X, row3Y + 1, col6X, row4Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, rightBorderRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, rightBorderRect, dirtyRect, style.borderColor_, opa);
 
     // bottom rectangle inner
     Rect bottomInnerRect(col3X + 1, row4Y, col4X - 1, row5Y - 1);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomInnerRect, dirtyRect, style.bgColor_, opaBg);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomInnerRect, dirtyRect, style.bgColor_, opaBg);
 
     // bottom rectangle in border
     Rect bottomBorderRect(col3X + 1, row5Y, col4X - 1, row6Y);
-    DrawUtils::GetInstance()->DrawColorArea(gfxDstBuffer, bottomBorderRect, dirtyRect, style.borderColor_, opa);
+    drawUtils->DrawColorArea(gfxDstBuffer, bottomBorderRect, dirtyRect, style.borderColor_, opa);
 }
 } // namespace OHOS

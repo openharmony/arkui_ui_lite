@@ -148,8 +148,9 @@ void Text::SetFont(const char* name, uint8_t size)
     if (name == nullptr) {
         return;
     }
-    if (UIFont::GetInstance()->IsVectorFont()) {
-        uint16_t fontId = UIFont::GetInstance()->GetFontId(name);
+    UIFont* font = UIFont::GetInstance();
+    if (font->IsVectorFont()) {
+        uint16_t fontId = font->GetFontId(name);
         if ((fontId != UIFontBuilder::GetInstance()->GetTotalFontId()) &&
             ((fontId_ != fontId) || (fontSize_ != size))) {
             fontId_ = fontId;
@@ -157,7 +158,7 @@ void Text::SetFont(const char* name, uint8_t size)
             needRefresh_ = true;
         }
     } else {
-        uint16_t fontId = UIFont::GetInstance()->GetFontId(name, size);
+        uint16_t fontId = font->GetFontId(name, size);
         SetFontId(fontId);
     }
 }
@@ -196,23 +197,24 @@ void Text::SetFont(const char* name, uint8_t size, char*& destName, uint8_t& des
 
 void Text::SetFontId(uint16_t fontId)
 {
-    if (fontId >= UIFontBuilder::GetInstance()->GetTotalFontId()) {
+    UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
+    if (fontId >= fontBuilder->GetTotalFontId()) {
         GRAPHIC_LOGE("Text::SetFontId invalid fontId(%hhd)", fontId);
         return;
     }
-
-    if ((fontId_ == fontId) && (fontSize_ != 0) && !UIFont::GetInstance()->IsVectorFont()) {
+    UIFont* font = UIFont::GetInstance();
+    if ((fontId_ == fontId) && (fontSize_ != 0) && !font->IsVectorFont()) {
         GRAPHIC_LOGD("Text::SetFontId same font has already set");
         return;
     }
 
-    UITextLanguageFontParam* fontParam = UIFontBuilder::GetInstance()->GetTextLangFontsTable(fontId);
+    UITextLanguageFontParam* fontParam = fontBuilder->GetTextLangFontsTable(fontId);
     if (fontParam == nullptr) {
         return;
     }
-    if (UIFont::GetInstance()->IsVectorFont()) {
-        uint16_t fontId = UIFont::GetInstance()->GetFontId(fontParam->ttfName);
-        if ((fontId != UIFontBuilder::GetInstance()->GetTotalFontId()) && ((fontId_ != fontId) ||
+    if (font->IsVectorFont()) {
+        uint16_t fontId = font->GetFontId(fontParam->ttfName);
+        if ((fontId != fontBuilder->GetTotalFontId()) && ((fontId_ != fontId) ||
             (fontSize_ != fontParam->size))) {
             fontId_ = fontId;
             fontSize_ = fontParam->size;
@@ -299,14 +301,15 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
     uint16_t lineCount = GetLine(lineMaxWidth, style.letterSpace_, ellipsisIndex, maxLineBytes);
     int16_t lineHeight = style.lineHeight_;
     int16_t curLineHeight;
+    UIFont* font = UIFont::GetInstance();
     if (lineHeight <= 0) {
-        lineHeight = UIFont::GetInstance()->GetHeight(fontId_, fontSize_);
+        lineHeight = font->GetHeight(fontId_, fontSize_);
         lineHeight += style.lineSpace_;
     }
     if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
         uint16_t letterIndex = 0;
-        curLineHeight = UIFont::GetInstance()->GetLineMaxHeight(text_, textLine_[0].lineBytes, fontId_, fontSize_,
-                                                                letterIndex, sizeSpans_);
+        curLineHeight = font->GetLineMaxHeight(text_, textLine_[0].lineBytes, fontId_, fontSize_,
+                                               letterIndex, sizeSpans_);
         curLineHeight += style.lineSpace_;
     } else {
         curLineHeight = lineHeight;
@@ -348,8 +351,8 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
             letterIndex = TypedText::GetUTF8CharacterSize(text_, lineBegin + textLine_[i].lineBytes);
         }
         if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
-            curLineHeight = UIFont::GetInstance()->GetLineMaxHeight(&text_[lineBegin], textLine_[i].lineBytes, fontId_,
-                                                                    fontSize_, tempLetterIndex, sizeSpans_);
+            curLineHeight = font->GetLineMaxHeight(&text_[lineBegin], textLine_[i].lineBytes, fontId_,
+                                                   fontSize_, tempLetterIndex, sizeSpans_);
             curLineHeight += style.lineSpace_;
         } else {
             curLineHeight = lineHeight;
@@ -608,14 +611,15 @@ uint16_t Text::GetSpanFontIdBySize(uint8_t size)
 #if defined(ENABLE_VECTOR_FONT) && ENABLE_VECTOR_FONT
     return fontId_;
 #else
-    UITextLanguageFontParam* fontParam = UIFontBuilder::GetInstance()->GetTextLangFontsTable(fontId_);
+    UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
+    UITextLanguageFontParam* fontParam = fontBuilder->GetTextLangFontsTable(fontId_);
     if (fontParam == nullptr) {
         return fontId_;
     }
 
     uint8_t ttfId = fontParam->ttfId;
-    for (uint16_t fontId = 0; fontId < UIFontBuilder::GetInstance()->GetTotalFontId(); fontId++) {
-        UITextLanguageFontParam* tempFontParam = UIFontBuilder::GetInstance()->GetTextLangFontsTable(fontId);
+    for (uint16_t fontId = 0; fontId < fontBuilder->GetTotalFontId(); fontId++) {
+        UITextLanguageFontParam* tempFontParam = fontBuilder->GetTextLangFontsTable(fontId);
         if (tempFontParam == nullptr) {
             continue;
         }

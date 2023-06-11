@@ -23,13 +23,14 @@
 namespace OHOS {
 EventInjector::~EventInjector()
 {
+    InputDeviceManager* inputDeviceManager = InputDeviceManager::GetInstance();
     if (pointEventInjector_ != nullptr) {
-        InputDeviceManager::GetInstance()->Remove(pointEventInjector_);
+        inputDeviceManager->Remove(pointEventInjector_);
         delete pointEventInjector_;
         pointEventInjector_ = nullptr;
     }
     if (keyEventInjector_ != nullptr) {
-        InputDeviceManager::GetInstance()->Remove(keyEventInjector_);
+        inputDeviceManager->Remove(keyEventInjector_);
         delete keyEventInjector_;
         keyEventInjector_ = nullptr;
     }

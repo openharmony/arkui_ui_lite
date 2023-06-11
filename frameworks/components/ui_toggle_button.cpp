@@ -99,7 +99,8 @@ void UIToggleButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         UICheckBox::OnDraw(gfxDstBuffer, invalidatedArea);
     } else {
         CalculateSize();
-        BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opaScale_);
+        BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+        baseGfxEngine->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opaScale_);
         Rect contentRect = GetContentRect();
         Rect trunc = invalidatedArea;
         bool isIntersect = trunc.Intersect(trunc, contentRect);
@@ -110,12 +111,12 @@ void UIToggleButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         styleUnSelect.bgColor_ = bgColor_;
         styleUnSelect.bgOpa_ = backgroundOpacity_;
         styleUnSelect.borderRadius_ = corner_;
-        BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, rectMid_, trunc, styleUnSelect, opaScale_);
+        baseGfxEngine->DrawRect(gfxDstBuffer, rectMid_, trunc, styleUnSelect, opaScale_);
         ArcInfo arcInfoLeft = {currentCenter_, {0}, radius_, 0, CIRCLE_IN_DEGREE, nullptr};
         styleUnSelect.lineColor_ = Color::White();
         styleUnSelect.lineWidth_ = radius_;
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoLeft, trunc, styleUnSelect, OPA_OPAQUE,
-                                              CapType::CAP_NONE);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoLeft, trunc, styleUnSelect, OPA_OPAQUE,
+                               CapType::CAP_NONE);
     }
 }
 #if DEFAULT_ANIMATION

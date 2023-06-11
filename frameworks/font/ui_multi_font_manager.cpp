@@ -181,7 +181,8 @@ bool UIMultiFontManager::IsNeedShaping(const char *text, uint8_t &ttfId, uint32_
 uint16_t UIMultiFontManager::GetShapingFontId(const char* text, uint16_t fontId, uint8_t& ttfId, uint32_t& script)
 {
     // the shaping font is in search list, then shapingFontId_ store the real shaping fontid
-    const UITextLanguageFontParam* fontParam1 = UIFont::GetInstance()->GetFontInfo(fontId);
+    UIFont* fontEngine = UIFont::GetInstance();
+    const UITextLanguageFontParam* fontParam1 = fontEngine->GetFontInfo(fontId);
     if (fontParam1 == nullptr) {
         return DEFAULT_SHAPING_ID;
     }
@@ -193,7 +194,7 @@ uint16_t UIMultiFontManager::GetShapingFontId(const char* text, uint16_t fontId,
         int32_t length = GetSearchFontList(fontId, &searchLists);
         const UITextLanguageFontParam* fontParam2 = nullptr;
         for (uint16_t i = 0; i < length; i++) {
-            fontParam2 = UIFont::GetInstance()->GetFontInfo(searchLists[i]);
+            fontParam2 = fontEngine->GetFontInfo(searchLists[i]);
             if (fontParam2 == nullptr) {
                 continue;
             }
