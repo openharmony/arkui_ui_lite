@@ -476,6 +476,15 @@ public:
     virtual uint16_t GetPosXByLetterIndex(const Rect& textRect, const Style& style,
                                           uint16_t beginIndex, uint16_t count);
 
+    void SetEliminateTrailingSpaces(bool eliminateTrailingSpaces)
+    {
+        eliminateTrailingSpaces_ = eliminateTrailingSpaces;
+    }
+
+    bool IsEliminateTrailingSpaces()
+    {
+        return eliminateTrailingSpaces_;
+    }
     uint16_t GetSizeSpan()
     {
         return characterSize_;
@@ -550,7 +559,7 @@ protected:
 private:
     uint8_t horizontalAlign_ : 4; // UITextLanguageAlignment
     uint8_t verticalAlign_ : 4;   // UITextLanguageAlignment
-
+    bool eliminateTrailingSpaces_;
     static constexpr uint8_t FONT_ID_MAX = 0xFF;
 };
 } // namespace OHOS

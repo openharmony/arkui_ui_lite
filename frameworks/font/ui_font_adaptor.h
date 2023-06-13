@@ -31,7 +31,8 @@ public:
                                         uint16_t& letterIndex,
                                         SizeSpan* sizeSpans,
                                         bool allBreak = false,
-                                        uint16_t len = 0xFFFF);
+                                        uint16_t len = 0xFFFF,
+                                        bool eliminateTrailingSpaces = false);
 
     static bool IsSameTTFId(uint16_t fontId, uint32_t unicode);
 };

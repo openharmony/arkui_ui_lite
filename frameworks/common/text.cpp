@@ -233,7 +233,7 @@ void Text::ReMeasureTextSize(const Rect& textRect, const Style& style)
     int16_t maxWidth = (expandWidth_ ? COORD_MAX : textRect.GetWidth());
     if (maxWidth > 0) {
         textSize_ = TypedText::GetTextSize(text_, fontId_, fontSize_, style.letterSpace_, style.lineHeight_, maxWidth,
-                                           style.lineSpace_, sizeSpans_);
+                                           style.lineSpace_, sizeSpans_, IsEliminateTrailingSpaces());
         if (baseLine_) {
             FontHeader head;
             if (UIFont::GetInstance()->GetFontHeader(head, fontId_, fontSize_) != 0) {
@@ -328,16 +328,26 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
             nextLine -= style.lineSpace_;
         }
         int16_t tempLetterIndex = letterIndex;
+        uint16_t lineBytes = textLine_[i].lineBytes;
+#if ENABLE_ICU
+        if (this->IsEliminateTrailingSpaces()) {
+            int j = lineBytes - 1;
+            while (j >= 0 && text_[lineBegin + j] == ' ') {
+                --j;
+            }
+            lineBytes = j + 1;
+        }
+#endif
         if (nextLine >= mask.GetTop()) {
             pos.x = LineStartPos(coords, textLine_[i].linePixelWidth);
-            LabelLineInfo labelLine{pos, offset, mask, curLineHeight, textLine_[i].lineBytes,
-                                    0, opa, style, &text_[lineBegin], textLine_[i].lineBytes,
-                                    lineBegin, fontId_, fontSize_, 0, static_cast<UITextLanguageDirect>(direct_),
-                                    nullptr, baseLine_,
+            LabelLineInfo labelLine {pos, offset, mask, curLineHeight, lineBytes,
+                                     0, opa, style, &text_[lineBegin], lineBytes,
+                                     lineBegin, fontId_, fontSize_, 0, static_cast<UITextLanguageDirect>(direct_),
+                                     nullptr, baseLine_,
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
-                                    textStyles_,
+                                     textStyles_,
 #endif
-                                    &backgroundColor_, &foregroundColor_, &linebackgroundColor_, sizeSpans_, 0};
+                                     &backgroundColor_, &foregroundColor_, &linebackgroundColor_, sizeSpans_, 0};
 
             uint16_t ellipsisOssetY = DrawLabel::DrawTextOneLine(gfxDstBuffer, labelLine, letterIndex);
             if ((i == (lineCount - 1)) && (ellipsisIndex != TEXT_ELLIPSIS_END_INV)) {
@@ -345,7 +355,7 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
                 DrawEllipsis(gfxDstBuffer, labelLine, letterIndex);
             }
         } else {
-            letterIndex = TypedText::GetUTF8CharacterSize(text_, lineBegin + textLine_[i].lineBytes);
+            letterIndex = TypedText::GetUTF8CharacterSize(text_, lineBegin + lineBytes);
         }
         if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
             curLineHeight = UIFont::GetInstance()->GetLineMaxHeight(&text_[lineBegin], textLine_[i].lineBytes, fontId_,
@@ -451,7 +461,7 @@ uint32_t Text::GetTextLine(uint32_t begin, uint32_t textLen, int16_t width, uint
     int16_t lineHeight = 0;
     uint16_t nextLineBytes = UIFontAdaptor::GetNextLineAndWidth(&text_[begin], fontId_, fontSize_, letterSpace,
                                                                 lineWidth, lineHeight, letterIndex, sizeSpans, false,
-                                                                textLen - begin);
+                                                                textLen - begin, IsEliminateTrailingSpaces());
     if (nextLineBytes + begin > textLen) {
         nextLineBytes = textLen - begin;
     }
@@ -491,7 +501,8 @@ uint16_t Text::GetLetterIndexByLinePosition(const Style& style,
     int16_t lineHeight = style.lineHeight_;
 
     UIFontAdaptor::GetNextLineAndWidth(text_, fontId_, fontSize_, style.letterSpace_,
-                                       width, lineHeight, letterIndex, sizeSpans_);
+                                       width, lineHeight, letterIndex, sizeSpans_,
+                                       false, 0xFFFF, IsEliminateTrailingSpaces());
     return letterIndex;
 }
 
@@ -530,7 +541,8 @@ uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style
     while ((lineStart < textLen) && (text_[lineStart] != '\0')) {
         width = textRect.GetWidth();
         nextLineStart += UIFontAdaptor::GetNextLineAndWidth(&text_[lineStart], fontId_, fontSize_, style.letterSpace_,
-                                                            width, lineHeight, letterIndex, sizeSpans_);
+                                                            width, lineHeight, letterIndex, sizeSpans_,
+                                                            false, 0xFFFF, IsEliminateTrailingSpaces());
         if (nextLineStart == 0) {
             break;
         }
@@ -547,7 +559,7 @@ uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style
     width = pos.x;
     lineStart +=
         UIFontAdaptor::GetNextLineAndWidth(&text_[lineStart], fontId_, fontSize_, style.letterSpace_, width, lineHeight,
-                                           letterIndex, sizeSpans_, true);
+                                           letterIndex, sizeSpans_, true, 0xFFFF, IsEliminateTrailingSpaces());
     return (lineStart < textLen) ? lineStart : TEXT_ELLIPSIS_END_INV;
 }
 

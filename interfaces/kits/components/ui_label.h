@@ -442,6 +442,11 @@ public:
         labelText_->SetForegroundColorSpan(fontColor, start, end);
     }
 
+    void SetEliminateTrailingSpaces(bool eliminateTrailingSpaces)
+    {
+        labelText_->SetEliminateTrailingSpaces(eliminateTrailingSpaces);
+    }
+
     void SetLineBackgroundSpan(ColorType lineBackgroundColor, int16_t start, int16_t end)
     {
         labelText_->SetLineBackgroundSpan(lineBackgroundColor, start, end);

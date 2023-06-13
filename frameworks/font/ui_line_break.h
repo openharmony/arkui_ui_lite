@@ -119,7 +119,8 @@ public:
                                  int16_t& maxHeight,
                                  uint16_t& letterIndex,
                                  SizeSpan* sizeSpans,
-                                 uint16_t len = 0xFFFF);
+                                 uint16_t len = 0xFFFF,
+                                 bool eliminateTrailingSpaces = false);
     bool IsBreakPos(uint32_t unicode, uint16_t fontId, uint8_t fontSize, int32_t& state);
 
 private:

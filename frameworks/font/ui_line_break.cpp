@@ -120,7 +120,8 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
                                                 int16_t& maxHeight,
                                                 uint16_t& letterIndex,
                                                 SizeSpan* sizeSpans,
-                                                uint16_t len)
+                                                uint16_t len,
+                                                bool eliminateTrailingSpaces)
 {
     if (text == nullptr) {
         return 0;
@@ -134,18 +135,23 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
     int32_t state = LINE_BREAK_STATE_START;
     int16_t width = 0;
     int16_t height = 0;
+
+    int16_t preWidth = 0;
+    bool isEliminateSpace = false;
     while ((byteIdx < len) && (text[byteIdx] != '\0')) {
         uint32_t unicode = TypedText::GetUTF8Next(text, preIndex, byteIdx);
         if (unicode == 0) {
             preIndex = byteIdx;
             continue;
         }
-        if (isAllCanBreak || IsBreakPos(unicode, fontId, fontSize, state)) {
+        isEliminateSpace = eliminateTrailingSpaces && unicode == ' ';
+        
+        if (isAllCanBreak || IsBreakPos(unicode, fontId, fontSize, state) || isEliminateSpace) {
             state = LINE_BREAK_STATE_START;
             // Accumulates the status value from the current character.
             IsBreakPos(unicode, fontId, fontSize, state);
             lastIndex = preIndex;
-            lastWidth = curWidth;
+            lastWidth = eliminateTrailingSpaces ? preWidth : curWidth;
         }
         width = GetLetterWidth(unicode, letterIndex, height, fontId, fontSize, sizeSpans);
         letterIndex++;
@@ -153,13 +159,25 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
             maxHeight = height;
         }
         int16_t nextWidth = (curWidth > 0 && width > 0) ? (curWidth + space + width) : (curWidth + width);
-        if (nextWidth > maxWidth) {
-            letterIndex--;
-            if (lastIndex == 0) {
-                break;
+        if (isEliminateSpace) {
+            if (nextWidth > maxWidth) {
+                curWidth = nextWidth;
+                preIndex = byteIdx;
+                continue;
             }
-            maxWidth = lastWidth;
-            return lastIndex;
+        } else {
+            if (nextWidth > maxWidth) {
+                letterIndex--;
+                if (lastIndex == 0) {
+                    break;
+                }
+                maxWidth = lastWidth;
+                return lastIndex;
+            }
+        }
+        
+        if (unicode != ' ' && eliminateTrailingSpaces) {
+            preWidth = nextWidth;
         }
         curWidth = nextWidth;
         preIndex = byteIdx;
@@ -167,7 +185,8 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
             break;
         }
     }
-    maxWidth = curWidth;
+
+    maxWidth = eliminateTrailingSpaces ? preWidth : curWidth;
     return preIndex;
 }
 
