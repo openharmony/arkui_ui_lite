@@ -46,7 +46,8 @@ public:
                              int16_t lineHeight,
                              int16_t maxWidth,
                              int8_t lineSpace,
-                             SizeSpan* sizeSpans = nullptr);
+                             SizeSpan* sizeSpans = nullptr,
+                             bool eliminateTrailingSpaces = false);
 
     static uint32_t GetNextLine(const char* text,
                                 uint16_t fontId,
