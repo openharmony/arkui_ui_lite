@@ -84,6 +84,17 @@ namespace OHOS {
         ASSERT(0);                                            \
     }
 
+#if defined(ENABLE_FIXED_POINT) && ENABLE_FIXED_POINT
+#define COLOR_BLEND_RGBA(r1, g1, b1, a1, r2, g2, b2, a2)                                                      \
+    const uint16_t Alpha3 = 65025 - (OPA_OPAQUE - (a1)) * (OPA_OPAQUE - (a2));                                \
+    if ( Alpha3 != 0 )                                                                                             \
+    {                                                                                                         \
+        (r1) = static_cast<uint8_t>(((a2) * (r2) * OPA_OPAQUE + (OPA_OPAQUE - (a2)) * (a1) * (r1)) / Alpha3); \
+        (g1) = static_cast<uint8_t>(((a2) * (g2) * OPA_OPAQUE + (OPA_OPAQUE - (a2)) * (a1) * (g1)) / Alpha3); \
+        (b1) = static_cast<uint8_t>(((a2) * (b2) * OPA_OPAQUE + (OPA_OPAQUE - (a2)) * (a1) * (b1)) / Alpha3); \
+        (a1) = static_cast<uint8_t>(Alpha3 / OPA_OPAQUE);                                                     \
+    }
+#else
 #define COLOR_BLEND_RGBA(r1, g1, b1, a1, r2, g2, b2, a2)                                  \
     const float Alpha1 = static_cast<float>(a1) / OPA_OPAQUE;                             \
     const float Alpha2 = static_cast<float>(a2) / OPA_OPAQUE;                             \
@@ -92,6 +103,7 @@ namespace OHOS {
     (g1) = static_cast<uint8_t>((Alpha2 * (g2) + (1 - Alpha2) * Alpha1 * (g1)) / Alpha3); \
     (b1) = static_cast<uint8_t>((Alpha2 * (b2) + (1 - Alpha2) * Alpha1 * (b1)) / Alpha3); \
     (a1) = static_cast<uint8_t>(Alpha3 * OPA_OPAQUE)
+#endif
 
 #define COLOR_BLEND_XRGB(r1, g1, b1, a1, r2, g2, b2, a2)                               \
     (r1) = (((r2) * (a2)) / OPA_OPAQUE) + (((r1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE); \
