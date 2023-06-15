@@ -112,12 +112,13 @@ uint16_t UIFontBitmap::GetHeight(uint16_t fontId, uint8_t fontSize)
 
 uint16_t UIFontBitmap::GetFontId(const char* ttfName, uint8_t size) const
 {
+    UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
     if (ttfName == nullptr) {
-        return UIFontBuilder::GetInstance()->GetBitmapFontIdMax();
+        return fontBuilder->GetBitmapFontIdMax();
     }
     uint16_t id;
-    for (id = 0; id < UIFontBuilder::GetInstance()->GetBitmapFontIdMax(); ++id) {
-        UITextLanguageFontParam* fontParam = UIFontBuilder::GetInstance()->GetTextLangFontsTable(id);
+    for (id = 0; id < fontBuilder->GetBitmapFontIdMax(); ++id) {
+        UITextLanguageFontParam* fontParam = fontBuilder->GetTextLangFontsTable(id);
         if (fontParam != nullptr) {
             if ((fontParam->size == size) && (strncmp(fontParam->ttfName, ttfName, TTF_NAME_LEN_MAX) == 0)) {
                 break;
@@ -241,7 +242,8 @@ int16_t UIFontBitmap::GetDynamicFontWidth(uint32_t unicode, uint16_t fontId)
 uint8_t* UIFontBitmap::SearchInFont(uint32_t unicode, GlyphNode& glyphNode, uint16_t fontId)
 {
     GraphicLockGuard guard(lock_);
-    if (UIFontCacheManager::GetInstance()->GetBitmapCache() == nullptr) {
+    UIFontCacheManager* fontCacheManager =  UIFontCacheManager::GetInstance();
+    if (fontCacheManager->GetBitmapCache() == nullptr) {
         return nullptr;
     }
     if (!UIFontAdaptor::IsSameTTFId(fontId, unicode)) {
@@ -252,7 +254,7 @@ uint8_t* UIFontBitmap::SearchInFont(uint32_t unicode, GlyphNode& glyphNode, uint
     if (ret != RET_VALUE_OK) {
         return nullptr;
     }
-    uint8_t* bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontId, unicode);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontId, unicode);
     if (bitmap != nullptr) {
         if (glyphNode.dataFlag == glyphNode.fontId && fontId == glyphNode.fontId) {
             return bitmap;

@@ -89,7 +89,7 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
         uint8_t* fontMap = fontEngine->GetBitmap(letterInfo.letter, glyphNode, letterInfo.fontId, letterInfo.fontSize,
                                                  letterInfo.shapingId);
         if (fontMap != nullptr) {
-            uint8_t weight = UIFont::GetInstance()->GetFontWeight(glyphNode.fontId);
+            uint8_t weight = fontEngine->GetFontWeight(glyphNode.fontId);
             // 16: rgb565->16 rgba8888->32 font with rgba
             if (weight >= 16) {
                 DrawUtils::GetInstance()->DrawColorLetter(gfxDstBuffer, letterInfo, fontMap, glyphNode, maxLetterSize);
@@ -156,7 +156,9 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
         return;
     }
     uint16_t letterWidth;
-    uint16_t letterHeight = UIFont::GetInstance()->GetHeight(fontId, fontSize);
+    UIFont* fontEngine = UIFont::GetInstance();
+
+    uint16_t letterHeight = fontEngine->GetHeight(fontId, fontSize);
     uint32_t i = arcTextInfo.lineStart;
     float angle = arcTextInfo.startAngle;
     float posX;
@@ -176,7 +178,7 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
         if ((letter == '\r') || (letter == '\n')) {
             break;
         }
-        letterWidth = UIFont::GetInstance()->GetWidth(letter, fontId, fontSize, 0);
+        letterWidth = fontEngine->GetWidth(letter, fontId, fontSize, 0);
         if (!DrawLabel::CalculateAngle(letterWidth, letterHeight, style.letterSpace_,
                                        arcTextInfo, xorFlag, tmp, orientation,
                                        posX, posY, rotateAngle, angle,

@@ -127,7 +127,8 @@ void UIView::DrawViewBounds(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
     style->SetStyle(STYLE_BORDER_WIDTH, 1);
     style->SetStyle(STYLE_BORDER_OPA, OPA_OPAQUE / 2); // 2: half opacity
     Rect viewRect(GetRect());
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, viewRect, invalidatedArea, *style, OPA_OPAQUE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawRect(gfxDstBuffer, viewRect, invalidatedArea, *style, OPA_OPAQUE);
 
     style->SetStyle(STYLE_BACKGROUND_OPA, OPA_OPAQUE);
     style->SetStyle(STYLE_BACKGROUND_COLOR, Color::Blue().full);
@@ -138,39 +139,39 @@ void UIView::DrawViewBounds(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
     // left top corner
     tmpRect.SetRight(viewRect.GetLeft() + length);
     tmpRect.SetBottom(viewRect.GetTop());
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
     tmpRect.SetRight(viewRect.GetLeft());
     tmpRect.SetBottom(viewRect.GetTop() + length);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
 
     // left bottom corner
     tmpRect.SetLeft(viewRect.GetLeft());
     tmpRect.SetTop(viewRect.GetBottom() - length);
     tmpRect.SetRight(viewRect.GetLeft());
     tmpRect.SetBottom(viewRect.GetBottom());
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
     tmpRect.SetTop(viewRect.GetBottom());
     tmpRect.SetRight(viewRect.GetLeft() + length);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
 
     // right top corner
     tmpRect.SetLeft(viewRect.GetRight() - length);
     tmpRect.SetTop(viewRect.GetTop());
     tmpRect.SetRight(viewRect.GetRight());
     tmpRect.SetBottom(viewRect.GetTop());
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
     tmpRect.SetLeft(viewRect.GetRight());
     tmpRect.SetBottom(viewRect.GetTop() + length);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
 
     // right bottom corner
     tmpRect = viewRect;
     tmpRect.SetLeft(viewRect.GetRight());
     tmpRect.SetTop(viewRect.GetBottom() - length);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
     tmpRect.SetLeft(viewRect.GetRight() - length);
     tmpRect.SetTop(viewRect.GetBottom());
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, tmpRect, invalidatedArea, *style, OPA_OPAQUE);
     delete style;
 #endif // ENABLE_DEBUG
 }
@@ -1311,12 +1312,12 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
         return false;
     }
     bufInfo.phyAddr = bufInfo.virAddr;
-
-    RootView::GetInstance()->SaveDrawContext();
-    RootView::GetInstance()->UpdateBufferInfo(&bufInfo);
-    RootView::GetInstance()->MeasureView(this);
-    RootView::GetInstance()->DrawTop(this, mask);
-    RootView::GetInstance()->RestoreDrawContext();
+    RootView* rootView = RootView::GetInstance();
+    rootView->SaveDrawContext();
+    rootView->UpdateBufferInfo(&bufInfo);
+    rootView->MeasureView(this);
+    rootView->DrawTop(this, mask);
+    rootView->RestoreDrawContext();
 
     nextRenderSibling_ = tempRenderSibling;
     parent_ = tempParent;

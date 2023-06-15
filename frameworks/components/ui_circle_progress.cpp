@@ -96,15 +96,15 @@ void UICircleProgress::DrawCommonCircle(BufferInfo& gfxDstBuffer, const Rect& in
     Rect rect = GetOrigRect();
     arcinfo.center.x = center_.x + rect.GetLeft() + style_->paddingLeft_ + style_->borderWidth_;
     arcinfo.center.y = center_.y + rect.GetTop() + style_->paddingTop_ + style_->borderWidth_;
-
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     if (enableBackground_ && ((start != end) || (backgroundStyle_->lineCap_ == CapType::CAP_ROUND))) {
         arcinfo.imgPos.x = backgroundImagePos_.x + rect.GetLeft();
         arcinfo.imgPos.y = backgroundImagePos_.y + rect.GetTop();
         arcinfo.startAngle = start;
         arcinfo.endAngle = end;
         arcinfo.imgSrc = backgroundImage_;
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea, *backgroundStyle_, opaScale_,
-                                              backgroundStyle_->lineCap_);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea, *backgroundStyle_, opaScale_,
+                               backgroundStyle_->lineCap_);
     }
 
     if ((startAngle != endAngle) || (foregroundStyle_->lineCap_ == CapType::CAP_ROUND)) {
@@ -113,8 +113,8 @@ void UICircleProgress::DrawCommonCircle(BufferInfo& gfxDstBuffer, const Rect& in
         arcinfo.startAngle = startAngle;
         arcinfo.endAngle = endAngle;
         arcinfo.imgSrc = foregroundImage_;
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea, *foregroundStyle_, opaScale_,
-                                              foregroundStyle_->lineCap_);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea, *foregroundStyle_, opaScale_,
+                               foregroundStyle_->lineCap_);
     }
 }
 

@@ -87,7 +87,8 @@ void UIRadioButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea
         UICheckBox::OnDraw(gfxDstBuffer, invalidatedArea);
     } else {
         CalculateSize();
-        BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opaScale_);
+        BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+        baseGfxEngine->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opaScale_);
         Rect contentRect = GetContentRect();
         int16_t dx = width_ >> 1;
         int16_t dy = height_ >> 1;
@@ -103,16 +104,16 @@ void UIRadioButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea
                 style.lineColor_ = Color::White();
                 style.lineWidth_ = lineWidth_;
                 // 0xa8 : opacity of drawing unselected button arc edge.
-                BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoBig, trunc, style, 0xa8, CapType::CAP_NONE);
+                baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoBig, trunc, style, 0xa8, CapType::CAP_NONE);
             }
             style.lineWidth_ = arcInfoBig.radius;
             style.lineColor_ = selectedStateColor_;
-            BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoBig, trunc, style, backgroundOpacity_,
-                                                  CapType::CAP_NONE);
+            baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoBig, trunc, style, backgroundOpacity_,
+                                   CapType::CAP_NONE);
             style.lineWidth_ = arcInfoSmall.radius;
             style.lineColor_ = Color::White();
-            BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoSmall, trunc, style, OPA_OPAQUE,
-                                                  CapType::CAP_NONE);
+            baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoSmall, trunc, style, OPA_OPAQUE,
+                                   CapType::CAP_NONE);
         }
     }
 }

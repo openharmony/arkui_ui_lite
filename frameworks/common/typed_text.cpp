@@ -535,7 +535,8 @@ bool TypedText::IsEmojiBase(uint32_t codePoint)
 bool TypedText::IsColourWord(uint32_t codePoint, uint16_t fontId, uint8_t fontSize)
 {
     bool hasColor = false;
-    uint8_t weight = UIFont::GetInstance()->GetFontWeight(fontId);
+    UIFont* font = UIFont::GetInstance();
+    uint8_t weight = font->GetFontWeight(fontId);
     if (weight >= 16) { // 16: rgb565->16 rgba8888->32 font with rgba
         hasColor = true;
     } else {
@@ -545,7 +546,7 @@ bool TypedText::IsColourWord(uint32_t codePoint, uint16_t fontId, uint8_t fontSi
         if ((listSize > 0) && (searchLists != nullptr)) {
             int8_t currentIndex = 0;
             do {
-                weight = UIFont::GetInstance()->GetFontWeight(searchLists[currentIndex]);
+                weight = font->GetFontWeight(searchLists[currentIndex]);
                 if (weight >= 16) { // 16: rgb565->16 rgba8888->32 font with rgba
                     hasColor = true;
                     break;
@@ -559,13 +560,13 @@ bool TypedText::IsColourWord(uint32_t codePoint, uint16_t fontId, uint8_t fontSi
         return false;
     }
     GlyphNode glyphNode;
-    int8_t ret = UIFont::GetInstance()->GetGlyphNode(codePoint, glyphNode, fontId, fontSize);
+    int8_t ret = font->GetGlyphNode(codePoint, glyphNode, fontId, fontSize);
     if (ret != RET_VALUE_OK) {
         GRAPHIC_LOGE("Failed to get glyphNode for color word");
         return false;
     }
 
-    weight = UIFont::GetInstance()->GetFontWeight(glyphNode.fontId);
+    weight = font->GetFontWeight(glyphNode.fontId);
     return (weight >= 16); // 16: rgb565->16 rgba8888->32 font with rgba
 }
 } // namespace OHOS

@@ -379,14 +379,14 @@ void DrawUtils::DrawNormalLetter(BufferInfo& gfxDstBuffer,
         /* LTR */
         posX = letterInfo.pos.x + node.left + letterInfo.offsetX;
     }
-
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     if (letterInfo.havebackgroundColor) {
         Rect backgroundRect(posX, letterInfo.mask.GetTop(), posX + letterW + letterInfo.letterSpace_ - 1,
                             letterInfo.mask.GetBottom() - letterInfo.lineSpace_);
         Style style;
         style.bgColor_ = letterInfo.backgroundColor;
-        BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, backgroundRect,
-                                               backgroundRect, style, style.bgColor_.alpha);
+        baseGfxEngine->DrawRect(gfxDstBuffer, backgroundRect,
+                                backgroundRect, style, style.bgColor_.alpha);
     }
 
     if ((posX + letterW < letterInfo.mask.GetLeft()) || (posX > letterInfo.mask.GetRight()) ||
@@ -405,8 +405,8 @@ void DrawUtils::DrawNormalLetter(BufferInfo& gfxDstBuffer,
     Rect subRect(posX + colStart, posY + rowStart, colEnd - 1 + posX, rowEnd - 1 + posY);
 
     uint8_t fontWeight = fontEngine->GetFontWeight(letterInfo.fontId);
-    BaseGfxEngine::GetInstance()->DrawLetter(gfxDstBuffer, fontMap, srcRect, subRect,
-                                             fontWeight, letterInfo.color, letterInfo.opa);
+    baseGfxEngine->DrawLetter(gfxDstBuffer, fontMap, srcRect, subRect,
+                              fontWeight, letterInfo.color, letterInfo.opa);
 }
 
 void DrawUtils::DrawLetter(BufferInfo& gfxDstBuffer,

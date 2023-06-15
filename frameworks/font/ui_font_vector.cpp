@@ -522,11 +522,12 @@ uint16_t
         return 0;
     }
     if (fontParam1->shaping == 0) {
-        if (!UIMultiFontManager::GetInstance()->IsNeedShaping(text, ttfId, script)) {
+        UIMultiFontManager* multiFontManager = UIMultiFontManager::GetInstance();
+        if (!multiFontManager->IsNeedShaping(text, ttfId, script)) {
             return 0; // 0 means  no need to shape
         }
         uint16_t* searchLists = nullptr;
-        int8_t length = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
+        int8_t length = multiFontManager->GetSearchFontList(fontId, &searchLists);
         const UITextLanguageFontParam* fontParam2 = nullptr;
         for (uint8_t i = 0; i < length; i++) {
             fontParam2 = GetFontInfo(searchLists[i]);
@@ -637,17 +638,18 @@ int8_t UIFontVector::GetGlyphNode(uint32_t unicode, GlyphNode& glyphNode, uint16
 {
     // get glyph from glyph cache
     uint16_t fontKey = GetKey(fontId, fontSize);
+    UIFontCacheManager* fontCacheManager = UIFontCacheManager::GetInstance();
     GlyphCacheNode* cacheNode =
-        UIFontCacheManager::GetInstance()->GetNodeFromCache(unicode, fontKey, GlyphCacheType::CACHE_TYPE_NONE);
+        fontCacheManager->GetNodeFromCache(unicode, fontKey, GlyphCacheType::CACHE_TYPE_NONE);
     if (cacheNode != nullptr) {
         glyphNode = cacheNode->node;
         return RET_VALUE_OK;
     }
 
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
-    uint8_t* bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontKey, unicode, glyphNode.textStyle);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode, glyphNode.textStyle);
 #else
-    uint8_t* bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontKey, unicode);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode);
 #endif
     if (bitmap != nullptr) {
         Metric* f = reinterpret_cast<Metric*>(bitmap);
@@ -682,10 +684,11 @@ int8_t UIFontVector::GetGlyphNode(uint32_t unicode, GlyphNode& glyphNode, uint16
 uint8_t* UIFontVector::GetBitmap(uint32_t unicode, GlyphNode& glyphNode, uint16_t fontId, uint8_t fontSize)
 {
     uint16_t fontKey = GetKey(fontId, fontSize);
+    UIFontCacheManager* fontCacheManager = UIFontCacheManager::GetInstance();
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
-    uint8_t* bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontKey, unicode, glyphNode.textStyle);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode, glyphNode.textStyle);
 #else
-    uint8_t* bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontKey, unicode);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode);
 #endif
     if (bitmap != nullptr) {
         Metric* f = reinterpret_cast<Metric*>(bitmap);
@@ -714,9 +717,9 @@ uint8_t* UIFontVector::GetBitmap(uint32_t unicode, GlyphNode& glyphNode, uint16_
     }
 
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
-    bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontKey, unicode, glyphNode.textStyle);
+    bitmap = fontCacheManager->GetBitmap(fontKey, unicode, glyphNode.textStyle);
 #else
-    bitmap = UIFontCacheManager::GetInstance()->GetBitmap(fontKey, unicode);
+    bitmap = fontCacheManager->GetBitmap(fontKey, unicode);
 #endif
     if (bitmap != nullptr) {
         return bitmap + sizeof(Metric);
@@ -941,15 +944,16 @@ void UIFontVector::SetFace(FaceInfo& faceInfo, uint32_t unicode, TextStyle textS
     }
     uint32_t bitmapSize = faceInfo.face->glyph->bitmap.width * faceInfo.face->glyph->bitmap.rows * pixSize;
     // cache bitmap
+    UIFontCacheManager* fontCacheManager = UIFontCacheManager::GetInstance();
     uint8_t* bitmap =
-        UIFontCacheManager::GetInstance()->GetSpace(faceInfo.key, unicode, bitmapSize + sizeof(Metric), textStyle);
+        fontCacheManager->GetSpace(faceInfo.key, unicode, bitmapSize + sizeof(Metric), textStyle);
     if (bitmap != nullptr) {
         if (memcpy_s(bitmap, sizeof(Metric), &f, sizeof(Metric)) != EOK) {
-            UIFontCacheManager::GetInstance()->PutSpace(bitmap);
+            fontCacheManager->PutSpace(bitmap);
             return;
         }
         if (memcpy_s(bitmap + sizeof(Metric), bitmapSize, faceInfo.face->glyph->bitmap.buffer, bitmapSize) != EOK) {
-            UIFontCacheManager::GetInstance()->PutSpace(bitmap);
+            fontCacheManager->PutSpace(bitmap);
             return;
         }
         ClearFontGlyph(faceInfo.face);
@@ -1109,15 +1113,16 @@ int8_t UIFontVector::SetCurrentLangId(uint8_t langId)
 #if defined(ENABLE_SHAPING) && ENABLE_SHAPING
     UITextShaping::GetInstance()->ClearTtfHeader();
 #endif
-    UIFontCacheManager::GetInstance()->ClearCacheFlag();
-    UIFontCacheManager::GetInstance()->BitmapCacheClear();
+    UIFontCacheManager* fontCacheManager = UIFontCacheManager::GetInstance();
+    fontCacheManager->ClearCacheFlag();
+    fontCacheManager->BitmapCacheClear();
 
-    if (UIFontCacheManager::GetInstance()->GlyphsCacheInit() != RET_VALUE_OK) {
+    if (fontCacheManager->GlyphsCacheInit() != RET_VALUE_OK) {
         GRAPHIC_LOGE("UIFontCacheManager::GlyphsCacheInit init failed");
         return INVALID_RET_VALUE;
     }
 
-    UIFontCacheManager::GetInstance()->BitmapCacheInit();
+    fontCacheManager->BitmapCacheInit();
     return RET_VALUE_OK;
 }
 } // namespace OHOS

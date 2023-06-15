@@ -143,13 +143,14 @@ UIScreenshot* UIScreenshot::GetInstance()
 
 bool UIScreenshot::ScreenshotToFile(const char* path)
 {
+    IWindowsManager* manager = IWindowsManager::GetInstance();
     if (screenshotListener_ == nullptr) {
         screenshotListener_ = new UIScreenshotListener();
         if (screenshotListener_ == nullptr) {
             GRAPHIC_LOGE("UIScreenshot::ScreenshotToFile register screenshot listener failed Err!\n");
             return false;
         }
-        IWindowsManager::GetInstance()->SetScreenshotListener(screenshotListener_);
+        manager->SetScreenshotListener(screenshotListener_);
     }
 
     const char* srcPath = (path == nullptr) ? DEFAULT_SCREENSHOT_PATH : path;
@@ -165,7 +166,7 @@ bool UIScreenshot::ScreenshotToFile(const char* path)
     }
     destPath[pathLength] = '\0';
     screenshotListener_->SetFilePath(destPath);
-    IWindowsManager::GetInstance()->Screenshot();
+    manager->Screenshot();
     return true;
 }
 } // namespace OHOS

@@ -138,7 +138,8 @@ void UICheckBox::SelectedStateSoftwareDrawing(BufferInfo& gfxDstBuffer,
     styleSelect.borderRadius_ = borderRadius;
     styleSelect.bgColor_ = selectedStateColor_;
     styleSelect.bgOpa_ = backgroundOpacity_;
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, rect, trunc, styleSelect, opaScale_);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawRect(gfxDstBuffer, rect, trunc, styleSelect, opaScale_);
     int16_t dx = static_cast<int16_t>(borderWidth_ * DEFAULT_COEFFICIENT_START_DX);
     int16_t dy = static_cast<int16_t>(borderWidth_ * DEFAULT_COEFFICIENT_START_DY);
     Point start = {static_cast<int16_t>(rect.GetX() + dx), static_cast<int16_t>(rect.GetY() + dy)};
@@ -168,13 +169,13 @@ void UICheckBox::SelectedStateSoftwareDrawing(BufferInfo& gfxDstBuffer,
     styleSelect.lineColor_ = Color::White();
     styleSelect.lineOpa_ = backgroundOpacity_;
     uint8_t opa = DrawUtils::GetMixOpacity(opaScale_, backgroundOpacity_);
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoLeft, trunc, styleSelect, opaScale_, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoLeft, trunc, styleSelect, opaScale_, CapType::CAP_NONE);
     // 2 : double
-    BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start, mid, trunc, rectLineWidth * 2, Color::White(), opa);
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoMid, trunc, styleSelect, opaScale_, CapType::CAP_NONE);
+    baseGfxEngine->DrawLine(gfxDstBuffer, start, mid, trunc, rectLineWidth * 2, Color::White(), opa);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoMid, trunc, styleSelect, opaScale_, CapType::CAP_NONE);
     // 2 : double
-    BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, mid, end, trunc, rectLineWidth * 2, Color::White(), opa);
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoRight, trunc, styleSelect, opaScale_, CapType::CAP_NONE);
+    baseGfxEngine->DrawLine(gfxDstBuffer, mid, end, trunc, rectLineWidth * 2, Color::White(), opa);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoRight, trunc, styleSelect, opaScale_, CapType::CAP_NONE);
 }
 
 void UICheckBox::UnSelectedStateSoftwareDrawing(BufferInfo& gfxDstBuffer,

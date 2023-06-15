@@ -49,8 +49,9 @@ void RenderManager::Callback()
         winNode = winNode->next_;
     }
 #else
-    RootView::GetInstance()->Measure();
-    RootView::GetInstance()->Render();
+    RootView* rootView = RootView::GetInstance();
+    rootView->Measure();
+    rootView->Render();
 #endif
 
 #if ENABLE_FPS_SUPPORT
@@ -166,10 +167,6 @@ void RenderManager::UpdateFPSByPreciseSamplingMethod()
 
 void RenderManager::RenderRect(const Rect& rect, RootView* rootView)
 {
-    if (rootView == nullptr) {
-        return;
-    }
-
     Rect mask = rect;
 #if ENABLE_WINDOW
     if (rootView->GetBoundWindow()) {

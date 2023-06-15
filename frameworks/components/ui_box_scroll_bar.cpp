@@ -37,7 +37,8 @@ void UIBoxScrollBar::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         return;
     }
     /* Draw background */
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, rect, rect, *backgroundStyle_, opacity_);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawRect(gfxDstBuffer, rect, rect, *backgroundStyle_, opacity_);
 
     /* Draw foreground */
     if (backgroundRect_.GetWidth() < backgroundRect_.GetHeight()) {
@@ -63,6 +64,6 @@ void UIBoxScrollBar::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
     rect.Intersect(invalidatedArea, rect);
     // 8: Shift right 8 bits
     backgroundOpa = (backgroundOpa == OPA_OPAQUE) ? opacity_ : (static_cast<uint16_t>(backgroundOpa) * opacity_) >> 8;
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, rect, rect, *foregroundStyle_, backgroundOpa);
+    baseGfxEngine->DrawRect(gfxDstBuffer, rect, rect, *foregroundStyle_, backgroundOpa);
 }
 } // namespace OHOS

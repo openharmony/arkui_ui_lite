@@ -824,10 +824,12 @@ void RootView::InitMapBufferInfo(BufferInfo* bufferInfo)
     dc_.mapBufferInfo->mode = ARGB8888;
     dc_.mapBufferInfo->stride = dc_.mapBufferInfo->width * (DrawUtils::GetPxSizeByColorMode(dc_.mapBufferInfo->mode) >>
                                                             3); // 3: Shift right 3 bits
-    BaseGfxEngine::GetInstance()->AdjustLineStride(*dc_.mapBufferInfo);
+    
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->AdjustLineStride(*dc_.mapBufferInfo);
     uint32_t bufferSize = dc_.mapBufferInfo->stride * dc_.mapBufferInfo->height;
     dc_.mapBufferInfo->virAddr = dc_.mapBufferInfo->phyAddr =
-        BaseGfxEngine::GetInstance()->AllocBuffer(bufferSize, BUFFER_MAP_SURFACE);
+        baseGfxEngine->AllocBuffer(bufferSize, BUFFER_MAP_SURFACE);
 }
 
 void RootView::DestroyMapBufferInfo()

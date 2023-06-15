@@ -426,7 +426,8 @@ bool UIImageView::OnPreDraw(Rect& invalidatedArea) const
 void UIImageView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
     OpacityType opa = GetMixOpaScale();
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opa);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    baseGfxEngine->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opa);
     if ((imageHeight_ == 0) || (imageWidth_ == 0)) {
         return;
     }
@@ -469,8 +470,8 @@ void UIImageView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
                                                        static_cast<BlurLevel>(blurLevel_),
                                                        static_cast<TransformAlgorithm>(algorithm_)};
                 OpacityType opaScale = DrawUtils::GetMixOpacity(opa, style_->imageOpa_);
-                BaseGfxEngine::GetInstance()->DrawTransform(gfxDstBuffer, trunc, {0, 0}, Color::Black(),
-                                                            opaScale, *drawTransMap_, imageTranDataInfo);
+                baseGfxEngine->DrawTransform(gfxDstBuffer, trunc, {0, 0}, Color::Black(),
+                                             opaScale, *drawTransMap_, imageTranDataInfo);
             }
         }
     }

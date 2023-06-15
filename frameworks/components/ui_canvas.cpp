@@ -1096,33 +1096,34 @@ void UICanvas::DoDrawRect(BufferInfo& gfxDstBuffer,
     int16_t x = start.x - lineWidth / 2; // 2: half
     int16_t y = start.y - lineWidth / 2; // 2: half
     Rect coords;
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     if ((rectParam->height <= lineWidth) || (rectParam->width <= lineWidth)) {
         coords.SetPosition(x, y);
         coords.SetHeight(rectParam->height + lineWidth);
         coords.SetWidth(rectParam->width + lineWidth);
-        BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
+        baseGfxEngine->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
         return;
     }
 
     coords.SetPosition(x, y);
     coords.SetHeight(lineWidth);
     coords.SetWidth(rectParam->width);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
 
     coords.SetPosition(x + rectParam->width, y);
     coords.SetHeight(rectParam->height);
     coords.SetWidth(lineWidth);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
 
     coords.SetPosition(x, y + lineWidth);
     coords.SetHeight(rectParam->height);
     coords.SetWidth(lineWidth);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
 
     coords.SetPosition(x + lineWidth, y + rectParam->height);
     coords.SetHeight(lineWidth);
     coords.SetWidth(rectParam->width);
-    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
+    baseGfxEngine->DrawRect(gfxDstBuffer, coords, invalidatedArea, drawStyle, OPA_OPAQUE);
 }
 
 void UICanvas::DoFillRect(BufferInfo& gfxDstBuffer,
@@ -1178,20 +1179,21 @@ void UICanvas::DoDrawCircle(BufferInfo& gfxDstBuffer,
     GetAbsolutePosition(circleParam->center, rect, style, arcInfo.center);
     uint8_t enableStroke = static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::STROKE_STYLE;
     uint16_t halfLineWidth = enableStroke ? (paint.GetStrokeWidth() >> 1) : 0;
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     if (static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::FILL_STYLE) {
         arcInfo.radius = circleParam->radius - halfLineWidth;
         drawStyle.lineWidth_ = arcInfo.radius;
         drawStyle.lineColor_ = paint.GetFillColor();
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, invalidatedArea, drawStyle, OPA_OPAQUE,
-                                              CapType::CAP_NONE);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, invalidatedArea, drawStyle, OPA_OPAQUE,
+                               CapType::CAP_NONE);
     }
 
     if (enableStroke) {
         arcInfo.radius = circleParam->radius + halfLineWidth - 1;
         drawStyle.lineWidth_ = static_cast<int16_t>(paint.GetStrokeWidth());
         drawStyle.lineColor_ = paint.GetStrokeColor();
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfo, invalidatedArea, drawStyle, OPA_OPAQUE,
-                                              CapType::CAP_NONE);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcInfo, invalidatedArea, drawStyle, OPA_OPAQUE,
+                               CapType::CAP_NONE);
     }
 }
 
@@ -1530,12 +1532,13 @@ void UICanvas::InitGfxMapBuffer(const BufferInfo& srcBuff, const Rect& rect)
     uint8_t destByteSize = DrawUtils::GetByteSizeByColorMode(srcBuff.mode);
     gfxMapBuffer_->stride = static_cast<int32_t>(gfxMapBuffer_->width) * static_cast<int32_t>(destByteSize);
     uint32_t buffSize = gfxMapBuffer_->height * gfxMapBuffer_->stride;
-    gfxMapBuffer_->virAddr = BaseGfxEngine::GetInstance()->AllocBuffer(buffSize, BUFFER_MAP_SURFACE);
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    gfxMapBuffer_->virAddr = baseGfxEngine->AllocBuffer(buffSize, BUFFER_MAP_SURFACE);
     gfxMapBuffer_->phyAddr = gfxMapBuffer_->virAddr;
 
     errno_t err = memset_s(gfxMapBuffer_->virAddr, buffSize, 0, buffSize);
     if (err != EOK) {
-        BaseGfxEngine::GetInstance()->FreeBuffer(static_cast<uint8_t*>(gfxMapBuffer_->virAddr), BUFFER_MAP_SURFACE);
+        baseGfxEngine->FreeBuffer(static_cast<uint8_t*>(gfxMapBuffer_->virAddr), BUFFER_MAP_SURFACE);
         GRAPHIC_LOGE("memset_s gfxMapBuffer_ fail");
         return;
     }

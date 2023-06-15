@@ -204,7 +204,8 @@ bool GlyphsFile::IsSameFile(const char* fontName)
 int8_t GlyphsFile::GetGlyphInfo(uint16_t fontId, GlyphInfo& glyphInfo)
 {
     uint16_t fontIdx = 0;
-    if (fontId > UIFontBuilder::GetInstance()->GetBitmapFontIdMax()) {
+    UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
+    if (fontId > fontBuilder->GetBitmapFontIdMax()) {
         GRAPHIC_LOGE("GlyphsFile::GetGlyphInfo fontId need less than max fontId");
         return INVALID_RET_VALUE;
     }
@@ -231,7 +232,7 @@ int8_t GlyphsFile::GetGlyphInfo(uint16_t fontId, GlyphInfo& glyphInfo)
     }
     if (!found) {
         glyphInfo.fontHeader = nullptr;
-        glyphInfo.fontId = UIFontBuilder::GetInstance()->GetBitmapFontIdMax();
+        glyphInfo.fontId = fontBuilder->GetBitmapFontIdMax();
         return INVALID_RET_VALUE;
     }
 

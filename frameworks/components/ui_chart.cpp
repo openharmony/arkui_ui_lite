@@ -340,20 +340,20 @@ void UIChartDataSerial::DoDrawPoint(BufferInfo& gfxDstBuffer, const Point& cente
     arcinfo.radius = style.radius + style.strokeWidth;
     arcinfo.startAngle = 0;
     arcinfo.endAngle = CIRCLE_IN_DEGREE;
-
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     if (style.fillColor.full == style.strokeColor.full) {
         drawStyle.lineWidth_ = style.radius + style.strokeWidth;
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, mask, drawStyle, OPA_OPAQUE, CapType::CAP_NONE);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, mask, drawStyle, OPA_OPAQUE, CapType::CAP_NONE);
         return;
     }
     drawStyle.lineWidth_ = style.radius;
     arcinfo.radius = style.radius;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, mask, drawStyle, OPA_OPAQUE, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, mask, drawStyle, OPA_OPAQUE, CapType::CAP_NONE);
 
     drawStyle.lineWidth_ = style.strokeWidth;
     drawStyle.lineColor_ = style.strokeColor;
     arcinfo.radius = style.radius + style.strokeWidth;
-    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, mask, drawStyle, OPA_OPAQUE, CapType::CAP_NONE);
+    baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, mask, drawStyle, OPA_OPAQUE, CapType::CAP_NONE);
 }
 
 void UIChartDataSerial::DrawPoint(BufferInfo& gfxDstBuffer, const Rect& mask)
@@ -541,12 +541,12 @@ void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
     Style style = *style_;
     style.lineColor_ = color;
     style.lineOpa_ = OPA_OPAQUE;
-
     uint16_t slope;
     data->GetPoint(startIndex, start);
     data->GetPoint(startIndex + 1, end);
     uint16_t preSlope = (start.x == end.x) ? QUARTER_IN_DEGREE : FastAtan2(end.x - start.x, end.y - start.y);
     Point current;
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     for (uint16_t i = startIndex; i < endIndex; i++) {
         data->GetPoint(i + 1, current);
         if (((end.y - start.y <= 0) && (current.y - end.y <= 0)) ||
@@ -568,8 +568,7 @@ void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
             end = current;
             continue;
         }
-
-        BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
+        baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
             style_->lineWidth_, color, OPA_OPAQUE);
         ArcInfo arcinfo = {{0}};
         arcinfo.center = end;
@@ -578,13 +577,12 @@ void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
         arcinfo.startAngle = 0;
         arcinfo.endAngle = CIRCLE_IN_DEGREE;
 
-        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea,
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea,
             style, OPA_OPAQUE, CapType::CAP_NONE);
-
         start = end;
         end = current;
     }
-    BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
+    baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
         style_->lineWidth_, color, OPA_OPAQUE);
 }
 
@@ -613,6 +611,7 @@ void UIChartPolyline::DrawPolyLine(BufferInfo& gfxDstBuffer,
     arcinfo.radius = (style_->lineWidth_ + 1) >> 1;
     arcinfo.startAngle = 0;
     arcinfo.endAngle = CIRCLE_IN_DEGREE;
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     for (uint16_t i = startIndex; i < endIndex - 1; i++) {
         data->GetPoint(i, start);
         data->GetPoint(i + 1, end);
@@ -625,17 +624,17 @@ void UIChartPolyline::DrawPolyLine(BufferInfo& gfxDstBuffer,
             continue;
         }
 
-        BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
+        baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
             style_->lineWidth_, color, OPA_OPAQUE);
         if (style_->lineWidth_ >= LINE_JOIN_WIDTH) {
             arcinfo.center = end;
-            BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea,
+            baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea,
                 style, OPA_OPAQUE, CapType::CAP_NONE);
         }
     }
     data->GetPoint(endIndex - 1, start);
     data->GetPoint(endIndex, end);
-    BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
+    baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
         style_->lineWidth_, color, OPA_OPAQUE);
 }
 
@@ -752,9 +751,9 @@ void UIChartPolyline::DrawGradientColor(BufferInfo& gfxDstBuffer,
         cross.first.y = enableReverse_ ? (y - startY) : (startY - y);
         cross.firstFind = true;
     }
-
     Point start;
     Point end;
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     for (uint16_t i = 0; i < pointCount; i++) {
         data->GetPoint(i, start);
         data->GetPoint(i + 1, end);
@@ -773,17 +772,16 @@ void UIChartPolyline::DrawGradientColor(BufferInfo& gfxDstBuffer,
         if (cross.firstFind && cross.secondFind) {
             cross.first.y = enableReverse_ ? (cross.first.y + startY) : (startY - cross.first.y);
             cross.second.y = enableReverse_ ? (cross.second.y + startY) : (startY - cross.second.y);
-            BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, cross.first, cross.second,
+            baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second,
                 invalidatedArea, 1, data->GetFillColor(), mixData_[mixScale]);
             cross.firstFind = false;
             cross.secondFind = false;
         }
     }
-
     if (cross.firstFind && !cross.secondFind) {
         cross.second = { limitPoints.end.x, y };
         cross.first.y = y;
-        BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, cross.first, cross.second,
+        baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second,
             invalidatedArea, 1, data->GetFillColor(), mixData_[mixScale]);
     }
 }
@@ -838,6 +836,7 @@ void UIChartPolyline::GradientColor(BufferInfo& gfxDstBuffer, const Rect& invali
     linePoints.start.x = limitPoints.start.x;
     linePoints.end.x = limitPoints.end.x;
     Rect currentRect = GetContentRect();
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     while (y >= yHeight) {
         linePoints.start.y = enableReverse_ ? (y - endY) : (startY - y);
         linePoints.end.y = linePoints.start.y;
@@ -853,8 +852,8 @@ void UIChartPolyline::GradientColor(BufferInfo& gfxDstBuffer, const Rect& invali
             }
             Point start = {limitPoints.start.x, y};
             Point end = {limitPoints.end.x, y};
-            BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start, end, invalidatedArea, 1,
-                                                   data->GetFillColor(), mixData_[mixScale]);
+            baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, 1,
+                                    data->GetFillColor(), mixData_[mixScale]);
         }
         y--;
     }

@@ -42,12 +42,13 @@ bool Screen::GetCurrentScreenBitmap(ImageInfo& info)
 #if defined ENABLE_WINDOW && ENABLE_WINDOW
     return false;
 #else
-    BufferInfo* bufferInfo = BaseGfxEngine::GetInstance()->GetFBBufferInfo();
+    BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    BufferInfo* bufferInfo = baseGfxEngine->GetFBBufferInfo();
     if (bufferInfo == nullptr) {
         return false;
     }
-    uint16_t screenWidth = BaseGfxEngine::GetInstance()->GetFBBufferInfo()->width;
-    uint16_t screenHeight = BaseGfxEngine::GetInstance()->GetScreenHeight();
+    uint16_t screenWidth = baseGfxEngine->GetFBBufferInfo()->width;
+    uint16_t screenHeight = baseGfxEngine->GetScreenHeight();
     info.header.colorMode = ARGB8888;
     info.dataSize = screenWidth * screenHeight * DrawUtils::GetByteSizeByColorMode(info.header.colorMode);
     info.data = reinterpret_cast<uint8_t*>(ImageCacheMalloc(info));
@@ -74,7 +75,7 @@ bool Screen::GetCurrentScreenBitmap(ImageInfo& info)
     dstBufferInfo.width = screenWidth;
     dstBufferInfo.height = screenHeight;
 
-    BaseGfxEngine::GetInstance()->Blit(dstBufferInfo, dstPos, *bufferInfo, screenRect, blendOption);
+    baseGfxEngine->Blit(dstBufferInfo, dstPos, *bufferInfo, screenRect, blendOption);
     return true;
 #endif
 }
