@@ -38,7 +38,9 @@ Text::Text()
       sizeSpans_(nullptr),
       characterSize_(0),
       horizontalAlign_(TEXT_ALIGNMENT_LEFT),
-      verticalAlign_(TEXT_ALIGNMENT_TOP)
+      verticalAlign_(TEXT_ALIGNMENT_TOP),
+      eliminateTrailingSpaces_(false)
+
 {
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     textStyles_ = nullptr;
@@ -332,7 +334,7 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
         }
         int16_t tempLetterIndex = letterIndex;
         uint16_t lineBytes = textLine_[i].lineBytes;
-#if ENABLE_ICU
+#if defined(ENABLE_ICU) && ENABLE_ICU
         if (this->IsEliminateTrailingSpaces()) {
             int j = lineBytes - 1;
             while (j >= 0 && text_[lineBegin + j] == ' ') {
