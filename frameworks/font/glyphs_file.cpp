@@ -165,7 +165,7 @@ int8_t GlyphsFile::SetFile(const char* fontName, int32_t fp, uint32_t start)
     }
 
     ret = read(fp_, fontHeaderCache_, size);
-    if (ret != size) {
+    if (ret != static_cast<int32_t>(size)) {
         GRAPHIC_LOGE("GlyphsFile::SetFile read failed");
         return INVALID_RET_VALUE;
     }
