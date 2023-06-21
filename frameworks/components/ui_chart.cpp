@@ -219,6 +219,22 @@ bool UIChartDataSerial::GetPoint(uint16_t index, Point& point)
     return true;
 }
 
+bool UIChartDataSerial::GetOriginalPoint(uint16_t index, Point& point)
+{
+    if ((index >= dataCount_) || (pointArray_ == nullptr)) {
+        return false;
+    }
+    point = pointArray_[index];
+    return true;
+}
+
+bool UIChartDataSerial::PointArrayDup(Point** pointArrayBack)
+{
+    *pointArrayBack = pointArray_;
+    pointArray_ = static_cast<Point*>(UIMalloc(sizeof(Point) * maxCount_));
+    return memcpy_s(pointArray_, dataCount_ * sizeof(Point), *pointArrayBack, dataCount_ * sizeof(Point)) != EOK;
+}
+
 void UIChartDataSerial::HidePoint(uint16_t index, uint16_t count)
 {
     hideIndex_ = index;
@@ -327,8 +343,10 @@ void UIChartDataSerial::ClearData()
     latestIndex_ = 0;
 }
 
-void UIChartDataSerial::DoDrawPoint(BufferInfo& gfxDstBuffer, const Point& center,
-                                    const PointStyle& style, const Rect& mask)
+void UIChartDataSerial::DoDrawPoint(BufferInfo& gfxDstBuffer,
+                                    const Point& center,
+                                    const PointStyle& style,
+                                    const Rect& mask)
 {
     Style drawStyle = StyleDefault::GetDefaultStyle();
     drawStyle.lineOpa_ = OPA_OPAQUE;
@@ -512,7 +530,17 @@ void UIChartPolyline::DrawDataSerials(BufferInfo& gfxDstBuffer, const Rect& inva
             continue;
         }
         if (data->IsGradient()) {
-            GradientColor(gfxDstBuffer, invalidatedArea, data);
+            if (data->IsSmooth()) {
+                Point* pointArrayBack = nullptr;
+                data->PointArrayDup(&pointArrayBack);
+                GetDataBySmooth(0, dataCount - 1, data);
+                GradientColor(gfxDstBuffer, invalidatedArea, data);
+                data->ClearData();
+                data->AddPoints(pointArrayBack, dataCount);
+                UIFree(pointArrayBack);
+            } else {
+                GradientColor(gfxDstBuffer, invalidatedArea, data);
+            }
         }
         if (data->GetHideCount() != 0) {
             uint16_t hideIndex = data->GetHideIndex();
@@ -524,6 +552,56 @@ void UIChartPolyline::DrawDataSerials(BufferInfo& gfxDstBuffer, const Rect& inva
 
         data->DrawPoint(gfxDstBuffer, invalidatedArea);
     }
+}
+
+bool UIChartPolyline::Smooth(uint16_t startPos,
+                             Point& start,
+                             Point& end,
+                             Point& current,
+                             UIChartDataSerial* data,
+                             uint16_t& slope,
+                             uint16_t& preSlope)
+{
+    data->GetPoint(startPos + 1, current);
+    if (((end.y - start.y <= 0) && (current.y - end.y <= 0)) || ((end.y - start.y >= 0) && (current.y - end.y >= 0))) {
+        slope = (current.x == start.x) ? QUARTER_IN_DEGREE : FastAtan2(current.x - start.x, current.y - start.y);
+        if (MATH_ABS(slope - preSlope) < SMOOTH_SLOPE_ANGLE) {
+            end = current;
+            return false;
+        }
+    }
+    preSlope = (current.x == end.x) ? QUARTER_IN_DEGREE : FastAtan2(current.x - end.x, current.y - end.y);
+    return true;
+}
+
+void UIChartPolyline::GetDataBySmooth(uint16_t startIndex, uint16_t endIndex, UIChartDataSerial* data)
+{
+    if (data == nullptr) {
+        return;
+    }
+    Point* pointArray = static_cast<Point*>(UIMalloc(sizeof(Point) * data->GetDataCount()));
+    Point start;
+    Point end;
+
+    uint16_t slope;
+    data->GetPoint(startIndex, start);
+    data->GetOriginalPoint(startIndex, pointArray[0]);
+    int count = 1;
+    data->GetPoint(startIndex + 1, end);
+    uint16_t preSlope = (start.x == end.x) ? QUARTER_IN_DEGREE : FastAtan2(end.x - start.x, end.y - start.y);
+    Point current;
+    for (uint16_t i = startIndex; i < endIndex; i++) {
+        if (!Smooth(i, start, end, current, data, slope, preSlope)) {
+            continue;
+        }
+        data->GetOriginalPoint(i, pointArray[count++]);
+        start = end;
+        end = current;
+    }
+    data->GetOriginalPoint(endIndex, pointArray[count++]);
+    data->ClearData();
+    data->AddPoints(pointArray, count);
+    UIFree(pointArray);
 }
 
 void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
@@ -548,16 +626,9 @@ void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
     Point current;
     BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     for (uint16_t i = startIndex; i < endIndex; i++) {
-        data->GetPoint(i + 1, current);
-        if (((end.y - start.y <= 0) && (current.y - end.y <= 0)) ||
-            ((end.y - start.y >= 0) && (current.y - end.y >= 0))) {
-            slope = (current.x == start.x) ? QUARTER_IN_DEGREE : FastAtan2(current.x - start.x, current.y - start.y);
-            if (MATH_ABS(slope - preSlope) < SMOOTH_SLOPE_ANGLE) {
-                end = current;
-                continue;
-            }
+        if (!Smooth(i, start, end, current, data, slope, preSlope)) {
+            continue;
         }
-        preSlope = (current.x == end.x) ? QUARTER_IN_DEGREE : FastAtan2(current.x - end.x, current.y - end.y);
         Rect rect;
         rect.SetLeft(MATH_MIN(start.x, end.x) - style_->lineWidth_);
         rect.SetRight(MATH_MAX(start.x, end.x) + style_->lineWidth_);
@@ -568,8 +639,7 @@ void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
             end = current;
             continue;
         }
-        baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
-            style_->lineWidth_, color, OPA_OPAQUE);
+        baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, style_->lineWidth_, color, OPA_OPAQUE);
         ArcInfo arcinfo = {{0}};
         arcinfo.center = end;
         arcinfo.imgPos = Point{0, 0};
@@ -577,13 +647,11 @@ void UIChartPolyline::DrawSmoothPolyLine(BufferInfo& gfxDstBuffer,
         arcinfo.startAngle = 0;
         arcinfo.endAngle = CIRCLE_IN_DEGREE;
 
-        baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea,
-            style, OPA_OPAQUE, CapType::CAP_NONE);
+        baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea, style, OPA_OPAQUE, CapType::CAP_NONE);
         start = end;
         end = current;
     }
-    baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
-        style_->lineWidth_, color, OPA_OPAQUE);
+    baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, style_->lineWidth_, color, OPA_OPAQUE);
 }
 
 void UIChartPolyline::DrawPolyLine(BufferInfo& gfxDstBuffer,
@@ -624,18 +692,15 @@ void UIChartPolyline::DrawPolyLine(BufferInfo& gfxDstBuffer,
             continue;
         }
 
-        baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
-            style_->lineWidth_, color, OPA_OPAQUE);
+        baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, style_->lineWidth_, color, OPA_OPAQUE);
         if (style_->lineWidth_ >= LINE_JOIN_WIDTH) {
             arcinfo.center = end;
-            baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea,
-                style, OPA_OPAQUE, CapType::CAP_NONE);
+            baseGfxEngine->DrawArc(gfxDstBuffer, arcinfo, invalidatedArea, style, OPA_OPAQUE, CapType::CAP_NONE);
         }
     }
     data->GetPoint(endIndex - 1, start);
     data->GetPoint(endIndex, end);
-    baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea,
-        style_->lineWidth_, color, OPA_OPAQUE);
+    baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, style_->lineWidth_, color, OPA_OPAQUE);
 }
 
 bool UIChartPolyline::GetLineCrossPoint(const Point& p1,
@@ -678,7 +743,7 @@ bool UIChartPolyline::GetLineCrossPoint(const Point& p1,
         }
     }
     if ((MATH_MIN(p1.x, p2.x) <= MATH_MAX(p3.x, p4.x)) && (MATH_MIN(p3.x, p4.x) <= MATH_MAX(p1.x, p2.x)) &&
-    (MATH_MIN(p1.y, p2.y) >= MATH_MAX(p3.y, p4.y)) && (MATH_MIN(p3.y, p4.y) <= MATH_MAX(p1.y, p2.y))) {
+        (MATH_MIN(p1.y, p2.y) >= MATH_MAX(p3.y, p4.y)) && (MATH_MIN(p3.y, p4.y) <= MATH_MAX(p1.y, p2.y))) {
         return enableReverse_ ? true : false;
     }
     return false;
@@ -767,22 +832,22 @@ void UIChartPolyline::DrawGradientColor(BufferInfo& gfxDstBuffer,
         }
         start.y = enableReverse_ ? (start.y - startY) : (startY - start.y);
         end.y = enableReverse_ ? (end.y - startY) : (startY - end.y);
-        polyLine = { start, end };
+        polyLine = {start, end};
         FindCrossPoints(linePoints, polyLine, cross);
         if (cross.firstFind && cross.secondFind) {
             cross.first.y = enableReverse_ ? (cross.first.y + startY) : (startY - cross.first.y);
             cross.second.y = enableReverse_ ? (cross.second.y + startY) : (startY - cross.second.y);
-            baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second,
-                invalidatedArea, 1, data->GetFillColor(), mixData_[mixScale]);
+            baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second, invalidatedArea, 1, data->GetFillColor(),
+                                    mixData_[mixScale]);
             cross.firstFind = false;
             cross.secondFind = false;
         }
     }
     if (cross.firstFind && !cross.secondFind) {
-        cross.second = { limitPoints.end.x, y };
+        cross.second = {limitPoints.end.x, y};
         cross.first.y = y;
-        baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second,
-            invalidatedArea, 1, data->GetFillColor(), mixData_[mixScale]);
+        baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second, invalidatedArea, 1, data->GetFillColor(),
+                                mixData_[mixScale]);
     }
 }
 
@@ -852,8 +917,8 @@ void UIChartPolyline::GradientColor(BufferInfo& gfxDstBuffer, const Rect& invali
             }
             Point start = {limitPoints.start.x, y};
             Point end = {limitPoints.end.x, y};
-            baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, 1,
-                                    data->GetFillColor(), mixData_[mixScale]);
+            baseGfxEngine->DrawLine(gfxDstBuffer, start, end, invalidatedArea, 1, data->GetFillColor(),
+                                    mixData_[mixScale]);
         }
         y--;
     }

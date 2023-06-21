@@ -111,6 +111,25 @@ public:
     bool GetPoint(uint16_t index, Point& point);
 
     /**
+     * @brief Obtains the coordinates in the chart for a original data point in the data set.
+     *
+     * @param index Indicates the index of the data point to obtain.
+     * @param point Indicates the obtained coordinates. the original value of the data point is printed.
+     *
+     * @return Returns <b>true</b> if the operation is successful; returns <b>false</b> otherwise.
+     */
+    bool GetOriginalPoint(uint16_t index, Point& point);
+
+    /**
+     * @brief Backup a variable
+     *
+     * @param pointArrayBack Indicates a copy of the variable
+     *
+     * @return Returns <b>true</b> if the operation is successful; returns <b>false</b> otherwise.
+     */
+    bool PointArrayDup(Point** pointArrayBack);
+    
+    /**
      * @brief Adds data points.
      *
      * The new data points are appended to the last added data. \n
@@ -569,6 +588,7 @@ private:
     PointStyle bottomPointStyle_;
     UIChart* chart_;
     Rect invalidateRect_;
+
     void RefreshInvalidateRect(uint16_t startIndex, uint16_t endIndex);
     void RefreshInvalidateRect(uint16_t pointIndex, const PointStyle& style);
     bool UpdatePeakAndValley(uint16_t startPos, uint16_t endPos);
@@ -884,8 +904,19 @@ private:
                             uint16_t endIndex,
                             const Rect& invalidatedArea,
                             UIChartDataSerial* data);
-    void DrawPolyLine(BufferInfo& gfxDstBuffer, uint16_t startIndex, uint16_t endIndex,
-                      const Rect& invalidatedArea, UIChartDataSerial* data);
+    void GetDataBySmooth(uint16_t startIndex, uint16_t endIndex, UIChartDataSerial* data);
+    bool Smooth(uint16_t startPos,
+                Point& start,
+                Point& end,
+                Point& current,
+                UIChartDataSerial* data,
+                uint16_t& slope,
+                uint16_t& preSlope);
+    void DrawPolyLine(BufferInfo& gfxDstBuffer,
+                      uint16_t startIndex,
+                      uint16_t endIndex,
+                      const Rect& invalidatedArea,
+                      UIChartDataSerial* data);
     bool GetLineCrossPoint(const Point& p1, const Point& p2, const Point& p3, const Point& p4, Point& cross);
     void FindCrossPoints(const ChartLine& line, const ChartLine& polyLine, CrossPointSet& cross);
     void ReMeasure() override;
