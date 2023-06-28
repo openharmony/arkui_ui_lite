@@ -71,9 +71,9 @@ if (os_level == "standard") {
     deps = [
       "//third_party/bounds_checking_function:libsec_static",
       "//third_party/freetype:freetype_static",
+      "//third_party/icu/icu4c/source/common:icu_font",
       "//third_party/libjpeg-turbo:turbojpeg_static",
       "//third_party/libpng:libpng",
-      "//third_party/icu/icu4c/source/common:icu_font",
     ]
 
     install_images = [
