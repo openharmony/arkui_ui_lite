@@ -384,7 +384,7 @@ int16_t Text::TextPositionY(const Rect& textRect, int16_t textHeight)
             yOffset = textRect.GetHeight() - textHeight;
         }
     }
-    return textRect.GetY() + yOffset + EXTRA_HEIGHT / 2;   // 2:half extra height for first line
+    return textRect.GetY() + yOffset;
 }
 
 int16_t Text::LineStartPos(const Rect& textRect, uint16_t lineWidth)
