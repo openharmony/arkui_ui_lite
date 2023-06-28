@@ -24,7 +24,7 @@ if (os_level == "standard") {
     defines = [
       "__LITEOS_M__",
       "ENABLE_BITMAP_FONT = 0",
-      "ENABLE_ICU = 0",
+      "ENABLE_ICU = 1",
       "ENABLE_JPEG_AND_PNG = 1",
       "ENABLE_MULTI_FONT = 0",
       "ENABLE_SHAPING = 0",
@@ -35,13 +35,9 @@ if (os_level == "standard") {
     sources = arkui_ui_lite_sources + graphic_utils_sources
     sources -= [
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_abstract_clock.cpp",
-      "$ARKUI_UI_LITE_PATH/frameworks/components/ui_abstract_scroll.cpp",
-      "$ARKUI_UI_LITE_PATH/frameworks/components/ui_abstract_scroll_bar.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_analog_clock.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_arc_label.cpp",
-      "$ARKUI_UI_LITE_PATH/frameworks/components/ui_arc_scroll_bar.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_axis.cpp",
-      "$ARKUI_UI_LITE_PATH/frameworks/components/ui_box_scroll_bar.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_canvas.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_chart.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_checkbox.cpp",
@@ -53,7 +49,6 @@ if (os_level == "standard") {
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_qrcode.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_radio_button.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_repeat_button.cpp",
-      "$ARKUI_UI_LITE_PATH/frameworks/components/ui_scroll_view.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_slider.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_surface_view.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_swipe_view.cpp",
@@ -66,7 +61,6 @@ if (os_level == "standard") {
       "$ARKUI_UI_LITE_PATH/frameworks/dfx/point_event_injector.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/dfx/ui_dump_dom_tree.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/dock/ohos/ohos_input_device.cpp",
-      "$ARKUI_UI_LITE_PATH/frameworks/dock/vibrator_manager.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/dock/virtual_input_device.cpp",
     ]
     include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
@@ -79,6 +73,7 @@ if (os_level == "standard") {
       "//third_party/freetype:freetype_static",
       "//third_party/libjpeg-turbo:turbojpeg_static",
       "//third_party/libpng:libpng",
+      "//third_party/icu/icu4c/source/common:icu_font",
     ]
 
     install_images = [
