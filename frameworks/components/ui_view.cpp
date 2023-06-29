@@ -433,10 +433,18 @@ void UIView::ClearFocus()
 
 void UIView::Invalidate()
 {
+    UIView* view = this;
+    while (view != nullptr) {
+        if (view->transMap_ != nullptr && !view->GetTransformMap().IsInvalid() && view != this) {
+            InvalidateRect(view->GetRect(), view);
+            return;
+        }
+        view = view->parent_;
+    }
     InvalidateRect(GetRect());
 }
 
-void UIView::InvalidateRect(const Rect& invalidatedArea)
+void UIView::InvalidateRect(const Rect& invalidatedArea, UIView* view)
 {
     if (!visible_) {
         if (needRedraw_) {
@@ -446,10 +454,13 @@ void UIView::InvalidateRect(const Rect& invalidatedArea)
         }
     }
 
+    if (view == nullptr) {
+        view = this;
+    }
     Rect trunc(invalidatedArea);
     bool isIntersect = true;
-    UIView* par = parent_;
-    UIView* cur = this;
+    UIView* par = view->parent_;
+    UIView* cur = view;
 
     while (par != nullptr) {
         if (!par->visible_) {
@@ -467,7 +478,7 @@ void UIView::InvalidateRect(const Rect& invalidatedArea)
 
     if (isIntersect && (cur->GetViewType() == UI_ROOT_VIEW)) {
         RootView* rootView = reinterpret_cast<RootView*>(cur);
-        rootView->AddInvalidateRectWithLock(trunc, this);
+        rootView->AddInvalidateRectWithLock(trunc, view);
     }
 }
 
@@ -724,7 +735,7 @@ void UIView::GetTargetView(const Point& point, UIView** current, UIView** target
     Rect rect = GetRect();
 
     if (par != nullptr) {
-        rect.Intersect(par->GetContentRect(), rect);
+        rect.Intersect(par->GetOrigContentRect(), rect);
     }
 
     if (visible_ && rect.IsContains(point)) {
@@ -795,6 +806,16 @@ Rect UIView::GetContentRect()
     }
 
     Rect contentRect = GetRect();
+    contentRect.SetX(contentRect.GetX() + style_->paddingLeft_ + style_->borderWidth_);
+    contentRect.SetY(contentRect.GetY() + style_->paddingTop_ + style_->borderWidth_);
+    contentRect.SetWidth(GetWidth());
+    contentRect.SetHeight(GetHeight());
+    return contentRect;
+}
+
+Rect UIView::GetOrigContentRect()
+{
+    Rect contentRect = GetOrigRect();
     contentRect.SetX(contentRect.GetX() + style_->paddingLeft_ + style_->borderWidth_);
     contentRect.SetY(contentRect.GetY() + style_->paddingTop_ + style_->borderWidth_);
     contentRect.SetWidth(GetWidth());

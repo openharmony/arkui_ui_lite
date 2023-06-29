@@ -317,6 +317,17 @@ public:
     {
         Rect contentRect;
         Style* style = buttonStyles_[state_];
+        contentRect.SetX(GetRect().GetX() + style->paddingLeft_ + style->borderWidth_);
+        contentRect.SetY(GetRect().GetY() + style->paddingTop_ + style->borderWidth_);
+        contentRect.SetWidth(GetWidth());
+        contentRect.SetHeight(GetHeight());
+        return contentRect;
+    }
+
+    Rect GetOrigContentRect() override
+    {
+        Rect contentRect;
+        Style* style = buttonStyles_[state_];
         contentRect.SetX(GetOrigRect().GetX() + style->paddingLeft_ + style->borderWidth_);
         contentRect.SetY(GetOrigRect().GetY() + style->paddingTop_ + style->borderWidth_);
         contentRect.SetWidth(GetWidth());

@@ -479,7 +479,7 @@ public:
      * @since 1.0
      * @version 1.0
      */
-    void InvalidateRect(const Rect& invalidatedArea);
+    void InvalidateRect(const Rect& invalidatedArea, UIView* view = nullptr);
 
     /**
      * @brief Called when the view is long pressed.
@@ -800,6 +800,8 @@ public:
      * @version 1.0
      */
     virtual Rect GetContentRect();
+
+    virtual Rect GetOrigContentRect();
 
     /**
      * @brief Obtains the rectangular area of the view relative to the parent view, that is, the rectangular area
