@@ -128,7 +128,7 @@ public:
      * @return Returns <b>true</b> if the operation is successful; returns <b>false</b> otherwise.
      */
     bool PointArrayDup(Point** pointArrayBack);
-    
+
     /**
      * @brief Adds data points.
      *
