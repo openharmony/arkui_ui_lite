@@ -231,16 +231,21 @@ void UIViewGroup::GetTargetView(const Point& point, UIView** current, UIView** t
     if (isDragging_) {
         return;
     }
+    Point pointTran = point;
+    if (transMap_ != nullptr && !GetTransformMap().IsInvalid()) {
+        Rect relativeRect = GetOrigRect();
+        pointTran = GetTransformMap().GetOrigPoint(point, relativeRect);
+    }
     UIView* view = GetChildrenRenderHead();
     while (view != nullptr) {
         if (!view->IsViewGroup()) {
             rect = view->GetRect();
-            if (rect.IsContains(point)) {
-                view->GetTargetView(point, current, target);
+            if (rect.IsContains(pointTran)) {
+                view->GetTargetView(pointTran, current, target);
             }
         } else {
             UIViewGroup* viewGroup = static_cast<UIViewGroup*>(view);
-            viewGroup->GetTargetView(point, current, target);
+            viewGroup->GetTargetView(pointTran, current, target);
         }
         view = view->GetNextRenderSibling();
     }
