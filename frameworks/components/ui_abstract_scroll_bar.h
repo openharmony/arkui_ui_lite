@@ -57,7 +57,7 @@ public:
     }
 
 protected:
-    uint8_t opacity_ = OPA_TRANSPARENT;
+    uint8_t opacity_ = OPA_OPAQUE;
     float scrollProgress_ = 0;
     float foregroundProportion_ = 0;
     Style* backgroundStyle_ = nullptr;
