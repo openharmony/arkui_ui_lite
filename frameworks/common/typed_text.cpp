@@ -81,7 +81,6 @@ Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize
             size.y = lineHeight;
         }
     }
-    size.y += EXTRA_HEIGHT;
     return size;
 }
 

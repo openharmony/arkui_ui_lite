@@ -222,7 +222,6 @@ constexpr uint16_t INVALID_USHORT_ID = 0xFFFF;
 constexpr uint32_t INVALID_UINT_ID = 0xFFFFFFFF;
 constexpr int8_t INVALID_RET_VALUE = -1;
 constexpr int8_t RET_VALUE_OK = 0;
-constexpr uint16_t EXTRA_HEIGHT = 2;
 constexpr const char* FONT_MAGIC_NUMBER = const_cast<char *>("OHOS.");
 
 /**
