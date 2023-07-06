@@ -31,8 +31,6 @@
 #ifndef GRAPHIC_LITE_UI_EDIT_TEXT
 #define GRAPHIC_LITE_UI_EDIT_TEXT
 
-#include <cstring>
-
 #include "animator/animator.h"
 #include "common/text.h"
 #include "components/ui_view.h"
@@ -99,8 +97,6 @@ public:
      * @return Returns <b>true</b> if the event is consumed; returns <b>false</b> otherwise.
      */
     bool OnLongPressEvent(const LongPressEvent& event) override;
-
-    void DealPressEvents(const Event &event);
 
     /**
      * @brief Sets the view style.
@@ -307,14 +303,14 @@ public:
      *
      * @param text the text input by the user passed form input method.
      */
-    void InsertText(std::string text);
+    virtual void InsertText(std::string text);
 
     /**
      * @brief Delete the input text from backward.
      *
      * @param length the length of charactor to delete.
      */
-    void DeleteBackward(uint32_t length);
+    virtual void DeleteBackward(uint32_t length);
 
     /**
      * @brief Sets the vaule listener for this view.
@@ -363,23 +359,34 @@ public:
     uint16_t GetCursorIndex();
 
 protected:
+    virtual void InitText();
+    virtual void UpdateExtraOffsetX(const uint16_t firstVisibleIndex,
+                                    const uint16_t lastVisibleIndex);
+    virtual uint16_t GetFirstVisibleIndex();
+    virtual uint16_t GetLastVisibleIndex();
+    virtual uint16_t GetTextLength();
+    virtual void UpdateInsertDeletedOffset();
+    virtual void UpdateOffsetX();
+    void SetText(std::string text);
+
     Text* inputText_;
     Text* placeholderText_;
-    void RefreshText();
-    virtual void InitText();
-
+    int16_t offsetX_;
+    uint16_t cursorIndex_;
+    uint16_t deleteTextWidth_;
+    uint16_t insertTextWidth_;
 private:
     friend class CursorAnimator;
 
     void RemeasureForMarquee(int16_t textWidth);
     void UpdateInnerText();
     void CheckValueChange(std::string text);
-    void SetText(std::string text);
+    void RefreshText();
     void UpdateTextString(std::string text);
-    void CalculatedCursorPos();
+    void CalculatedCursorPos(bool drawPlaceholder);
+    void DealPressEvents(bool longPressEvent, const Event &event);
     std::string GetInnerText();
     std::string GetInnerPassword();
-    void UpdateOffsetX(bool isDeleteCharacter = false);
     void DrawCursor(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, bool drawPlaceholder);
 
     bool needRefresh_;
@@ -389,8 +396,6 @@ private:
     bool isSetTextByInterface_;
     uint16_t maxLength_;
     uint16_t placeholderEllipsisIndex_;
-    uint16_t cursorIndex_;
-    int16_t offsetX_;
     int16_t cursorPosX_;
     ColorType textColor_;
     ColorType placeholderColor_;

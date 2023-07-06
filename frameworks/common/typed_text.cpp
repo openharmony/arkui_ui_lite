@@ -264,24 +264,33 @@ bool TypedText::GetWrapPoint(const char* text, uint32_t& breakPoint)
     return false;
 }
 
-int16_t TypedText::GetTextWidth(const char* text, uint16_t fontId, uint8_t fontSize, uint16_t length,
-                                int16_t letterSpace)
+int16_t TypedText::GetTextWidth(const char* text,
+                                uint16_t fontId,
+                                uint8_t fontSize,
+                                uint16_t length,
+                                int16_t letterSpace,
+                                uint16_t beginUTF8Index,
+                                uint16_t count)
 {
     if ((text == nullptr) || (length == 0) || (length > strlen(text))) {
         GRAPHIC_LOGE("TypedText::GetTextWidth invalid parameter\n");
         return 0;
     }
 
-    uint32_t i = 0;
+    uint32_t byteIndex = GetByteIndexFromUTF8Id(text, beginUTF8Index);
     uint16_t width = 0;
 
-    while (i < length) {
-        uint32_t letter = GetUTF8Next(text, i, i);
+    while (byteIndex < length) {
+        uint32_t letter = GetUTF8Next(text, byteIndex, byteIndex);
         if ((letter == 0) || (letter == '\n') || (letter == '\r')) {
             continue;
         }
         uint16_t charWidth = UIFont::GetInstance()->GetWidth(letter, fontId, fontSize, 0);
         width += charWidth + letterSpace;
+        count--;
+        if (count == 0) {
+            break;
+        }
     }
     if (width > 0) {
         width -= letterSpace;
@@ -463,7 +472,7 @@ uint16_t TypedText::Utf16ToUtf32(const uint16_t* utf16Str, uint32_t* utf32Str, u
     return utf32Len;
 }
 
-uint32_t TypedText::GetUtf16Cnt(const char* utf8Str)
+uint32_t TypedText::GetUtf16Cnt(const char* utf8Str, uint32_t maxLength)
 {
     if (utf8Str == nullptr) {
         GRAPHIC_LOGE("text invalid parameter");
@@ -472,7 +481,7 @@ uint32_t TypedText::GetUtf16Cnt(const char* utf8Str)
     uint32_t len = 0;
     uint32_t i = 0;
 
-    while (utf8Str[i] != '\0') {
+    while (utf8Str[i] != '\0' && i < maxLength) {
         uint32_t unicode = GetUTF8Next(utf8Str, i, i);
         if (unicode <= MAX_UINT16_LOW_SCOPE) {
             len++;

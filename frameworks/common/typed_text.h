@@ -59,7 +59,9 @@ public:
                                 uint16_t fontId,
                                 uint8_t fontSize,
                                 uint16_t length,
-                                int16_t letterSpace);
+                                int16_t letterSpace,
+                                uint16_t beginUTF8Index = 0,
+                                uint16_t count = UINT16_MAX);
 
     static Rect GetArcTextRect(const char* text,
                                 uint16_t fontId,
@@ -90,7 +92,7 @@ public:
     static void Utf8ToUtf16(const char* utf8Str, uint16_t* utf16Str, uint32_t len);
     static uint16_t Utf16ToUtf32(const uint16_t* utf16Str, uint32_t* utf32Str, uint32_t len);
     static int32_t Utf16ToUtf32Word(const uint16_t* src, uint32_t& des);
-    static uint32_t GetUtf16Cnt(const char* utf8Str);
+    static uint32_t GetUtf16Cnt(const char* utf8Str, uint32_t maxLength = INT32_MAX);
 
     static bool IsEmoji(uint32_t codePoint);
     static bool IsEmojiModifier(uint32_t codePoint);
