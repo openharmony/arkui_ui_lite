@@ -41,7 +41,7 @@
 #include "font/ui_font_header.h"
 
 namespace OHOS {
-class UIFontCache {
+class UIFontCache : public HeapBase {
 public:
     static constexpr uint8_t FONT_CACHE_HASH_NR = 32;
     static constexpr uint32_t FONT_CACHE_MIN_SIZE = 20 * 20;
