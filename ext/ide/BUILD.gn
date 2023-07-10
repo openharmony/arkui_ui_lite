@@ -71,6 +71,18 @@ ohos_static_library("ui_ide") {
   configs = [ ":graphic_config_ide" ]
 }
 
+# copy liteWearable config dir
+ohos_copy("copy_previewer_fonts_lite_full") {
+  sources = [
+    "../../tools/qt/simulator/font/SourceHanSansSC-Regular.otf",
+    "../../tools/qt/simulator/font/line_cj.brk",
+  ]
+  outputs = [ target_out_dir + "/previewer/liteWearable/config/" +
+              "/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/previewer/liteWearable/config/"
+  module_install_name = ""
+}
+
 config("graphic_utils_public_config_ide") {
   include_dirs = graphic_utils_include_dirs
 }
