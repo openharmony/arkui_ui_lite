@@ -48,6 +48,13 @@
 #endif
 
 namespace OHOS {
+namespace {
+constexpr char16_t PASSWORD_DOT = u'*'; // dot for password type
+constexpr uint16_t DEFAULT_TEXT_OFFSET = 5;
+constexpr uint16_t DEFAULT_CURSOR_OFFSET = 1;
+constexpr uint16_t DEFAULT_CURSOR_WIDTH = 2;
+} // namespace name
+
 /**
  * @brief Enumerates text alignment modes.
  */
@@ -471,7 +478,7 @@ public:
 
     void SetAbsoluteSizeSpan(uint16_t start, uint16_t end, uint8_t size);
     void SetRelativeSizeSpan(uint16_t start, uint16_t end, float size);
-    virtual uint16_t GetLetterIndexByLinePosition(const Style& style,
+    virtual uint16_t GetLetterIndexByLinePosition(const Style& style, int16_t contentWidth,
                                                   const int16_t& posX, int16_t offsetX);
     virtual uint16_t GetPosXByLetterIndex(const Rect& textRect, const Style& style,
                                           uint16_t beginIndex, uint16_t count);
@@ -491,14 +498,18 @@ public:
     }
 
     /**
-     * @brief Get Text Length
+     * @brief Get next character full dispaly offset.
      *
-     * @return Return text length
+     * @param textRect Indicates size of input box.
+     * @param style Indicates the style of text.
+     * @param beginIndex Indicates index at the beginning of the text.
+     * @param num Indicates num of text.
+     *
+     * @return Return text offset.
+     *
      */
-    uint16_t GetTextLength()
-    {
-        return std::strlen(text_);
-    }
+    virtual uint16_t GetNextCharacterFullDispalyOffset(const Rect& textRect,
+        const Style& style, uint16_t beginIndex, uint16_t num);
 
 protected:
     struct TextLine {
@@ -516,7 +527,7 @@ protected:
 
     virtual uint32_t
         GetTextLine(uint32_t begin, uint32_t textLen, int16_t width, uint16_t lineNum, uint8_t letterSpace,
-                    uint16_t& letterIndex, SizeSpan* sizeSpans);
+                    uint16_t& letterIndex, SizeSpan* sizeSpans, TextLine& textLine);
 
     virtual uint16_t GetLetterIndexByPosition(const Rect& textRect, const Style& style, const Point& pos);
 
@@ -555,6 +566,7 @@ protected:
     List<LineBackgroundColor> linebackgroundColor_;
     SizeSpan* sizeSpans_;
     uint32_t characterSize_;
+    TextLine preIndexLine_;
 
 private:
     uint8_t horizontalAlign_ : 4; // UITextLanguageAlignment

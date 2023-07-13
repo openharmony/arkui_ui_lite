@@ -25,13 +25,6 @@
 #include "common/typed_text.h"
 
 namespace OHOS {
-namespace {
-constexpr char16_t PASSWORD_DOT = u'*'; // dot for password type
-constexpr uint16_t DEFAULT_TEXT_OFFSET = 5;
-constexpr uint16_t DEFAULT_CURSOR_OFFSET = 2;
-constexpr uint16_t DEFAULT_CURSOR_WIDTH = 2;
-} // namespace name
-
 class CursorAnimator : public Animator, public AnimatorCallback {
 public:
     explicit CursorAnimator(UIEditText* view) : Animator(this, view, 0, true), editText_(view) {}
@@ -86,6 +79,10 @@ private:
 UIEditText::UIEditText()
     : inputText_(nullptr),
       placeholderText_(nullptr),
+      offsetX_(DEFAULT_TEXT_OFFSET),
+      cursorIndex_(0),
+      deleteTextWidth_(0),
+      insertTextWidth_(0),
       needRefresh_(false),
       useTextColor_(false),
       isFocused_(false),
@@ -93,8 +90,6 @@ UIEditText::UIEditText()
       isSetTextByInterface_(false),
       maxLength_(MAX_TEXT_LENGTH),
       placeholderEllipsisIndex_(Text::TEXT_ELLIPSIS_END_INV),
-      cursorIndex_(0),
-      offsetX_(DEFAULT_TEXT_OFFSET),
       cursorPosX_(0),
       textColor_(Color::White()),
       placeholderColor_(Color::Gray()),
@@ -107,6 +102,7 @@ UIEditText::UIEditText()
     Theme* theme = ThemeManager::GetInstance().GetCurrent();
     Style& style = (theme != nullptr) ? (theme->GetEditTextStyle()) : (StyleDefault::GetEditTextStyle());
     UIView::SetStyle(style);
+    InitText();
 }
 
 UIEditText::~UIEditText()
@@ -127,25 +123,28 @@ UIEditText::~UIEditText()
 
 bool UIEditText::OnPressEvent(const PressEvent& event)
 {
-    DealPressEvents(event);
+    DealPressEvents(false, event);
     return UIView::OnPressEvent(event);
 }
 
 bool UIEditText::OnLongPressEvent(const LongPressEvent &event)
 {
-    DealPressEvents(event);
+    DealPressEvents(true, event);
     return UIView::OnLongPressEvent(event);
 }
 
-void UIEditText::DealPressEvents(const Event &event)
+void UIEditText::DealPressEvents(bool longPressEvent, const Event &event)
 {
     if (touchable_) {
-        Point pressPos = event.GetCurrentPos();
-        pressPos.x = pressPos.x - GetOrigRect().GetX();
-        pressPos.y = pressPos.y - GetOrigRect().GetY();
-        Style style = GetStyleConst();
-        cursorIndex_ = inputText_->GetLetterIndexByLinePosition(style, pressPos.x, offsetX_);
-        UpdateOffsetX();
+        if (!longPressEvent) {
+            Point pressPos = event.GetCurrentPos();
+            pressPos.x = pressPos.x - GetOrigRect().GetX();
+            pressPos.y = pressPos.y - GetOrigRect().GetY();
+            Style style = GetStyleConst();
+            cursorIndex_ = inputText_->GetLetterIndexByLinePosition(style,
+                GetContentRect().GetWidth(), pressPos.x, offsetX_);
+            UpdateOffsetX();
+        }
         RequestFocus();
         Invalidate();
     }
@@ -340,50 +339,97 @@ void UIEditText::ReMeasure()
     UpdateOffsetX();
 }
 
-void UIEditText::UpdateOffsetX(bool isDeleteCharacter)
+void UIEditText::UpdateOffsetX()
 {
-    if (!inputText_ || inputText_->GetTextLength() == 0) {
+    if (!inputText_) {
+        return;
+    }
+    uint16_t textLength = GetTextLength();
+    if (textLength == 0) {
         return;
     }
 
     Rect contentRect = GetContentRect();
     Style style = GetStyleConst();
-    uint16_t firstVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, 0,
-        offsetX_ - DEFAULT_TEXT_OFFSET);
-    uint16_t lastVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, contentRect.GetWidth(),
-        offsetX_);
-    if (firstVisibleIndex == 0 && lastVisibleIndex == inputText_->GetTextLength()) {
-        offsetX_ = DEFAULT_TEXT_OFFSET;
-    } else {
-        if (isSetTextByInterface_) {
-            isSetTextByInterface_ = false;
-            offsetX_ = DEFAULT_TEXT_OFFSET;
-            return;
-        }
 
-        cursorPosX_ = inputText_->GetPosXByLetterIndex(contentRect, style, 0, static_cast<uint16_t>(cursorIndex_));
-        uint16_t characterSize = 0;
-        uint16_t beginIndex = 0;
-        const uint16_t oneCharacter = 1;
-        if (isDeleteCharacter) {
-            beginIndex = cursorIndex_ - oneCharacter > 0 ? cursorIndex_ - oneCharacter : cursorIndex_;
-            characterSize= inputText_->GetPosXByLetterIndex(contentRect, style, beginIndex, oneCharacter);
-            if (offsetX_ + DEFAULT_TEXT_OFFSET < 0) {
-                offsetX_ += characterSize;
-            }
-        } else {
-            if (cursorIndex_ - firstVisibleIndex <= oneCharacter && firstVisibleIndex != 0) {
-                beginIndex = (firstVisibleIndex - oneCharacter) > 0 ? (firstVisibleIndex - oneCharacter) : 0;
-                characterSize= inputText_->GetPosXByLetterIndex(contentRect, style, beginIndex, oneCharacter);
-                int tmp = firstVisibleIndex == 1 ? DEFAULT_TEXT_OFFSET + characterSize : characterSize;
-                offsetX_ += tmp;
-            } else if (lastVisibleIndex - cursorIndex_ <= oneCharacter &&
-                       lastVisibleIndex != inputText_->GetTextLength()) {
-                beginIndex = (lastVisibleIndex - oneCharacter) > 0 ? (lastVisibleIndex - oneCharacter) : 0;
-                characterSize = inputText_->GetPosXByLetterIndex(contentRect, style, beginIndex, oneCharacter);
-                offsetX_ -= characterSize;
-            }
+    uint16_t firstVisibleIndex = GetFirstVisibleIndex();
+    uint16_t lastVisibleIndex = GetLastVisibleIndex();
+    if ((firstVisibleIndex == 0 && lastVisibleIndex == textLength) || isSetTextByInterface_) {
+        offsetX_ = DEFAULT_TEXT_OFFSET;
+        isSetTextByInterface_ = false;
+    } else if (deleteTextWidth_ > 0 || insertTextWidth_ > 0) {
+        UpdateInsertDeletedOffset();
+    } else {
+        UpdateExtraOffsetX(firstVisibleIndex, lastVisibleIndex);
+    }
+}
+
+uint16_t UIEditText::GetFirstVisibleIndex()
+{
+    if (!inputText_) {
+        return 0;
+    }
+    Rect contentRect = GetContentRect();
+    Style style = GetStyleConst();
+    uint16_t firstVisibleIndex = 0;
+    if (inputText_->GetDirect() == UITextLanguageDirect::TEXT_DIRECT_LTR) {
+        if (offsetX_ > 0) {
+            return 0;
         }
+        // Returns the number of characters that can be skipped by the offset.
+        firstVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, contentRect.GetWidth(),
+            0, offsetX_) + 1;
+    }
+    return firstVisibleIndex;
+}
+
+uint16_t UIEditText::GetLastVisibleIndex()
+{
+    if (!inputText_) {
+        return 0;
+    }
+    Rect contentRect = GetContentRect();
+    Style style = GetStyleConst();
+    uint16_t lastVisibleIndex = 0;
+    if (inputText_->GetDirect() == UITextLanguageDirect::TEXT_DIRECT_LTR) {
+        lastVisibleIndex = inputText_->GetLetterIndexByLinePosition(style, contentRect.GetWidth(),
+            contentRect.GetWidth(), offsetX_);
+    }
+    return lastVisibleIndex;
+}
+
+void UIEditText::UpdateExtraOffsetX(const uint16_t firstVisibleIndex,
+                                    const uint16_t lastVisibleIndex)
+{
+    if (!inputText_) {
+        return;
+    }
+    Rect contentRect = GetContentRect();
+    Style style = GetStyleConst();
+    uint16_t characterSize = 0;
+    uint16_t textLength = GetTextLength();
+    if (cursorIndex_ - firstVisibleIndex < 1 && firstVisibleIndex != 0) {
+        characterSize = inputText_->GetNextCharacterFullDispalyOffset(contentRect, style, firstVisibleIndex - 1, 1);
+        offsetX_ += characterSize;
+        if (GetFirstVisibleIndex() == 0) {
+            offsetX_ = DEFAULT_TEXT_OFFSET;
+        }
+    } else if (lastVisibleIndex - cursorIndex_ < 1 && lastVisibleIndex != textLength) {
+        characterSize = inputText_->GetNextCharacterFullDispalyOffset(contentRect, style, lastVisibleIndex, 1);
+        offsetX_ -= characterSize;
+    }
+}
+
+void UIEditText::UpdateInsertDeletedOffset()
+{
+    if (deleteTextWidth_ > 0) {
+        if (offsetX_ + DEFAULT_TEXT_OFFSET <= 0) {
+            offsetX_ += deleteTextWidth_;
+        }
+        deleteTextWidth_ = 0;
+    } else if (insertTextWidth_ > 0) {
+        offsetX_ -= insertTextWidth_;
+        insertTextWidth_ = 0;
     }
 }
 
@@ -418,19 +464,22 @@ void UIEditText::DrawCursor(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         return;
     }
 
-    CalculatedCursorPos();
+    CalculatedCursorPos(drawPlaceholder);
 
     Style* cursorStyle = new Style();
     cursorStyle->SetStyle(STYLE_BACKGROUND_COLOR, cursorColor_.full);
     cursorStyle->SetStyle(STYLE_BACKGROUND_OPA, OPA_OPAQUE);
 
-    Rect viewRect;
-    int16_t cursorSpace = DEFAULT_CURSOR_OFFSET;
-    if (drawPlaceholder) {
-        viewRect.SetLeft(GetOrigRect().GetX() + cursorSpace + offsetX_);
-    } else {
-        viewRect.SetLeft(cursorPosX_ + cursorSpace);
+    int16_t left = 0;
+    UITextLanguageDirect direct = drawPlaceholder ? placeholderText_->GetDirect() : inputText_->GetDirect();
+    if (direct == UITextLanguageDirect::TEXT_DIRECT_LTR) {
+        left = cursorPosX_ - DEFAULT_CURSOR_OFFSET;
+    } else if (direct == UITextLanguageDirect::TEXT_DIRECT_RTL) {
+        left = cursorPosX_ + DEFAULT_CURSOR_OFFSET;
     }
+
+    Rect viewRect;
+    viewRect.SetLeft(left);
     viewRect.SetTop(GetOrigRect().GetTop() + (GetRect().GetHeight() - inputText_->GetFontSize()) / 2); // 2: harf size
     viewRect.SetHeight(inputText_->GetFontSize());
     viewRect.SetWidth(DEFAULT_CURSOR_WIDTH);
@@ -441,19 +490,33 @@ void UIEditText::DrawCursor(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
 
 void UIEditText::InsertText(std::string text)
 {
+    InitText();
     InsertTextByCursorIndex(text);
 }
 
 void UIEditText::InsertTextByCursorIndex(std::string text)
 {
-    std::string preText = textStr_.substr(0, cursorIndex_).c_str();
-    std::string postText = "";
-    if (cursorIndex_ < textStr_.length()) {
-        postText = textStr_.substr(cursorIndex_);
+    if (!inputText_) {
+        return;
     }
-    std::string updatedString = preText + text + postText;
-    cursorIndex_ += text.length();
-    SetText(updatedString);
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+    std::wstring wideText = convert.from_bytes(textStr_);
+    std::wstring insertWText = convert.from_bytes(text);
+    uint32_t textLen = wideText.length();
+    uint32_t insertWTextLen = insertWText.length();
+    std::wstring newWideText = std::wstring(wideText, 0, cursorIndex_) + insertWText
+        + std::wstring(wideText, cursorIndex_, textLen);
+    std::string newText = convert.to_bytes(newWideText);
+    cursorIndex_ += insertWTextLen;
+    SetText(newText);
+
+    Style style = GetStyleConst();
+    Rect contentRect = GetContentRect();
+    cursorPosX_ = inputText_->GetPosXByLetterIndex(contentRect, style, 0, cursorIndex_);
+    if (cursorPosX_ > contentRect.GetWidth()) {
+        insertTextWidth_ = inputText_->GetNextCharacterFullDispalyOffset(contentRect,
+            style, cursorIndex_ - insertWTextLen, insertWTextLen) + style.letterSpace_;
+    }
 
     if (isFocused_) {
         if (cursorAnimator_ != nullptr) {
@@ -462,17 +525,22 @@ void UIEditText::InsertTextByCursorIndex(std::string text)
     }
 }
 
-void UIEditText::CalculatedCursorPos()
+void UIEditText::CalculatedCursorPos(bool drawPlaceholder)
 {
+    if (!inputText_  || !placeholderText_) {
+        return;
+    }
+
     Style style = GetStyleConst();
     Rect contentRect = GetContentRect();
-    int16_t width = contentRect.GetWidth() - DEFAULT_TEXT_OFFSET * 2; // 2: left and right space
-    contentRect.SetWidth(width > 0 ? width : 0);
-    cursorPosX_ = GetOrigRect().GetX() + inputText_->GetPosXByLetterIndex(contentRect, style, 0, cursorIndex_)
-                  + DEFAULT_TEXT_OFFSET;
-
-    if (offsetX_ < 0) {
-        cursorPosX_ = cursorPosX_ - DEFAULT_TEXT_OFFSET + offsetX_;
+    UITextLanguageDirect direct = drawPlaceholder ? placeholderText_->GetDirect() : inputText_->GetDirect();
+    if (direct == UITextLanguageDirect::TEXT_DIRECT_LTR) {
+        cursorPosX_ = contentRect.GetX() + inputText_->GetPosXByLetterIndex(contentRect,
+            style, 0, cursorIndex_) + offsetX_;
+    } else if (direct == UITextLanguageDirect::TEXT_DIRECT_RTL) {
+        cursorPosX_ = GetRect().GetRight() - style.borderWidth_ - style.paddingRight_
+            - inputText_->GetPosXByLetterIndex(contentRect, style, 0, cursorIndex_)
+            - offsetX_;
     }
 }
 
@@ -499,19 +567,27 @@ void UIEditText::DeleteBackward(uint32_t length)
     if ((length == 0) || (textStr_.length() == 0) || (cursorIndex_ == 0)) {
         return;
     }
+    if (!inputText_) {
+        return;
+    }
+
+    std::string newText;
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
     std::wstring wideText = convert.from_bytes(textStr_);
-    uint32_t textLen = wideText.length();
-    if (length > textLen) {
-        length = textLen;
+    if (length > wideText.size()) {
+        cursorIndex_ = 0;
+    } else {
+        uint32_t deleteLength = cursorIndex_ >= length ? length : length - cursorIndex_;
+        if (wideText.size() >= cursorIndex_) {
+            wideText.erase(cursorIndex_ - deleteLength, deleteLength);
+        }
+        newText = convert.to_bytes(wideText);
+        cursorIndex_ -= deleteLength;
+        deleteTextWidth_ = inputText_->GetNextCharacterFullDispalyOffset(GetContentRect(),
+            GetStyleConst(), cursorIndex_, deleteLength);
     }
-    textLen -= length;
-    std::wstring newWideText = std::wstring(wideText, 0, cursorIndex_ - length)
-                               + std::wstring(wideText, cursorIndex_, textLen);
-    std::string newText = convert.to_bytes(newWideText);
-    cursorIndex_ -= length;
+
     SetText(newText);
-    UpdateOffsetX(true);
     if (cursorAnimator_ != nullptr) {
         static_cast<CursorAnimator*>(cursorAnimator_)->StartAnimator();
     }
@@ -565,5 +641,14 @@ void UIEditText::CheckValueChange(std::string text)
     if (textStr_.compare(text) != 0) {
         onChangeListener_->OnChange(*this, text.c_str());
     }
+}
+
+uint16_t UIEditText::GetTextLength()
+{
+    if (inputText_ == nullptr) {
+        return 0;
+    }
+    return TypedText::GetUTF8CharacterSize(inputText_->GetText(),
+        std::string(inputText_->GetText()).length());
 }
 } // namespace OHOS

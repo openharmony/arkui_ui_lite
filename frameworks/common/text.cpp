@@ -396,7 +396,7 @@ int16_t Text::LineStartPos(const Rect& textRect, uint16_t lineWidth)
     } else if (horizontalAlign_ == TEXT_ALIGNMENT_RIGHT) {
         xOffset = (direct_ == TEXT_DIRECT_RTL) ? rectWidth : (rectWidth - lineWidth);
     } else {
-        xOffset = (direct_ == TEXT_DIRECT_RTL) ? lineWidth : 0;
+        xOffset = (direct_ == TEXT_DIRECT_RTL) ? rectWidth : 0;
     }
     return textRect.GetX() + xOffset;
 }
@@ -414,7 +414,7 @@ uint16_t Text::GetLine(int16_t width, uint8_t letterSpace, uint16_t ellipsisInde
     uint32_t begin = 0;
     uint16_t letterIndex = 0;
     while ((begin < textLen) && (text_[begin] != '\0') && (lineNum < MAX_LINE_COUNT)) {
-        begin += GetTextLine(begin, textLen, width, lineNum, letterSpace, letterIndex, sizeSpans_);
+        begin += GetTextLine(begin, textLen, width, lineNum, letterSpace, letterIndex, sizeSpans_, textLine_[lineNum]);
         if (maxLineBytes < textLine_[lineNum].lineBytes) {
             maxLineBytes = textLine_[lineNum].lineBytes;
         }
@@ -442,7 +442,8 @@ uint32_t Text::CalculateLineWithEllipsis(uint32_t begin, uint32_t textLen, int16
     begin -= textLine_[lineNum - 1].lineBytes;
     lineNum--;
     while ((begin < textLen) && (text_[begin] != '\0') && (lineNum < MAX_LINE_COUNT)) {
-        begin += GetTextLine(begin, textLen, width, lineNum, letterSpace, letterIndex, sizeSpans);
+        begin += GetTextLine(begin, textLen, width, lineNum, letterSpace, letterIndex, sizeSpans,
+            textLine_[lineNum]);
         lineNum++;
     }
     uint32_t maxLineBytes = 0;
@@ -460,7 +461,7 @@ uint32_t Text::GetTextStrLen()
 }
 
 uint32_t Text::GetTextLine(uint32_t begin, uint32_t textLen, int16_t width, uint16_t lineNum, uint8_t letterSpace,
-                           uint16_t& letterIndex, SizeSpan* sizeSpans)
+                           uint16_t& letterIndex, SizeSpan* sizeSpans, TextLine& textLine)
 {
     int16_t lineWidth = width;
     int16_t lineHeight = 0;
@@ -470,8 +471,8 @@ uint32_t Text::GetTextLine(uint32_t begin, uint32_t textLen, int16_t width, uint
     if (nextLineBytes + begin > textLen) {
         nextLineBytes = textLen - begin;
     }
-    textLine_[lineNum].lineBytes = nextLineBytes;
-    textLine_[lineNum].linePixelWidth = lineWidth;
+    textLine.lineBytes = nextLineBytes;
+    textLine.linePixelWidth = lineWidth;
     return nextLineBytes;
 }
 
@@ -498,13 +499,16 @@ uint16_t Text::GetEllipsisIndex(const Rect& textRect, const Style& style)
     return GetLetterIndexByPosition(textRect, style, p);
 }
 
-uint16_t Text::GetLetterIndexByLinePosition(const Style& style,
+uint16_t Text::GetLetterIndexByLinePosition(const Style& style, int16_t contentWidth,
                                             const int16_t& posX, int16_t offsetX)
 {
     uint16_t letterIndex = 0;
-    int16_t width = offsetX > 0 ? posX : posX - offsetX;
-    int16_t lineHeight = style.lineHeight_;
+    int16_t width = 0;
+    if (direct_ == UITextLanguageDirect::TEXT_DIRECT_LTR) {
+        width = posX - offsetX;
+    }
 
+    int16_t lineHeight = style.lineHeight_;
     UIFontAdaptor::GetNextLineAndWidth(text_, fontId_, fontSize_, style.letterSpace_,
                                        width, lineHeight, letterIndex, sizeSpans_,
                                        false, 0xFFFF, IsEliminateTrailingSpaces());
@@ -514,11 +518,16 @@ uint16_t Text::GetLetterIndexByLinePosition(const Style& style,
 uint16_t Text::GetPosXByLetterIndex(const Rect &textRect, const Style &style,
                                     uint16_t beginIndex, uint16_t count)
 {
-    std::string preText = text_;
+    if (count == 0) {
+        return 0;
+    }
+
     int16_t maxWidth = (expandWidth_ ? COORD_MAX : textRect.GetWidth());
-    Point textSize = TypedText::GetTextSize(preText.substr(beginIndex, count).c_str(), fontId_, fontSize_,
-        style.letterSpace_, style.lineHeight_, maxWidth, style.lineSpace_, sizeSpans_);
-    return textSize.x;
+
+    int16_t textWidth = TypedText::GetTextWidth(text_, fontId_, fontSize_, GetTextStrLen(),
+        style.letterSpace_, beginIndex, count);
+
+    return static_cast<uint16_t>(textWidth > maxWidth ? maxWidth : textWidth);
 }
 
 uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style, const Point& pos)
@@ -653,5 +662,11 @@ void Text::InitSizeSpans()
             sizeSpans_[i].height = 0;
         }
     }
+}
+
+uint16_t Text::GetNextCharacterFullDispalyOffset(const Rect& textRect,
+    const Style& style, uint16_t beginIndex, uint16_t num)
+{
+    return GetPosXByLetterIndex(textRect, style, beginIndex, num);
 }
 } // namespace OHOS
