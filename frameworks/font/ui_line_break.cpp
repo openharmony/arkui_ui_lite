@@ -61,7 +61,7 @@ uint16_t UILineBreakEngine::GetNextBreakPos(UILineBreakProxy& record)
         reinterpret_cast<const RBBIStateTableRow8*>(rbbStateTable->fTableData + rbbStateTable->fRowLen * state);
     UCPTrie* trie = reinterpret_cast<UCPTrie*>(lineBreakTrie_);
     for (uint16_t index = 0; index < record.GetStrLen(); ++index) {
-        uint16_t category = UCPTRIE_FAST_GET(trie, UCPTRIE_8, str[index]);
+        uint16_t category = UCPTRIE_FAST_GET(trie, UCPTRIE_8, static_cast<int32_t>(str[index]));
         // 0x4000: remove the dictionary flag bit
         if ((category & 0x4000) != 0) {
             // 0x4000: remove the dictionary flag bit
