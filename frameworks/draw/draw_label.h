@@ -29,7 +29,7 @@ public:
                                     uint16_t& letterIndex);
 
     static void DrawArcText(BufferInfo& gfxDstBuffer, const Rect& mask, const char* text, const Point& arcCenter,
-                            uint16_t fontId, uint8_t fontSize, const ArcTextInfo arcTextInfo,
+                            uint16_t fontId, uint8_t fontSize, const ArcTextInfo arcTextInfo, const float changeAngle,
                             TextOrientation orientation, const Style& style, uint8_t opaScale, bool compatibilityMode);
 
     static bool CalculateAngle(uint16_t letterWidth,
@@ -48,14 +48,9 @@ public:
 
     static void DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
                                      const Rect& mask,
-                                     uint16_t fontId,
-                                     uint8_t fontSize,
-                                     uint32_t letter,
-                                     const Point& pos,
-                                     int16_t rotateAngle,
-                                     const ColorType& color,
-                                     OpacityType opaScale,
-                                     bool compatibilityMode);
+                                     const ArcLetterInfo& letterInfo,
+                                     float posX,
+                                     float posY);
 
     static uint8_t GetLineMaxLetterSize(const char* text, uint16_t lineLength, uint16_t fontId, uint8_t fontSize,
                                         uint16_t letterIndex, SizeSpan* sizeSpans);
@@ -66,6 +61,21 @@ public:
     static void GetForegroundColor(uint16_t letterIndex, List<ForegroundColor>* foregroundColor, ColorType& fgColor);
     static void DrawLineBackgroundColor(BufferInfo& gfxDstBuffer, uint16_t letterIndex,
                                         const LabelLineInfo& labelLine);
+
+private:
+    static bool CalculatedTransformDataInfo(uint8_t* buffer, TransformDataInfo& letterTranDataInfo,
+        const ArcLetterInfo& letterInfo);
+
+    static bool CalculatedClipAngle(const ArcLetterInfo& letterInfo, float& angle);
+
+    static void CalculatedBeginAndCopySize(const ArcLetterInfo& letterInfo, const uint16_t sizePerPx,
+        const uint16_t cols, const int16_t offsetX, uint16_t& begin, uint16_t& copyCols, TextInRange& range);
+
+    static void OnCalculatedClockwise(const ArcLetterInfo& letterInfo, const uint16_t sizePerPx,
+        const uint16_t cols, const int16_t offsetX, uint16_t& begin, uint16_t& copyCols, TextInRange& range);
+
+    static void OnCalculatedAnticlockwise(const ArcLetterInfo& letterInfo, const uint16_t sizePerPx,
+        const uint16_t cols, const int16_t offsetX, uint16_t& begin, uint16_t& copyCols, TextInRange& range);
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_DRAW_LABEL_H

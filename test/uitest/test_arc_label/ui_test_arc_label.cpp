@@ -17,13 +17,26 @@
 #include "common/screen.h"
 #include "font/ui_font.h"
 
+#define COMPATIBILITY_MODE
 namespace OHOS {
 namespace {
 const int16_t GAP = 5;
 const int16_t TITLE_HEIGHT = 29;
+const uint16_t RADIUS = 150;
+#ifdef COMPATIBILITY_MODE
 const uint16_t CENTER_X = 185;
 const uint16_t CENTER_Y = 155;
-const uint16_t RADIUS = 150;
+#else
+const uint16_t CENTER_X = 200;
+const uint16_t CENTER_Y = 200;
+#endif
+const uint16_t LABEL_WIDTH = 400;
+const uint16_t LABEL_HEIGHT = 400;
+const uint16_t LABEL_WIDTH_500 = 500;
+const uint16_t LABEL_HEIGHT_500 = 500;
+const uint16_t ANIMATOR_LOOPCOUNT = 2;
+const uint16_t ANIMATOR_SPEED = 15;
+const std::string DEFAULT_ARCLABEL_TEXT = "考虑线段在框内, 框外和部分在框内";
 } // namespace
 
 void UITestArcLabel::SetUp()
@@ -55,6 +68,7 @@ void UITestArcLabel::InnerTestTitle(const char* title, int16_t x, int16_t y) con
 
 const UIView* UITestArcLabel::GetTestView()
 {
+#ifdef COMPATIBILITY_MODE
     UIKitUIArcLabelTestDisplay001();
     UIKitUIArcLabelTestDisplay002();
     UIKitUIArcLabelTestDisplay003();
@@ -63,6 +77,12 @@ const UIView* UITestArcLabel::GetTestView()
     UIKitUIArcLabelTestAlign001();
     UIKitUIArcLabelTestAlign002();
     UIKitUIArcLabelTestAlign003();
+#else
+    UIKitUIArcLabelTestIncompatible001();
+    UIKitUIArcLabelTestIncompatible002();
+    UIKitUIArcLabelTestIncompatible003();
+    UIKitUIArcLabelTestIncompatible004();
+#endif
     return container_;
 }
 
@@ -115,6 +135,187 @@ void UITestArcLabel::TestArcLabelDisplay(const char* title,
         container_->Add(label);
         positionY_ += (RADIUS * 2) + GAP + TITLE_HEIGHT; // 2: diameter
     }
+}
+
+class LabelButtonClickListener : public OHOS::UIView::OnClickListener {
+public:
+    explicit LabelButtonClickListener(UIView* view) : view_(view)
+    {
+    }
+
+    bool OnClick(UIView& view, const ClickEvent& event) override
+    {
+        UIArcLabel* label = static_cast<UIArcLabel*>(view_);
+        if (label == nullptr) {
+            return false;
+        }
+
+        label->SetRollCount(ANIMATOR_LOOPCOUNT);
+        label->SetRollSpeed(ANIMATOR_SPEED);
+        label->Start();
+    }
+private:
+    UIView* view_;
+};
+
+class TestArcLabelScrollListener : public ArcLabelScrollListener {
+public:
+    explicit TestArcLabelScrollListener(UIView* view) : view_(view)
+    {
+    }
+
+    void Finish() override
+    {
+        UILabelButton* button = static_cast<UILabelButton*>(view_);
+        if (button == nullptr) {
+            return;
+        }
+
+        button->SetText("旋转动画结束！！！");
+    }
+
+private:
+    UIView* view_;
+};
+
+UILabelButton* UITestArcLabel::GetTestUIButton(const char* buttonText, int16_t x, int16_t y, const char* id)
+{
+    if (buttonText == nullptr) {
+        return nullptr;
+    }
+
+    UILabelButton* labelButton = new UILabelButton();
+    labelButton->SetPosition(x, y);
+    labelButton->Resize(LABEL_WIDTH, BUTTON_HEIGHT1);
+    labelButton->SetText(buttonText);
+    labelButton->SetViewId(id);
+    labelButton->SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_DEFAULT_SIZE);
+    labelButton->SetStyleForState(STYLE_BORDER_RADIUS, BUTTON_STYLE_BORDER_RADIUS_VALUE, UIButton::PRESSED);
+    labelButton->SetStyleForState(STYLE_BORDER_RADIUS, BUTTON_STYLE_BORDER_RADIUS_VALUE, UIButton::INACTIVE);
+    labelButton->SetStyleForState(STYLE_BACKGROUND_COLOR, BUTTON_STYLE_BACKGROUND_COLOR_VALUE, UIButton::RELEASED);
+    labelButton->SetStyleForState(STYLE_BACKGROUND_COLOR, BUTTON_STYLE_BACKGROUND_COLOR_VALUE, UIButton::PRESSED);
+    labelButton->SetStyleForState(STYLE_BACKGROUND_COLOR, BUTTON_STYLE_BACKGROUND_COLOR_VALUE, UIButton::INACTIVE);
+    return labelButton;
+}
+
+void UITestArcLabel::UIKitUIArcLabelTestIncompatible001()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+
+    positionX_ = 0;
+    positionY_ = 0;
+    UILabelButton* button = GetTestUIButton("0-90点击旋转", positionX_, positionY_, nullptr);
+    if (button == nullptr) {
+        return;
+    }
+    UIArcLabel* label = new UIArcLabel();
+    if (label == nullptr) {
+        return;
+    }
+    label->SetText(DEFAULT_ARCLABEL_TEXT.c_str());
+    label->SetArcTextCenter(CENTER_X, CENTER_Y + TITLE_HEIGHT);
+    label->SetArcTextRadius(RADIUS);
+    label->SetCompatibilityMode(false);
+    label->SetArcTextAngle(0, 90);                      // 0: start angle, 90: end angle.
+    label->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 30);   // 30: font size
+    label->SetPosition(0, BUTTON_HEIGHT1, LABEL_WIDTH, LABEL_HEIGHT);
+    label->RegisterScrollListener(new TestArcLabelScrollListener(button));
+    button->SetOnClickListener(new LabelButtonClickListener(label));
+
+    container_->Add(button);
+    container_->Add(label);
+}
+
+void UITestArcLabel::UIKitUIArcLabelTestIncompatible002()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+
+    positionX_ = LABEL_WIDTH_500;
+    positionY_ = 0;
+    UILabelButton* button = GetTestUIButton("90-0点击旋转", positionX_, positionY_, nullptr);
+    if (button == nullptr) {
+        return;
+    }
+    UIArcLabel* label = new UIArcLabel();
+    if (label == nullptr) {
+        return;
+    }
+    label->SetText(DEFAULT_ARCLABEL_TEXT.c_str());
+    label->SetArcTextCenter(CENTER_X + LABEL_WIDTH_500, CENTER_Y + TITLE_HEIGHT);
+    label->SetArcTextRadius(RADIUS);
+    label->SetCompatibilityMode(false);
+    label->SetArcTextAngle(90, 0);                      // 90: start angle, 0: end angle.
+    label->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 30);   // 30: font size
+    label->SetPosition(LABEL_WIDTH_500, BUTTON_HEIGHT1, LABEL_WIDTH, LABEL_HEIGHT);
+    label->RegisterScrollListener(new TestArcLabelScrollListener(button));
+    button->SetOnClickListener(new LabelButtonClickListener(label));
+
+    container_->Add(button);
+    container_->Add(label);
+}
+
+void UITestArcLabel::UIKitUIArcLabelTestIncompatible003()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+
+    positionX_ = 0;
+    positionY_ = LABEL_HEIGHT_500 - BUTTON_HEIGHT1;
+    UILabelButton* button = GetTestUIButton("30-260点击旋转", positionX_, positionY_, nullptr);
+    if (button == nullptr) {
+        return;
+    }
+    UIArcLabel* label = new UIArcLabel();
+    if (label == nullptr) {
+        return;
+    }
+    label->SetText(DEFAULT_ARCLABEL_TEXT.c_str());
+    label->SetArcTextCenter(CENTER_X, CENTER_Y + LABEL_HEIGHT_500);
+    label->SetArcTextRadius(RADIUS);
+    label->SetCompatibilityMode(false);
+    label->SetArcTextAngle(30, 260);                      // 30: start angle, 260: end angle.
+    label->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 30);   // 30: font size
+    label->SetPosition(0, LABEL_HEIGHT_500, LABEL_WIDTH, LABEL_HEIGHT);
+    label->RegisterScrollListener(new TestArcLabelScrollListener(button));
+    button->SetOnClickListener(new LabelButtonClickListener(label));
+
+    container_->Add(button);
+    container_->Add(label);
+}
+
+void UITestArcLabel::UIKitUIArcLabelTestIncompatible004()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+
+    positionX_ = LABEL_WIDTH_500;
+    positionY_ = LABEL_HEIGHT_500 - BUTTON_HEIGHT1;
+    UILabelButton* button = GetTestUIButton("260-30点击旋转", positionX_, positionY_, nullptr);
+    if (button == nullptr) {
+        return;
+    }
+    UIArcLabel* label = new UIArcLabel();
+    if (label == nullptr) {
+        return;
+    }
+    label->SetText(DEFAULT_ARCLABEL_TEXT.c_str());
+    label->SetArcTextCenter(CENTER_X + LABEL_WIDTH_500, CENTER_Y + LABEL_HEIGHT_500);
+    label->SetArcTextRadius(RADIUS);
+    label->SetCompatibilityMode(false);
+    label->SetArcTextAngle(260, 30);                      // 260: start angle, 30: end angle.
+    label->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 30);   // 30: font size
+    label->SetPosition(LABEL_WIDTH_500, LABEL_HEIGHT_500, LABEL_WIDTH, LABEL_HEIGHT);
+    label->RegisterScrollListener(new TestArcLabelScrollListener(button));
+    button->SetOnClickListener(new LabelButtonClickListener(label));
+
+    container_->Add(button);
+    container_->Add(label);
 }
 
 void UITestArcLabel::UIKitUIArcLabelTestAlign001()

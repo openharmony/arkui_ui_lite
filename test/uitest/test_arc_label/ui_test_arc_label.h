@@ -19,6 +19,7 @@
 #include "components/ui_arc_label.h"
 #include "components/ui_label.h"
 #include "components/ui_scroll_view.h"
+#include "components/ui_label_button.h"
 #include "ui_test.h"
 
 namespace OHOS {
@@ -65,6 +66,26 @@ public:
      */
     void UIKitUIArcLabelTestAlign003();
 
+    /**
+     * @brief Test display arc text from 0 to 90
+     */
+    void UIKitUIArcLabelTestIncompatible001();
+
+    /**
+     * @brief Test display arc text from 90 to 0
+     */
+    void UIKitUIArcLabelTestIncompatible002();
+
+    /**
+     * @brief Test display arc text from 30 to 260
+     */
+    void UIKitUIArcLabelTestIncompatible003();
+
+    /**
+     * @brief Test display arc text from 260 to 30
+     */
+    void UIKitUIArcLabelTestIncompatible004();
+
 private:
     UIScrollView* container_ = nullptr;
 
@@ -73,6 +94,8 @@ private:
     // for direction and orientation
     void TestArcLabelDisplay(const char* title, const int16_t startAngle, const int16_t endAngle,
         const TextOrientation orientation, int16_t x, int16_t y);
+
+    UILabelButton* GetTestUIButton(const char* buttonText, int16_t x, int16_t y, const char* id);
 };
 } // namespace OHOS
 #endif // UI_TEST_ARC_LABEL_H
