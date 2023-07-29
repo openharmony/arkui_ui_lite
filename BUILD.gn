@@ -267,12 +267,7 @@ if (os_level != "standard") {
 
       ldflags = [ "-Wl,-rpath-link=$ohos_root_path/$root_out_dir" ]
     }
-    if (defined(enable_gif)) {
-      defines += [ "ENABLE_GIF=1" ]
-      deps += [ "//third_party/giflib:libgif" ]
-    } else {
-      defines += [ "ENABLE_GIF=0" ]
-    }
+    defines += [ "ENABLE_GIF=0" ]
 
     public_deps = [ "//foundation/graphic/graphic_utils_lite:utils_lite" ]
     public_configs = [ ":graphic_define_config" ]
