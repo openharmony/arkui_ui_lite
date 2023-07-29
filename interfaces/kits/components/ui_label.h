@@ -444,7 +444,11 @@ public:
 
     void SetEliminateTrailingSpaces(bool eliminateTrailingSpaces)
     {
-        labelText_->SetEliminateTrailingSpaces(eliminateTrailingSpaces);
+        InitLabelText();
+        if (eliminateTrailingSpaces != labelText_->IsEliminateTrailingSpaces()) {
+            labelText_->SetEliminateTrailingSpaces(eliminateTrailingSpaces);
+            RefreshLabel();
+        }
     }
 
     void SetLineBackgroundSpan(ColorType lineBackgroundColor, int16_t start, int16_t end)
