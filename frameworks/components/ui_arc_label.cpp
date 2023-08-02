@@ -187,6 +187,17 @@ void UIArcLabel::ReMeasure()
     Invalidate();
 }
 
+uint32_t UIArcLabel::GetLineEnd(int16_t maxLength)
+{
+    const char* text = arcLabelText_->GetText();
+    if (text == nullptr) {
+        return 0;
+    }
+
+    return TypedText::GetNextLine(&text[arcTextInfo_.lineStart], arcLabelText_->GetFontId(),
+        arcLabelText_->GetFontSize(), style_->letterSpace_, maxLength);
+}
+
 void UIArcLabel::MeasureArcTextInfo()
 {
     const char* text = arcLabelText_->GetText();
@@ -221,9 +232,8 @@ void UIArcLabel::MeasureArcTextInfo()
     rect.SetWidth(static_cast<int16_t>(maxLength));
     arcLabelText_->ReMeasureTextSize(rect, *style_);
 
-    arcTextInfo_.lineEnd = TypedText::GetNextLine(&text[arcTextInfo_.lineStart], arcLabelText_->GetFontId(),
-                                                  arcLabelText_->GetFontSize(), style_->letterSpace_,
-                                                  static_cast<int16_t>(maxLength));
+    arcTextInfo_.lineEnd = GetLineEnd(static_cast<int16_t>(maxLength));
+
     arcTextInfo_.startAngle = startAngle_ % CIRCLE_IN_DEGREE;
     int16_t actLength =
         TypedText::GetTextWidth(&text[arcTextInfo_.lineStart], arcLabelText_->GetFontId(), arcLabelText_->GetFontSize(),
