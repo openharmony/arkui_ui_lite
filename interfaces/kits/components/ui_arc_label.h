@@ -379,6 +379,8 @@ protected:
                                 TextOrientation orientation,
                                 const ArcTextInfo& arcTextInfo);
 
+    virtual uint32_t GetLineEnd(int16_t maxLenght);
+
 private:
     void ReMeasure() override;
     void MeasureArcTextInfo();
