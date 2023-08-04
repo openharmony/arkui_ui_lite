@@ -158,7 +158,7 @@ bool UISwipeView::OnDragEvent(const DragEvent& event)
         return UIView::OnDragEvent(event);
     }
     if (scrollAnimator_.GetState() != Animator::STOP) {
-        UIAbstractScroll::StopAnimator();
+        StopAnimator();
     }
 
     if (direction_ == HORIZONTAL) {
