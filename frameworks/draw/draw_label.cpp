@@ -92,7 +92,8 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
             uint8_t weight = fontEngine->GetFontWeight(glyphNode.fontId);
             // 16: rgb565->16 rgba8888->32 font with rgba
             if (weight >= 16) {
-                DrawUtils::GetInstance()->DrawColorLetter(gfxDstBuffer, letterInfo, fontMap, glyphNode, maxLetterSize);
+                DrawUtils::GetInstance()->DrawColorLetter(gfxDstBuffer, letterInfo, fontMap,
+                                                          glyphNode, labelLine.lineHeight);
             } else {
                 letterInfo.offsetY = labelLine.ellipsisOssetY == 0 ? offsetPosY : labelLine.ellipsisOssetY;
                 retOffsetY = offsetPosY;

@@ -306,7 +306,7 @@ void DrawUtils::DrawColorLetter(BufferInfo& gfxDstBuffer,
                                 const LabelLetterInfo& letterInfo,
                                 uint8_t* fontMap,
                                 GlyphNode node,
-                                uint8_t maxLetterSize) const
+                                int16_t lineHeight) const
 {
     if (fontMap == nullptr) {
         return;
@@ -317,7 +317,8 @@ void DrawUtils::DrawColorLetter(BufferInfo& gfxDstBuffer,
     int16_t posX;
     int16_t posY;
     if (letterInfo.baseLine) {
-        posY = letterInfo.pos.y + maxLetterSize - node.top + letterInfo.offsetY;
+        // 2:Half the size between lineHeight and node.rows of emoji
+        posY = letterInfo.pos.y + (lineHeight - letterH) / 2 + letterInfo.offsetY;
     } else {
         FontHeader head;
         if (fontEngine->GetFontHeader(head, letterInfo.fontId, letterInfo.fontSize) != 0) {
