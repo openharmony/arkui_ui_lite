@@ -349,9 +349,12 @@ public:
      */
     void OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea) override;
 
+    void ReMeasure() override;
 protected:
     Text* arcLabelText_;
     bool compatibilityMode_;
+    bool needRefresh_;
+    ArcTextInfo arcTextInfo_;
 
     virtual void InitArcLabelText()
     {
@@ -382,18 +385,13 @@ protected:
     virtual uint32_t GetLineEnd(int16_t maxLenght);
 
 private:
-    void ReMeasure() override;
     void MeasureArcTextInfo();
-
-    bool needRefresh_;
     Point textSize_;
     uint16_t radius_;
     int16_t startAngle_;
     int16_t endAngle_;
     Point arcCenter_;
     TextOrientation orientation_;
-
-    ArcTextInfo arcTextInfo_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_ARC_LABEL_H

@@ -26,13 +26,13 @@ UIArcLabel::UIArcLabel()
     : arcLabelText_(nullptr),
       compatibilityMode_(true),
       needRefresh_(false),
+      arcTextInfo_{0},
       textSize_({0, 0}),
       radius_(0),
       startAngle_(0),
       endAngle_(0),
       arcCenter_({0, 0}),
-      orientation_(TextOrientation::INSIDE),
-      arcTextInfo_{0}
+      orientation_(TextOrientation::INSIDE)
 {
     Theme* theme = ThemeManager::GetInstance().GetCurrent();
     style_ = (theme != nullptr) ? &(theme->GetLabelStyle()) : &(StyleDefault::GetLabelStyle());
