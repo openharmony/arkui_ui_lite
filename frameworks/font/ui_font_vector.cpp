@@ -928,15 +928,18 @@ void UIFontVector::SetFace(FaceInfo& faceInfo, uint32_t unicode)
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
 void UIFontVector::SetFace(FaceInfo& faceInfo, uint32_t unicode, TextStyle textStyle)
 {
-    Metric f;
-    f.advance = static_cast<uint16_t>(faceInfo.face->glyph->advance.x / FONT_PIXEL_IN_POINT);
-    f.left = faceInfo.face->glyph->bitmap_left;
-    f.top = faceInfo.face->glyph->bitmap_top;
-    f.cols = faceInfo.face->glyph->bitmap.width;
-    f.rows = faceInfo.face->glyph->bitmap.rows;
+    Metric* f = reinterpret_cast<Metric*>(UIMalloc(sizeof(Metric)));
+    if (f == nullptr) {
+        return;
+    }
+    f->advance = static_cast<uint16_t>(faceInfo.face->glyph->advance.x / FONT_PIXEL_IN_POINT);
+    f->left = faceInfo.face->glyph->bitmap_left;
+    f->top = faceInfo.face->glyph->bitmap_top;
+    f->cols = faceInfo.face->glyph->bitmap.width;
+    f->rows = faceInfo.face->glyph->bitmap.rows;
 
     // cache glyph
-    SaveGlyphNode(unicode, faceInfo.key, &f);
+    SaveGlyphNode(unicode, faceInfo.key, f);
 
     int16_t pixSize = 1;
     if (faceInfo.face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_BGRA) {
@@ -948,7 +951,7 @@ void UIFontVector::SetFace(FaceInfo& faceInfo, uint32_t unicode, TextStyle textS
     uint8_t* bitmap =
         fontCacheManager->GetSpace(faceInfo.key, unicode, bitmapSize + sizeof(Metric), textStyle);
     if (bitmap != nullptr) {
-        if (memcpy_s(bitmap, sizeof(Metric), &f, sizeof(Metric)) != EOK) {
+        if (memcpy_s(bitmap, sizeof(Metric), f, sizeof(Metric)) != EOK) {
             fontCacheManager->PutSpace(bitmap);
             return;
         }
