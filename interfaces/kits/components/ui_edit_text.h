@@ -124,6 +124,8 @@ public:
         return false;
     }
 
+    bool OnDragEvent(const DragEvent& event) override;
+
     /**
      * @brief Draws this view.
      *
@@ -334,16 +336,6 @@ public:
     }
 
     /**
-     * @brief insert text by using cursor index.
-     */
-    void InsertTextByCursorIndex(std::string text);
-
-    /**
-     * @brief update the cursor position when change the text type.
-     */
-    void UpdateCursor();
-
-    /**
      * @brief set the cursor index.
      */
     void SetCursorIndex(uint16_t cursorIndex);
@@ -367,7 +359,12 @@ protected:
     virtual uint16_t GetTextLength();
     virtual void UpdateInsertDeletedOffset();
     virtual void UpdateOffsetX();
+    virtual uint16_t GetTextWidthByCursorIndex(const uint16_t cursorIndex);
+
     void SetText(std::string text);
+    void InsertTextByCursorIndex(std::string text);
+    void UpdateOffsetBySetCursorIndex();
+    void UpdateOffsetByInputType();
 
     Text* inputText_;
     Text* placeholderText_;
@@ -375,6 +372,18 @@ protected:
     uint16_t cursorIndex_;
     uint16_t deleteTextWidth_;
     uint16_t insertTextWidth_;
+
+    enum UpdateOffsetState : uint8_t {
+        UPDATE_OFFSET_UNKNOW = 0,
+        UPDATE_OFFSET_INTERFACE,
+        UPDATE_OFFSET_PRESS_EVENT,
+        UPDATE_OFFSET_DELETE,
+        UPDATE_OFFSET_INSERT,
+        UPDATE_OFFSET_SET_CURSOR,
+        UPDATE_OFFSET_INPUT_TYPE
+    };
+
+    UpdateOffsetState offsetState_;
 private:
     friend class CursorAnimator;
 
@@ -393,7 +402,6 @@ private:
     bool useTextColor_;
     bool isFocused_;
     bool drawCursor_;
-    bool isSetTextByInterface_;
     uint16_t maxLength_;
     uint16_t placeholderEllipsisIndex_;
     int16_t cursorPosX_;

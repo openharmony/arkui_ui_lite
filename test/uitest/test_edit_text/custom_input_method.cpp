@@ -290,7 +290,6 @@ bool CustomInputMethod::OnClick(UIView& view, const ClickEvent& event)
             editView_->SetInputType(InputType::TEXT_TYPE);
             InputMethodManager::GetInstance().SetInputType(InputType::TEXT_TYPE);
         }
-        editView_->UpdateCursor();
     } else {
         DealKeyEvent(view);
     }
@@ -357,7 +356,6 @@ bool CustomInputMethod::OnLongPress(UIView &view, const LongPressEvent &event)
             editView_->SetInputType(InputType::TEXT_TYPE);
             InputMethodManager::GetInstance().SetInputType(InputType::TEXT_TYPE);
         }
-        editView_->UpdateCursor();
     } else {
         key_ = reinterpret_cast<UILabelButton*>(&view)->GetText();
         timer_.Start();

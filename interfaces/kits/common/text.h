@@ -49,8 +49,9 @@
 
 namespace OHOS {
 namespace {
-constexpr char16_t PASSWORD_DOT = u'*'; // dot for password type
+const std::string PASSWORD_DOT = "*"; // dot for password type
 constexpr uint16_t DEFAULT_TEXT_OFFSET = 5;
+constexpr uint16_t BOTH_SIDE_TEXT_OFFSET = DEFAULT_TEXT_OFFSET * 2; // 2: left and right space
 constexpr uint16_t DEFAULT_CURSOR_OFFSET = 1;
 constexpr uint16_t DEFAULT_CURSOR_WIDTH = 2;
 } // namespace name
