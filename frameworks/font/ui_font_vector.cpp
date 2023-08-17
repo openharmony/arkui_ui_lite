@@ -562,13 +562,13 @@ uint16_t UIFontVector::GetFontId(const char* ttfName, uint8_t fontSize) const
         int32_t i = 0;
         while (i < FONT_ID_MAX) {
             if ((fontInfo_[i].ttfName != nullptr) && (strstr(fontInfo_[i].ttfName, ttfName) != nullptr)) {
-                return static_cast<uint8_t>(i);
+                return static_cast<uint16_t>(i);
             }
             i++;
         }
     }
 
-    return FONT_ID_MAX;
+    return static_cast<uint16_t>(FONT_ID_MAX);
 }
 
 uint16_t UIFontVector::GetFontId(uint32_t unicode) const
