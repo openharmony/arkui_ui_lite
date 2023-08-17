@@ -953,15 +953,18 @@ void UIFontVector::SetFace(FaceInfo& faceInfo, uint32_t unicode, TextStyle textS
     if (bitmap != nullptr) {
         if (memcpy_s(bitmap, sizeof(Metric), f, sizeof(Metric)) != EOK) {
             fontCacheManager->PutSpace(bitmap);
+            UIFree(f);
             return;
         }
         if ((faceInfo.face->glyph->bitmap.buffer != nullptr) &&
             (memcpy_s(bitmap + sizeof(Metric), bitmapSize, faceInfo.face->glyph->bitmap.buffer, bitmapSize) != EOK)) {
             fontCacheManager->PutSpace(bitmap);
+            UIFree(f);
             return;
         }
         ClearFontGlyph(faceInfo.face);
     }
+    UIFree(f);
 }
 #endif
 
