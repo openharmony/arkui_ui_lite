@@ -190,8 +190,8 @@ uint8_t* UIFont::GetBitmap(uint32_t unicode, GlyphNode& glyphNode, uint16_t font
     }
 #if ENABLE_MULTI_FONT
     uint16_t* searchLists = nullptr;
-    int8_t listSize = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
-    int8_t currentIndex = 0;
+    int32_t listSize = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
+    int32_t currentIndex = 0;
     if ((searchLists == nullptr) || (listSize == 0)) {
         return nullptr;
     }
@@ -216,11 +216,11 @@ int8_t UIFont::GetGlyphNode(uint32_t unicode, GlyphNode& glyphNode, uint16_t fon
 
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
     uint16_t* searchLists = nullptr;
-    int8_t listSize = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
+    int32_t listSize = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
     if ((searchLists == nullptr) || (listSize == 0)) {
         return INVALID_RET_VALUE;
     }
-    int8_t currentIndex = 0;
+    int32_t currentIndex = 0;
     do {
         result = instance_->GetGlyphNode(unicode, glyphNode, searchLists[currentIndex], fontSize);
         if (result == RET_VALUE_OK) {
@@ -250,11 +250,11 @@ uint16_t UIFont::GetWidth(uint32_t unicode, uint16_t fontId, uint8_t fontSize, u
 
 #if ENABLE_MULTI_FONT
     uint16_t* searchLists = nullptr;
-    int8_t listSize = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
+    int32_t listSize = UIMultiFontManager::GetInstance()->GetSearchFontList(fontId, &searchLists);
     if ((searchLists == nullptr) || (listSize == 0)) {
         return 0;
     }
-    int8_t currentIndex = 0;
+    int32_t currentIndex = 0;
     do {
         result = instance_->GetWidth(unicode, searchLists[currentIndex], fontSize);
         if (result >= 0) {

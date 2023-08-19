@@ -49,7 +49,7 @@ if (os_level != "standard") {
         "ENABLE_BITMAP_FONT=0",
         "ENABLE_SHAPING=0",
         "ENABLE_ICU=1",
-        "ENABLE_MULTI_FONT=0",
+        "ENABLE_MULTI_FONT=1",
         "DEFAULT_ANIMATION=1",
       ]
       if (ohos_kernel_type == "linux") {

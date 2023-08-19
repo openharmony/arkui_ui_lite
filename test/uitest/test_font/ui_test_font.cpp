@@ -495,7 +495,7 @@ void UITestFont::UIKitFontMultiLanguage002()
 #if ENABLE_VECTOR_FONT
     UIFont::GetInstance()->RegisterFontInfo(SOURCE_HAN_SANS_SC_REGULAR);
     UIFont::GetInstance()->RegisterFontInfo(ROBOTO_CONDENSED_REGULAR);
-    uint8_t findPath[] = {UIFont::GetInstance()->GetFontId(SOURCE_HAN_SANS_SC_REGULAR)};
+    uint16_t findPath[] = {UIFont::GetInstance()->GetFontId(SOURCE_HAN_SANS_SC_REGULAR)};
     UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(ROBOTO_CONDENSED_REGULAR),
                                                          findPath, sizeof(findPath));
 #else
@@ -678,7 +678,7 @@ void UITestFont::UIKitFontTestDisplayEmoji002()
     container_->Add(label);
     positionY_ += LABEL_HEIGHT * 6 + GAP; // 6 : six times
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {UIFont::GetInstance()->GetFontId(DEFAULT_EMOJI_FILENAME, FONT_EMOJI_SIZE)};
+    uint16_t findPath[] = {UIFont::GetInstance()->GetFontId(DEFAULT_EMOJI_FILENAME, FONT_EMOJI_SIZE)};
     UIMultiFontManager::GetInstance()->SetSearchFontList(
         UIFont::GetInstance()->GetFontId(SOURCE_HAN_SANS_SC_REGULAR, FONT_EMOJI_SIZE), findPath, sizeof(findPath));
 #endif
