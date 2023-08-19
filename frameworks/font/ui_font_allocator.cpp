@@ -189,7 +189,9 @@ BufferInfo UIFontAllocator::GetCacheBuffer(uint16_t fontId,
     if (hasMetric) {
         bitmapSize += sizeof(Metric);
     }
-    bufInfo.virAddr = reinterpret_cast<void*>(UIFontCacheManager::GetInstance()->GetSpace(fontId, unicode, bitmapSize));
+    TextStyle textStyle = TEXT_STYLE_NORMAL;
+    bufInfo.virAddr =
+        reinterpret_cast<void*>(UIFontCacheManager::GetInstance()->GetSpace(fontId, unicode, bitmapSize, textStyle));
     return bufInfo;
 }
 
