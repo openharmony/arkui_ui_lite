@@ -45,6 +45,7 @@ DEFINES += QT_COMPILER
 DESTDIR = ../libs
 
 SOURCES += \
+    ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/common/paint.cpp \
     ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/depiction/depict_curve.cpp \
     ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_cells_antialias.cpp \
     ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_scanline_antialias.cpp \
