@@ -163,6 +163,12 @@ void UICanvas::ArcTo(const Point& center, uint16_t radius, int16_t startAngle, i
     path_->points_.PushBack({MATH_ROUND(center.x + sinma), MATH_ROUND(center.y - cosma)});
     path_->cmd_.PushBack(CMD_ARC);
 
+    SetArcParamInfo(center, radius, startAngle, endAngle);
+#endif
+}
+
+void UICanvas::SetArcParamInfo(const Point& center, uint16_t radius, int16_t startAngle, int16_t endAngle)
+{
     int16_t start;
     int16_t end;
     if (startAngle > endAngle) {
@@ -180,7 +186,6 @@ void UICanvas::ArcTo(const Point& center, uint16_t radius, int16_t startAngle, i
     param.startAngle = start;
     param.endAngle = end;
     path_->arcParam_.PushBack(param);
-#endif
 }
 
 void UICanvas::AddRect(const Point& point, int16_t height, int16_t width)
@@ -376,24 +381,7 @@ void UICanvas::DrawCurve(const Point& startPoint,
 void UICanvas::DrawRect(const Point& startPoint, int16_t height, int16_t width, const Paint& paint)
 {
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
-    if (!paint.GetChangeFlag()) {
-        if (static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::STROKE_STYLE) {
-            DrawRectSetCmd(startPoint, height, width, paint, Paint::PaintStyle::STROKE_STYLE);
-        }
-
-        if (static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::FILL_STYLE) {
-            DrawRectSetCmd(startPoint, height, width, paint, Paint::PaintStyle::FILL_STYLE);
-        }
-    } else {
-        BeginPath();
-        MoveTo(startPoint);
-        LineTo({static_cast<int16_t>(startPoint.x + width), startPoint.y});
-        LineTo({static_cast<int16_t>(startPoint.x + width), static_cast<int16_t>(startPoint.y + height)});
-        LineTo({startPoint.x, static_cast<int16_t>(startPoint.y + height)});
-        ClosePath();
-        FillPath(paint);
-        DrawPath(paint);
-    }
+    SetDrawLinePath(startPoint, height, width, paint);
 #else
     if (static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::STROKE_STYLE) {
         RectParam* rectParam = new RectParam;
@@ -433,6 +421,30 @@ void UICanvas::DrawRect(const Point& startPoint, int16_t height, int16_t width, 
 #endif
     Invalidate();
 }
+
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+void UICanvas::SetDrawLinePath(const Point& startPoint, int16_t height, int16_t width, const Paint& paint)
+{
+    if (!paint.GetChangeFlag()) {
+        if (static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::STROKE_STYLE) {
+            DrawRectSetCmd(startPoint, height, width, paint, Paint::PaintStyle::STROKE_STYLE);
+        }
+
+        if (static_cast<uint8_t>(paint.GetStyle()) & Paint::PaintStyle::FILL_STYLE) {
+            DrawRectSetCmd(startPoint, height, width, paint, Paint::PaintStyle::FILL_STYLE);
+        }
+    } else {
+        BeginPath();
+        MoveTo(startPoint);
+        LineTo({static_cast<int16_t>(startPoint.x + width), startPoint.y});
+        LineTo({static_cast<int16_t>(startPoint.x + width), static_cast<int16_t>(startPoint.y + height)});
+        LineTo({startPoint.x, static_cast<int16_t>(startPoint.y + height)});
+        ClosePath();
+        FillPath(paint);
+        DrawPath(paint);
+    }
+}
+#endif
 
 void UICanvas::DrawRectSetCmd(const Point& startPoint, int16_t height, int16_t width, const Paint& paint,
                               Paint::PaintStyle paintStyle)
@@ -735,6 +747,22 @@ void UICanvas::DrawImage(const Point& startPoint, const char* image,
 }
 #endif
 
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(GRAPHIC_ENABLE_PATTERN_FILL_FLAG) && GRAPHIC_ENABLE_PATTERN_FILL_FLAG
+void SetImageParamInfo(ImageParam* imageParam, const Paint& paint, PathParam* pathParam)
+{
+    imageParam->image->SetSrc(paint.GetPatternImage());
+    ImageHeader header = {0};
+    imageParam->image->GetHeader(header);
+    imageParam->start = {0, 0};
+    imageParam->height = header.height;
+    imageParam->width = header.width;
+
+    pathParam->imageParam = imageParam;
+}
+#endif
+#endif
+
 void UICanvas::DrawPath(const Paint& paint)
 {
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
@@ -765,14 +793,7 @@ void UICanvas::DrawPath(const Paint& paint)
             return;
         }
 
-        imageParam->image->SetSrc(paint.GetPatternImage());
-        ImageHeader header = {0};
-        imageParam->image->GetHeader(header);
-        imageParam->start = {0, 0};
-        imageParam->height = header.height;
-        imageParam->width = header.width;
-
-        pathParam->imageParam = imageParam;
+        SetImageParamInfo(imageParam, paint, pathParam);
     }
 #endif
 #else
@@ -828,13 +849,7 @@ void UICanvas::FillPath(const Paint& paint)
             return;
         }
 
-        imageParam->image->SetSrc(paint.GetPatternImage());
-        ImageHeader header = {0};
-        imageParam->image->GetHeader(header);
-        imageParam->start = {0, 0};
-        imageParam->height = header.height;
-        imageParam->width = header.width;
-        pathParam->imageParam = imageParam;
+        SetImageParamInfo(imageParam, paint, pathParam);
     }
 #endif
     DrawCmd cmd;

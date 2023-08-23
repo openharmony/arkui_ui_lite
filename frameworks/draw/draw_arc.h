@@ -137,7 +137,7 @@ private:
                                     const Style& style,
                                     uint8_t opaScale,
                                     uint8_t quadrant);
-#if ENABLE_ANTIALIAS
+#if defined(ENABLE_ANTIALIAS) && ENABLE_ANTIALIAS
     void DrawLineAnti(BufferInfo& gfxDstBuffer, ArcInfo& arcInfo, const Rect& mask, const Style& style, uint8_t opa);
     void DrawPointAnti(BufferInfo& gfxDstBuffer,
                        ArcInfo& arcInfo,
@@ -148,6 +148,7 @@ private:
 #endif
     uint16_t GetDegreeInQuadrant(uint16_t degree, uint8_t quadrant);
     void SetArcInfo(ArcInfo& arcInfo, const Style& style);
+    void CalculatedYStartAndYEnd(int16_t& yStart, int16_t& yEnd);
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_DRAW_ARC_H

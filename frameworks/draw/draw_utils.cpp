@@ -717,31 +717,8 @@ void DrawUtils::BlendWithSoftWare(const uint8_t* src1,
     uint32_t width = srcRect.GetWidth();
     uint32_t height = srcRect.GetHeight();
 #ifdef ARM_NEON_OPT
-    {
-        DEBUG_PERFORMANCE_TRACE("BlendWithSoftWare_neon");
-        NeonBlendPipeLine pipeLine;
-        pipeLine.Construct(destMode, srcMode);
-        int16_t dstStep = NEON_STEP_8 * GetByteSizeByColorMode(destMode);
-        int16_t srcStep = NEON_STEP_8 * GetByteSizeByColorMode(srcMode);
-        for (uint32_t row = 0; row < height; ++row) {
-            uint8_t* dstBuf = dest;
-            uint8_t* srcBuf = const_cast<uint8_t*>(src);
-            int16_t tmpWidth = width;
-            while (tmpWidth >= NEON_STEP_8) {
-                pipeLine.Invoke(dstBuf, srcBuf, opa);
-                dstBuf += dstStep;
-                srcBuf += srcStep;
-                tmpWidth -= NEON_STEP_8;
-            }
-            for (int16_t i = 0; i < tmpWidth; ++i) {
-                COLOR_FILL_BLEND(dstBuf, destMode, srcBuf, srcMode, opa);
-                dstBuf += destByteSize;
-                srcBuf += srcByteSize;
-            }
-            dest += destStride;
-            src += srcStride;
-        }
-    }
+    GetInstance()->SetDestAndSrc(srcMode, destMode, height, src, width, opa, dest,
+                                 destStride, srcStride, destByteSize, srcByteSize);
 #else
     {
         DEBUG_PERFORMANCE_TRACE("BlendWithSoftWare");
@@ -759,6 +736,37 @@ void DrawUtils::BlendWithSoftWare(const uint8_t* src1,
     }
 #endif
 }
+
+#ifdef ARM_NEON_OPT
+void DrawUtils::SetDestAndSrc(ColorMode& srcMode, ColorMode& destMode, uint32_t height, uint8_t* src,
+                              uint32_t width, OpacityType opa, uint8_t* dest, uint32_t destStride,
+                              uint32_t srcStride, uint8_t destByteSize, uint8_t srcByteSize) const
+{
+    DEBUG_PERFORMANCE_TRACE("BlendWithSoftWare_neon");
+    NeonBlendPipeLine pipeLine;
+    pipeLine.Construct(destMode, srcMode);
+    int16_t dstStep = NEON_STEP_8 * GetByteSizeByColorMode(destMode);
+    int16_t srcStep = NEON_STEP_8 * GetByteSizeByColorMode(srcMode);
+    for (uint32_t row = 0; row < height; ++row) {
+        uint8_t* dstBuf = dest;
+        uint8_t* srcBuf = const_cast<uint8_t*>(src);
+        int16_t tmpWidth = width;
+        while (tmpWidth >= NEON_STEP_8) {
+            pipeLine.Invoke(dstBuf, srcBuf, opa);
+            dstBuf += dstStep;
+            srcBuf += srcStep;
+            tmpWidth -= NEON_STEP_8;
+        }
+        for (int16_t i = 0; i < tmpWidth; ++i) {
+            COLOR_FILL_BLEND(dstBuf, destMode, srcBuf, srcMode, opa);
+            dstBuf += destByteSize;
+            srcBuf += srcByteSize;
+        }
+        dest += destStride;
+        src += srcStride;
+    }
+}
+#endif
 
 void DrawUtils::GetXAxisErrForJunctionLine(bool ignoreJunctionPoint,
                                            bool isRightPart,
@@ -1773,6 +1781,12 @@ void DrawUtils::DrawTriangleTransformPart(BufferInfo& gfxDstBuffer, const Triang
     if (screenBuffer == nullptr) {
         return;
     }
+    GetInstance()->SetFucInfo(gfxDstBuffer, part, screenBuffer, init);
+}
+
+void DrawUtils::SetFucInfo(BufferInfo& gfxDstBuffer, const TrianglePartInfo& part,
+                           uint8_t* screenBuffer, TransformInitState& init)
+{
     ColorMode bufferMode = gfxDstBuffer.mode;
     uint8_t bufferPxSize = GetByteSizeByColorMode(bufferMode);
 
@@ -1851,7 +1865,9 @@ void DrawUtils::DrawTriangleTransform(BufferInfo& gfxDstBuffer,
     uint8_t yErr = 1;
     if (triangleInfo.p2.y == triangleInfo.p1.y) {
         yErr = 0;
-        goto BottomHalf;
+        GetInstance()->SetPartEdge(gfxDstBuffer, triangleInfo, edge1, edge2,
+                                   p3IsInRight, mask, yErr, part);
+        return;
     }
     if (p3IsInRight) {
         edge1 = TriangleEdge(triangleInfo.p1.x, triangleInfo.p1.y, triangleInfo.p2.x, triangleInfo.p2.y);
@@ -1866,7 +1882,12 @@ void DrawUtils::DrawTriangleTransform(BufferInfo& gfxDstBuffer,
     part.edge1 = edge1;
     part.edge2 = edge2;
     DrawTriangleTransformPart(gfxDstBuffer, part);
-BottomHalf:
+}
+
+void DrawUtils::SetPartEdge(BufferInfo& gfxDstBuffer, const TriangleTransformDataInfo& triangleInfo,
+                            TriangleEdge& edge1, TriangleEdge& edge2, bool p3IsInRight,
+                            const Rect& mask, uint8_t yErr, TrianglePartInfo& part) const
+{
     if (triangleInfo.p2.y == triangleInfo.p3.y) {
         return;
     }

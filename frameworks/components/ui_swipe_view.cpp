@@ -22,7 +22,7 @@ namespace OHOS {
 UISwipeView::UISwipeView(uint8_t direction)
     : swipeListener_(nullptr), curIndex_(0), blankSize_(DEFAULT_BLANK_SIZE), curView_(nullptr), loop_(false)
 {
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
     rotateFactor_ = DEFAULT_SWIPE_VIEW_ROTATE_FACTOR;
 #endif
     direction_ = direction;
@@ -194,7 +194,7 @@ bool UISwipeView::OnDragEndEvent(const DragEvent& event)
     return UIView::OnDragEndEvent(event);
 }
 
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
 
 bool UISwipeView::OnRotateEvent(const RotateEvent& event)
 {
@@ -351,7 +351,7 @@ void UISwipeView::RefreshCurrentViewByPosition(int16_t (UIView::*pfnGetXOrY)() c
         return;
     }
 
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     uint16_t lastIndex = curIndex_;
 #endif
     curIndex_ = 0;
@@ -388,7 +388,7 @@ void UISwipeView::RefreshCurrentViewByPosition(int16_t (UIView::*pfnGetXOrY)() c
             view = view->GetNextSibling();
         }
     }
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     if (lastIndex != curIndex_) {
         Vibrator();
     }
@@ -403,7 +403,7 @@ void UISwipeView::RefreshCurrentViewByThrow(int16_t distance,
     if (curView_ == nullptr) {
         return;
     }
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     uint16_t lastIndex = curIndex_;
 #endif
 
@@ -467,7 +467,7 @@ void UISwipeView::RefreshCurrentViewByThrow(int16_t distance,
         }
     }
     curView_ = GetViewByIndex(curIndex_);
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     if (lastIndex != curIndex_) {
         Vibrator();
     }
@@ -573,7 +573,7 @@ void UISwipeView::CurrentIndexDec()
     }
 }
 
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
 void UISwipeView::Vibrator()
 {
     VibratorFunc vibratorFunc = VibratorManager::GetInstance()->GetVibratorFunc();

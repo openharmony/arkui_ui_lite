@@ -335,7 +335,8 @@ private:
     void UpdateContentMatrix();
     void UpdateDrawTransMap(bool updateContentMatrix = false);
     void AdjustScaleAndTranslate(Vector3<float>& scale, Vector3<int16_t>& translate,
-        int16_t widgetWidth, int16_t widgetHeight) const;
+                                 int16_t widgetWidth, int16_t widgetHeight) const;
+    void SetCordsTmpRect(BufferInfo& gfxDstBuffer, Rect& viewRect, Rect& trunc, Rect& cordsTmp, OpacityType opa);
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_IMAGE_VIEW_H

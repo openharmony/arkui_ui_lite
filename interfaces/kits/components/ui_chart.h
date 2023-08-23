@@ -921,6 +921,13 @@ private:
     void FindCrossPoints(const ChartLine& line, const ChartLine& polyLine, CrossPointSet& cross);
     void ReMeasure() override;
     void CalcVerticalInfo(int16_t top, int16_t bottom, int16_t start, int16_t end, int16_t& y, int16_t& yHeight);
+    void SetDrawLineCross(BufferInfo& gfxDstBuffer,
+                          const Rect& invalidatedArea,
+                          UIChartDataSerial* data,
+                          CrossPointSet& cross,
+                          BaseGfxEngine* baseGfxEngine,
+                          int16_t startY,
+                          int16_t mixScale);
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_CHART_H
