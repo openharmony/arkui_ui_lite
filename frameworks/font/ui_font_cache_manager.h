@@ -32,10 +32,9 @@ public:
     void SetBitmapCacheSize(uint32_t bitmapCacheSize);
     void BitmapCacheInit();
     void BitmapCacheClear();
-    /* default TextStyle is TEXT_STYLE_NORMAL. */
-    uint8_t* GetSpace(uint16_t fontKey, uint32_t unicode, uint32_t size, TextStyle textStyle);
+    uint8_t* GetSpace(uint16_t fontKey, uint32_t unicode, uint32_t size);
     void PutSpace(uint8_t* addr);
-    uint8_t* GetBitmap(uint16_t fontKey, uint32_t unicode, TextStyle textStyle);
+    uint8_t* GetBitmap(uint16_t fontKey, uint32_t unicode);
 
     UIFontCache* GetBitmapCache()
     {
