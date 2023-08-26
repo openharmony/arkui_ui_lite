@@ -119,29 +119,34 @@ void UITestAdvancedLayout::UIKitLayoutTestFlexLayout001()
         flexController_->SetRows(5); // 5: row
         flexController_->SetCols(4); // 4: col
 
-        SetUpButton(flexController_, resetfBtn_, "reset");
-        SetUpButton(flexController_, marginfBtn_, "margin");
-        SetUpButton(flexController_, horfBtn_, "hor");
-        SetUpButton(flexController_, horfRBtn_, "hor_r");
-        SetUpButton(flexController_, verfBtn_, "ver");
-        SetUpButton(flexController_, verfRBtn_, "ver_r");
-        SetUpButton(flexController_, wrapBtn_, "wrap");
-        SetUpButton(flexController_, addElefBtn_, "add");
-        SetUpButton(flexController_, addTextElefBtn_, "addLabel");
-        SetUpButton(flexController_, majorStartBtn_, "M_start");
-        SetUpButton(flexController_, majorEndBtn_, "M_end");
-        SetUpButton(flexController_, majorCenterBtn_, "M_center");
-        SetUpButton(flexController_, majorEvenBtn_, "M_even");
-        SetUpButton(flexController_, majorAroundBtn_, "M_around");
-        SetUpButton(flexController_, majorBetBtn_, "M_between");
-        SetUpButton(flexController_, secStartBtn_, "S_start");
-        SetUpButton(flexController_, secEndBtn_, "S_end");
-        SetUpButton(flexController_, secCenterBtn_, "S_center");
-        SetUpButton(flexController_, secInvalidBtn_, "S_invalid");
-        SetUpButton(flexController_, layoutChildrenfBtn_, "布局");
+        SetTestButtons001();
         flexController_->LayoutChildren();
         positionY_ += 250; // 250: position y add
     }
+}
+
+void UITestAdvancedLayout::SetTestButtons001()
+{
+    SetUpButton(flexController_, resetfBtn_, "reset");
+    SetUpButton(flexController_, marginfBtn_, "margin");
+    SetUpButton(flexController_, horfBtn_, "hor");
+    SetUpButton(flexController_, horfRBtn_, "hor_r");
+    SetUpButton(flexController_, verfBtn_, "ver");
+    SetUpButton(flexController_, verfRBtn_, "ver_r");
+    SetUpButton(flexController_, wrapBtn_, "wrap");
+    SetUpButton(flexController_, addElefBtn_, "add");
+    SetUpButton(flexController_, addTextElefBtn_, "addLabel");
+    SetUpButton(flexController_, majorStartBtn_, "M_start");
+    SetUpButton(flexController_, majorEndBtn_, "M_end");
+    SetUpButton(flexController_, majorCenterBtn_, "M_center");
+    SetUpButton(flexController_, majorEvenBtn_, "M_even");
+    SetUpButton(flexController_, majorAroundBtn_, "M_around");
+    SetUpButton(flexController_, majorBetBtn_, "M_between");
+    SetUpButton(flexController_, secStartBtn_, "S_start");
+    SetUpButton(flexController_, secEndBtn_, "S_end");
+    SetUpButton(flexController_, secCenterBtn_, "S_center");
+    SetUpButton(flexController_, secInvalidBtn_, "S_invalid");
+    SetUpButton(flexController_, layoutChildrenfBtn_, "布局");
 }
 
 void UITestAdvancedLayout::UIKitLayoutTestGridLayout001()

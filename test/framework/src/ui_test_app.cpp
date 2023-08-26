@@ -61,30 +61,14 @@ void UITestApp::InitMainMenu()
             testLabel_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 30); // 30: means font size
             mainMenu_->Add(testLabel_);
         }
-        if (autoTestBtn_ == nullptr) {
-            autoTestBtn_ = new UILabelButton();
-            autoTestBtn_->Resize(163, 64); // 163: button width; 64: button height
-            autoTestBtn_->SetPosition(Screen::GetInstance().GetWidth() - autoTestBtn_->GetWidth(), 0);
-            autoTestBtn_->SetText("自动测试");
-            auto listern = new UIView::OnClickListener();
-            autoTestBtn_->SetOnClickListener(listern);
-            autoTestBtn_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 24); // 24: means font size
-            autoTestBtn_->SetStyleForState(STYLE_BORDER_RADIUS, 0, UIButton::RELEASED);
-            autoTestBtn_->SetStyleForState(STYLE_BORDER_RADIUS, 0, UIButton::PRESSED);
-            autoTestBtn_->SetStyleForState(STYLE_BORDER_RADIUS, 0, UIButton::INACTIVE);
-            autoTestBtn_->SetStyleForState(STYLE_BACKGROUND_OPA, 0, UIButton::RELEASED);
-            autoTestBtn_->SetStyleForState(STYLE_BACKGROUND_OPA, 0, UIButton::PRESSED);
-            autoTestBtn_->SetStyleForState(STYLE_BACKGROUND_OPA, 0, UIButton::INACTIVE);
-            autoTestBtn_->SetVisible(false);
-            mainMenu_->Add(autoTestBtn_);
-        }
+        InitAutoTestBtn();
         if ((mainList_ == nullptr) && (adapter_ == nullptr)) {
             uint8_t deltaHeight = 60; // 60: UIList height(64) - first button border width(4)
             constexpr uint8_t margin = 24; // 24: x-coordinate
             mainList_ = new UIList(UIList::VERTICAL);
             mainList_->SetPosition(margin, deltaHeight);
             mainList_->Resize(Screen::GetInstance().GetWidth() - margin,
-                Screen::GetInstance().GetHeight() - deltaHeight);
+                              Screen::GetInstance().GetHeight() - deltaHeight);
             mainList_->SetThrowDrag(true);
             mainList_->SetReboundSize(50); // 50: rebound size
             mainList_->SetViewId(UI_TEST_MAIN_LIST_ID);
@@ -100,6 +84,27 @@ void UITestApp::InitMainMenu()
             mainList_->SetAdapter(adapter_);
             mainMenu_->Add(mainList_);
         }
+    }
+}
+
+void UITestApp::InitAutoTestBtn()
+{
+    if (autoTestBtn_ == nullptr) {
+        autoTestBtn_ = new UILabelButton();
+        autoTestBtn_->Resize(163, 64); // 163: button width; 64: button height
+        autoTestBtn_->SetPosition(Screen::GetInstance().GetWidth() - autoTestBtn_->GetWidth(), 0);
+        autoTestBtn_->SetText("自动测试");
+        auto listern = new UIView::OnClickListener();
+        autoTestBtn_->SetOnClickListener(listern);
+        autoTestBtn_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, 24); // 24: means font size
+        autoTestBtn_->SetStyleForState(STYLE_BORDER_RADIUS, 0, UIButton::RELEASED);
+        autoTestBtn_->SetStyleForState(STYLE_BORDER_RADIUS, 0, UIButton::PRESSED);
+        autoTestBtn_->SetStyleForState(STYLE_BORDER_RADIUS, 0, UIButton::INACTIVE);
+        autoTestBtn_->SetStyleForState(STYLE_BACKGROUND_OPA, 0, UIButton::RELEASED);
+        autoTestBtn_->SetStyleForState(STYLE_BACKGROUND_OPA, 0, UIButton::PRESSED);
+        autoTestBtn_->SetStyleForState(STYLE_BACKGROUND_OPA, 0, UIButton::INACTIVE);
+        autoTestBtn_->SetVisible(false);
+        mainMenu_->Add(autoTestBtn_);
     }
 }
 

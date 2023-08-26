@@ -42,6 +42,7 @@ private:
     UITestApp& operator=(UITestApp&&) = delete;
 
     void Init();
+    void InitAutoTestBtn();
     void InitMainMenu();
     void InitBackBtn();
     void InitTestLabel();

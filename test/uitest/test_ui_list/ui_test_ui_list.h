@@ -47,6 +47,10 @@ private:
     void SetLastPos(UIView* view);
     void SetUpButton(UILabelButton* btn, const char* title);
     void SetControlButton();
+    void InitAdapter4();
+    void TearDown001();
+    void InitButtons();
+    void SetUpButtons001();
     UILabelButton* setBlankBtn_ = nullptr;
     UILabelButton* setBlankOffBtn_ = nullptr;
     UILabelButton* setThrowDragBtn_ = nullptr;

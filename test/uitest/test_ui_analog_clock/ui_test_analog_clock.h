@@ -96,6 +96,7 @@ private:
         btn->SetViewId(id);
         return btn;
     }
+    void TearDown001();
 };
 }
 #endif // UI_TEST_ANALOG_CLOCK_H

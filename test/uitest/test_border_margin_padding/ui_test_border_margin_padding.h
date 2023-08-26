@@ -45,6 +45,10 @@ public:
     }
     virtual ~UITestBorderMarginPadding() {}
     void SetUp() override;
+    void SetUpButtons(UIToggleButton* marginBtn,
+                      UIToggleButton* borderBtn,
+                      UIToggleButton* paddingBtn);
+    void SetUpAdapterData();
     void TearDown() override;
     const UIView* GetTestView() override;
     void ReloadTest();

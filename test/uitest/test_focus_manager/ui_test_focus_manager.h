@@ -46,6 +46,9 @@ public:
     void UIKitFocusManagerTest001();
 
 private:
+    void CreateLabels(UIViewGroup* viewGroup, UIViewGroup* viewGroup1);
+    void InitListeners(UIViewGroup* viewGroup1, UIViewGroup* viewGroup5, UIView* view2);
+    void TearDownListeners001();
     UIView* CreateTestUILabel(UIViewGroup* parent, int16_t x, int16_t y,
         const char* text, bool focusable);
     UIViewGroup* CreateTestUIViewGroup(UIViewGroup* parent, bool focusable, bool interceptFocus);

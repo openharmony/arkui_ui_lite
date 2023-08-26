@@ -38,19 +38,7 @@ void UITestAnalogClock::SetUp()
 
 void UITestAnalogClock::TearDown()
 {
-    if (animator_ != nullptr) {
-        delete animator_;
-        delete callback_;
-        animator_ = nullptr;
-        callback_ = nullptr;
-    }
-
-    if (animator2_ != nullptr) {
-        delete animator2_;
-        delete callback2_;
-        animator2_ = nullptr;
-        callback2_ = nullptr;
-    }
+    TearDown001();
     if (changeModeListener_ != nullptr) {
         delete changeModeListener_;
         changeModeListener_ = nullptr;
@@ -93,6 +81,23 @@ void UITestAnalogClock::TearDown()
     }
     DeleteChildren(container_);
     container_ = nullptr;
+}
+
+void UITestAnalogClock::TearDown001()
+{
+    if (animator_ != nullptr) {
+        delete animator_;
+        delete callback_;
+        animator_ = nullptr;
+        callback_ = nullptr;
+    }
+
+    if (animator2_ != nullptr) {
+        delete animator2_;
+        delete callback2_;
+        animator2_ = nullptr;
+        callback2_ = nullptr;
+    }
 }
 
 const UIView* UITestAnalogClock::GetTestView()
@@ -221,8 +226,7 @@ void UITestAnalogClock::CreateButtons001(UIViewGroup* group, UIImageView* curFac
     // 58: increase x-position; 58: increase y-position
     button2->SetPosition(curFace->GetWidth() + 58, BUTTON_HEIGHT + 58, BUTTON_WIDTH, BUTTON_HEIGHT);
     if (clickMoveLeftListener_ == nullptr) {
-        clickMoveLeftListener_ = static_cast<UIView::OnClickListener*>(
-            new TestBtnOnClickMovePositionListener(
+        clickMoveLeftListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickMovePositionListener(
             static_cast<UIView*>(button2), clock,
             TestBtnOnClickMovePositionListener::MoveType::MOVE_LEFT, 10)); // 10: grid
     }
@@ -233,8 +237,7 @@ void UITestAnalogClock::CreateButtons001(UIViewGroup* group, UIImageView* curFac
     // 58: increase x-position; 148: y-position
     button3->SetPosition(curFace->GetWidth() + 58, 148, BUTTON_WIDTH, BUTTON_HEIGHT);
     if (clickMoveRightListener_ == nullptr) {
-        clickMoveRightListener_ = static_cast<UIView::OnClickListener*>(
-            new TestBtnOnClickMovePositionListener(
+        clickMoveRightListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickMovePositionListener(
             static_cast<UIView*>(button3), clock,
             TestBtnOnClickMovePositionListener::MoveType::MOVE_RIGHT, 10)); // 10: grid
     }
@@ -245,8 +248,7 @@ void UITestAnalogClock::CreateButtons001(UIViewGroup* group, UIImageView* curFac
     // 58: increase x-position; 198: y-position
     button4->SetPosition(curFace->GetWidth() + 58, 198, BUTTON_WIDTH, BUTTON_HEIGHT);
     if (clickMoveTopListener_ == nullptr) {
-        clickMoveTopListener_ = static_cast<UIView::OnClickListener*>(
-            new TestBtnOnClickMovePositionListener(
+        clickMoveTopListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickMovePositionListener(
             static_cast<UIView*>(button4), clock,
             TestBtnOnClickMovePositionListener::MoveType::MOVE_TOP, 10)); // 10: move value
     }
@@ -257,8 +259,7 @@ void UITestAnalogClock::CreateButtons001(UIViewGroup* group, UIImageView* curFac
     // 58: increase x-position; 248: y-position
     button5->SetPosition(curFace->GetWidth() + 58, 248, BUTTON_WIDTH, BUTTON_HEIGHT);
     if (clickMoveBottomListener_ == nullptr) {
-        clickMoveBottomListener_ = static_cast<UIView::OnClickListener*>(
-            new TestBtnOnClickMovePositionListener(
+        clickMoveBottomListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickMovePositionListener(
             static_cast<UIView*>(button5), clock,
             TestBtnOnClickMovePositionListener::MoveType::MOVE_BOTTOM, 10)); // 10: move value
     }

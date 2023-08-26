@@ -24,6 +24,176 @@
 #include "ui_test.h"
 
 namespace OHOS {
+class TestView : public UIView {
+public:
+    TestView() {}
+    virtual ~TestView() {}
+    bool OnLongPressEvent(const LongPressEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("long press!");
+            label_->Invalidate();
+        }
+        return UIView::OnLongPressEvent(event);
+    }
+
+    bool OnDragEvent(const DragEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("drag!");
+            label_->Invalidate();
+        }
+        return UIView::OnDragEvent(event);
+    }
+
+    void SetSentence(const char* sentence)
+    {
+        sentence_ = sentence;
+    }
+
+    bool OnClickEvent(const ClickEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText(sentence_);
+            label_->Invalidate();
+        }
+        return UIView::OnClickEvent(event);
+    }
+
+    bool OnPressEvent(const PressEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("press!");
+            label_->Invalidate();
+        }
+        return UIView::OnPressEvent(event);
+    }
+
+    bool OnReleaseEvent(const ReleaseEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("release!");
+            label_->Invalidate();
+        }
+        return UIView::OnReleaseEvent(event);
+    }
+
+    bool OnCancelEvent(const CancelEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("cancel!");
+            label_->Invalidate();
+        }
+        return UIView::OnCancelEvent(event);
+    }
+
+    void SetLabel(UILabel* label)
+    {
+        label_ = label;
+    }
+
+    void SetLabel2(UILabel* label)
+    {
+        label2_ = label;
+    }
+
+private:
+    UILabel* label_ = nullptr;
+    UILabel* label2_ = nullptr;
+    const char* sentence_ = "click";
+};
+
+class TestUIScrollView : public UIScrollView {
+public:
+    TestUIScrollView() {}
+    virtual ~TestUIScrollView() {}
+    bool OnLongPressEvent(const LongPressEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("long press!");
+            label_->Invalidate();
+        }
+        return UIView::OnLongPressEvent(event);
+    }
+
+    bool OnDragEvent(const DragEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("drag!");
+            label_->Invalidate();
+        }
+        return UIScrollView::OnDragEvent(event);
+    }
+
+    bool OnDragStartEvent(const DragEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("drag start!");
+            label_->Invalidate();
+        }
+        return UIScrollView::OnDragStartEvent(event);
+    }
+
+    bool OnDragEndEvent(const DragEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("drag end!");
+            label_->Invalidate();
+        }
+        return UIScrollView::OnDragEndEvent(event);
+    }
+
+    void SetSentence(const char* sentence)
+    {
+        sentence_ = sentence;
+    }
+
+    bool OnClickEvent(const ClickEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText(sentence_);
+            label_->Invalidate();
+        }
+        return UIView::OnClickEvent(event);
+    }
+
+    bool OnPressEvent(const PressEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("press!");
+            label_->Invalidate();
+        }
+        return UIView::OnPressEvent(event);
+    }
+
+    bool OnReleaseEvent(const ReleaseEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("release!");
+            label_->Invalidate();
+        }
+        return UIView::OnReleaseEvent(event);
+    }
+
+    bool OnCancelEvent(const CancelEvent& event) override
+    {
+        if (label_ != nullptr) {
+            label_->SetText("cancel!");
+            label_->Invalidate();
+        }
+        return UIView::OnCancelEvent(event);
+    }
+
+    void SetLabel(UILabel* label)
+    {
+        label_ = label;
+    }
+
+private:
+    UILabel* label_ = nullptr;
+    const char* sentence_ = "click";
+};
+
 class TestKeyInputListener : public RootView::OnKeyActListener {
 public:
     explicit TestKeyInputListener(UILabel* label) : label_(label) {}
@@ -267,6 +437,10 @@ private:
                              bool parentDraggable,
                              bool hasListener,
                              bool isBubble);
+    void SetViewAndContainerListeners(bool isBubble, OHOS::UIScrollView* parentContainer,
+                                      TestView* testView, UILabel* label1, UILabel* label2);
+    void SetScrollsListeners(bool isBubble, OHOS::UIScrollView* parentScroll,
+                             OHOS::UIScrollView* childScroll, UILabel* label1, UILabel* label2);
 };
 } // namespace OHOS
 #endif // UI_TEST_INPUT_EVENT_H

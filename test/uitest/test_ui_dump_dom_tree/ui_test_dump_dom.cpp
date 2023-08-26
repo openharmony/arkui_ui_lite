@@ -46,30 +46,7 @@ void UITestDumpDomTree::SetUp()
 
 void UITestDumpDomTree::TearDown()
 {
-    if (clickDumpDomListener1_ != nullptr) {
-        delete clickDumpDomListener1_;
-        clickDumpDomListener1_ = nullptr;
-    }
-    if (clickDumpDomListener2_ != nullptr) {
-        delete clickDumpDomListener2_;
-        clickDumpDomListener2_ = nullptr;
-    }
-    if (clickDumpDomListener3_ != nullptr) {
-        delete clickDumpDomListener3_;
-        clickDumpDomListener3_ = nullptr;
-    }
-    if (clickDumpDomListener4_ != nullptr) {
-        delete clickDumpDomListener4_;
-        clickDumpDomListener4_ = nullptr;
-    }
-    if (clickDumpDomListener5_ != nullptr) {
-        delete clickDumpDomListener5_;
-        clickDumpDomListener5_ = nullptr;
-    }
-    if (clickDumpDomListener6_ != nullptr) {
-        delete clickDumpDomListener6_;
-        clickDumpDomListener6_ = nullptr;
-    }
+    TearDown001();
     if (clickDumpDomListener7_ != nullptr) {
         delete clickDumpDomListener7_;
         clickDumpDomListener7_ = nullptr;
@@ -97,6 +74,34 @@ void UITestDumpDomTree::TearDown()
     positionY_ = 0;
     DeleteChildren(container_);
     container_ = nullptr;
+}
+
+void UITestDumpDomTree::TearDown001()
+{
+    if (clickDumpDomListener1_ != nullptr) {
+        delete clickDumpDomListener1_;
+        clickDumpDomListener1_ = nullptr;
+    }
+    if (clickDumpDomListener2_ != nullptr) {
+        delete clickDumpDomListener2_;
+        clickDumpDomListener2_ = nullptr;
+    }
+    if (clickDumpDomListener3_ != nullptr) {
+        delete clickDumpDomListener3_;
+        clickDumpDomListener3_ = nullptr;
+    }
+    if (clickDumpDomListener4_ != nullptr) {
+        delete clickDumpDomListener4_;
+        clickDumpDomListener4_ = nullptr;
+    }
+    if (clickDumpDomListener5_ != nullptr) {
+        delete clickDumpDomListener5_;
+        clickDumpDomListener5_ = nullptr;
+    }
+    if (clickDumpDomListener6_ != nullptr) {
+        delete clickDumpDomListener6_;
+        clickDumpDomListener6_ = nullptr;
+    }
 }
 
 const UIView* UITestDumpDomTree::GetTestView()
@@ -196,6 +201,11 @@ void UITestDumpDomTree::CreateButtons(GridLayout* layout)
     toggleButton->SetStyle(STYLE_BACKGROUND_OPA, 0);
     toggleButton->SetViewId("dump_togglebutton");
 
+    CreateLabelButtons001(layout);
+}
+
+void UITestDumpDomTree::CreateLabelButtons001(GridLayout* layout)
+{
     UILabelButton* dumpButton1 = GetLabelButton("dump");
     layout->Add(dumpButton1);
     /* dump node here */
@@ -400,36 +410,41 @@ void UITestDumpDomTree::UIKitTestDumpDom005()
         label3->SetViewId("dump_arc_label");
         group3->Add(label3);
 
-        UILabelButton* dumpButton1 = GetLabelButton("dump");
-        dumpButton1->SetPosition(230, 48); // 230: x-coordinate, 48: y-coordinate
-        /* dump node here */
-        if (clickDumpDomListener9_ == nullptr) {
-            clickDumpDomListener9_ = static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickDumpDomListener(static_cast<UIView*>(dumpButton1), "dump_label"));
-        }
-        dumpButton1->SetOnClickListener(clickDumpDomListener9_);
-        group3->Add(dumpButton1);
-
-        UILabelButton* dumpButton2 = GetLabelButton("dump");
-        dumpButton2->SetPosition(230, 108); // 230: x-coordinate, 108: y-coordinate
-        /* dump node here */
-        if (clickDumpDomListener10_ == nullptr) {
-            clickDumpDomListener10_ = static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickDumpDomListener(static_cast<UIView*>(dumpButton2), "dump_label_button"));
-        }
-        dumpButton2->SetOnClickListener(clickDumpDomListener10_);
-        group3->Add(dumpButton2);
-
-        UILabelButton* dumpButton3 = GetLabelButton("dump");
-        dumpButton3->SetPosition(230, 310); // 230: x position, 310: y position
-        /* dump node here */
-        if (clickDumpDomListener11_ == nullptr) {
-            clickDumpDomListener11_ = static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickDumpDomListener(static_cast<UIView*>(dumpButton3), "dump_arc_label"));
-        }
-        dumpButton3->SetOnClickListener(clickDumpDomListener11_);
-        group3->Add(dumpButton3);
+        CreateButtons002(group3);
     }
+}
+
+void UITestDumpDomTree::CreateButtons002(UIViewGroup* group3)
+{
+    UILabelButton* dumpButton1 = GetLabelButton("dump");
+    dumpButton1->SetPosition(230, 48); // 230: x-coordinate, 48: y-coordinate
+    /* dump node here */
+    if (clickDumpDomListener9_ == nullptr) {
+        clickDumpDomListener9_ = static_cast<UIView::OnClickListener*>(
+            new TestBtnOnClickDumpDomListener(static_cast<UIView*>(dumpButton1), "dump_label"));
+    }
+    dumpButton1->SetOnClickListener(clickDumpDomListener9_);
+    group3->Add(dumpButton1);
+
+    UILabelButton* dumpButton2 = GetLabelButton("dump");
+    dumpButton2->SetPosition(230, 108); // 230: x-coordinate, 108: y-coordinate
+    /* dump node here */
+    if (clickDumpDomListener10_ == nullptr) {
+        clickDumpDomListener10_ = static_cast<UIView::OnClickListener*>(
+            new TestBtnOnClickDumpDomListener(static_cast<UIView*>(dumpButton2), "dump_label_button"));
+    }
+    dumpButton2->SetOnClickListener(clickDumpDomListener10_);
+    group3->Add(dumpButton2);
+
+    UILabelButton* dumpButton3 = GetLabelButton("dump");
+    dumpButton3->SetPosition(230, 310); // 230: x position, 310: y position
+    /* dump node here */
+    if (clickDumpDomListener11_ == nullptr) {
+        clickDumpDomListener11_ = static_cast<UIView::OnClickListener*>(
+            new TestBtnOnClickDumpDomListener(static_cast<UIView*>(dumpButton3), "dump_arc_label"));
+    }
+    dumpButton3->SetOnClickListener(clickDumpDomListener11_);
+    group3->Add(dumpButton3);
 }
 
 void UITestDumpDomTree::UIKitTestDumpDom006()
