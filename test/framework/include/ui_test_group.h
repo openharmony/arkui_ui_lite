@@ -29,6 +29,7 @@ struct TestCaseInfo {
 class UITestGroup {
 public:
     static void SetUpTestCase();
+    static void SetUpTestCase001();
     static List<TestCaseInfo>& GetTestCase();
     UITest* GetTestCase(const char* id);
     static void TearDownTestCase();

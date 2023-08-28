@@ -90,6 +90,8 @@ private:
     int16_t cols_ = 0;
     bool withMargin_;
 
+    void SetTestButtons001();
+
     void SetUpButton(Layout* controller, UILabelButton* btn, const char* title)
     {
         controller->Add(btn);

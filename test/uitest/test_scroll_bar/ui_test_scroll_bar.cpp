@@ -49,6 +49,26 @@ void UITestScrollBar::SetUp()
     if (adapter_ == nullptr) {
         adapter_ = new TextAdapter();
     }
+    SetAdapterData();
+
+    container_->SetPosition(0, 0, Screen::GetInstance().GetWidth(), Screen::GetInstance().GetHeight());
+
+    container_->Add(scrollView_);
+    scrollView_->SetPosition(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+    scrollView_->SetYScrollBarVisible(true);
+    scrollView_->SetHorizontalScrollState(false);
+    scrollView_->SetReboundSize(50); // 50: rebound size
+    scrollView_->SetScrollBarCenter({200, 200}); // 200: x, y of center
+
+    container_->Add(list_);
+    list_->SetPosition(450, 0, VIEW_WIDTH, VIEW_HEIGHT); // 450: x
+    list_->SetYScrollBarVisible(true);
+    list_->SetScrollBarSide(SCROLL_BAR_LEFT_SIDE);
+    list_->SetReboundSize(50); // 50: rebound size
+}
+
+void UITestScrollBar::SetAdapterData()
+{
     if (adapterData_ == nullptr) {
         adapterData_ = new List<const char*>();
         adapterData_->PushBack("abcd0");
@@ -68,21 +88,6 @@ void UITestScrollBar::SetUp()
         adapterData_->PushBack("abcd14");
         adapterData_->PushBack("abcd15");
     }
-
-    container_->SetPosition(0, 0, Screen::GetInstance().GetWidth(), Screen::GetInstance().GetHeight());
-
-    container_->Add(scrollView_);
-    scrollView_->SetPosition(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-    scrollView_->SetYScrollBarVisible(true);
-    scrollView_->SetHorizontalScrollState(false);
-    scrollView_->SetReboundSize(50); // 50: rebound size
-    scrollView_->SetScrollBarCenter({200, 200}); // 200: x, y of center
-
-    container_->Add(list_);
-    list_->SetPosition(450, 0, VIEW_WIDTH, VIEW_HEIGHT); // 450: x
-    list_->SetYScrollBarVisible(true);
-    list_->SetScrollBarSide(SCROLL_BAR_LEFT_SIDE);
-    list_->SetReboundSize(50); // 50: rebound size
 }
 
 void UITestScrollBar::TearDown()

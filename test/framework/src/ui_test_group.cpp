@@ -91,11 +91,11 @@ void UITestGroup::SetUpTestCase()
     testCaseList_.PushBack(TestCaseInfo{"View zIndex", new UITestViewZIndex()});
     testCaseList_.PushBack(TestCaseInfo{"EditText", new UITestEditText()});
     testCaseList_.PushBack(TestCaseInfo{"Clip", new UITestClip()});
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
     testCaseList_.PushBack(TestCaseInfo{"Rotate_Input", new UITestRotateInput()});
 #endif
     testCaseList_.PushBack(TestCaseInfo{"View_Scale_Rotate", new UITestViewScaleRotate()});
-#if ENABLE_VECTOR_FONT
+#if defined(ENABLE_VECTOR_FONT) && ENABLE_VECTOR_FONT
     if (UIFont::GetInstance()->IsVectorFont()) {
         testCaseList_.PushBack(TestCaseInfo{"Vector_Font", new UITestVectorFont()});
     }
@@ -123,7 +123,12 @@ void UITestGroup::SetUpTestCase()
     testCaseList_.PushBack(TestCaseInfo{"UIPicker", new UITestUIPicker()});
     testCaseList_.PushBack(TestCaseInfo{"Font", new UITestFont()});
     testCaseList_.PushBack(TestCaseInfo{"Arc_Label", new UITestArcLabel()});
-#if ENABLE_DEBUG
+    SetUpTestCase001();
+}
+
+void UITestGroup::SetUpTestCase001()
+{
+#if defined(ENABLE_DEBUG) && ENABLE_DEBUG
     testCaseList_.PushBack(TestCaseInfo{"Event_Injector", new UITestEventInjector()});
     testCaseList_.PushBack(TestCaseInfo{"Dump_Dom", new UITestDumpDomTree()});
     testCaseList_.PushBack(TestCaseInfo{"View Bounds", new UITestViewBounds()});
@@ -135,7 +140,7 @@ void UITestGroup::SetUpTestCase()
     testCaseList_.PushBack(TestCaseInfo{"Texture_Mapper", new UITestTextureMapper()});
     testCaseList_.PushBack(TestCaseInfo{"Chart_Polyline", new UITestChartPolyline()});
     testCaseList_.PushBack(TestCaseInfo{"Chart_Pillar", new UITestChartPillar()});
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
     testCaseList_.PushBack(TestCaseInfo{"Dialog", new UITestDialog()});
 #endif
     testCaseList_.PushBack(TestCaseInfo{"Analog_Clock", new UITestAnalogClock()});
@@ -146,11 +151,11 @@ void UITestGroup::SetUpTestCase()
     testCaseList_.PushBack(TestCaseInfo{"UIViewGroup", new UITestViewGroup()});
     testCaseList_.PushBack(TestCaseInfo{"View Bitmap", new UITestViewBitmap()});
 #ifndef VERSION_LITE
-#if ENABLE_VIDEO_COMPONENT
+#if defined(ENABLE_VIDEO_COMPONENT) && ENABLE_VIDEO_COMPONENT
     testCaseList_.PushBack(TestCaseInfo{"Video", new UITestVideo()});
 #endif
 #endif
-#if ENABLE_FOCUS_MANAGER
+#if defined(ENABLE_FOCUS_MANAGER) && ENABLE_FOCUS_MANAGER
     testCaseList_.PushBack(TestCaseInfo{"FocusManager", new UITestFocusManager()});
 #endif
     testCaseList_.PushBack(TestCaseInfo{"Border_Margin_Padding", new UITestBorderMarginPadding()});

@@ -35,6 +35,7 @@ public:
     void UIKitScrollBarTESTList001();
 
 private:
+    void SetAdapterData();
     UIViewGroup* container_ = nullptr;
     UIScrollView* scrollView_ = nullptr;
     UIList* list_ = nullptr;

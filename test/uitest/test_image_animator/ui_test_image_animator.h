@@ -87,6 +87,14 @@ public:
 
 private:
     void InitImageInfo();
+    void SetSrcData3(uint8_t* srcData3, uint8_t* srcData2, uint8_t* srcData1,
+                     uint32_t dataSize, bool& isReturn, const uint16_t pixelByteSize);
+    void SetImageInfoPara(ImageInfo* imageInfo,
+                          const uint16_t width,
+                          const uint16_t height,
+                          uint32_t dataSize,
+                          uint8_t* srcData);
+    void SetimageAnimatorImageInfos();
     UIScrollView* container_ = nullptr;
     GridLayout* layout_ = nullptr;
     UIImageAnimatorView* imageAnimator_ = nullptr;
