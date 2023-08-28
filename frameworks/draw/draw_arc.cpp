@@ -136,16 +136,7 @@ void DrawArc::DrawCircleNoEndpoint(BufferInfo& gfxDstBuffer,
 
     int16_t yStart = mask.GetTop() - arcInfo.center.y;
     int16_t yEnd = mask.GetBottom() - arcInfo.center.y;
-    if ((yStart >= 0) && (yEnd >= 0)) {
-        int16_t tmp = yStart;
-        yStart = -yEnd;
-        yEnd = -tmp;
-    } else if ((yStart < 0) && (yEnd > 0)) {
-        yStart = MATH_MIN(yStart, -yEnd);
-        yEnd = -1;
-    }
-    yStart = MATH_MAX(yStart, -outRadius_) - 1;
-    yEnd = MATH_MIN(yEnd, -1);
+    CalculatedYStartAndYEnd(yStart, yEnd);
 
     int16_t xLineStart = -outRadius_;
     int16_t xLineStart2 = xLineStart - 1;
@@ -180,7 +171,7 @@ void DrawArc::DrawCircleNoEndpoint(BufferInfo& gfxDstBuffer,
         if (!isSetStartPot) {
             continue;
         }
-#if ENABLE_ANTIALIAS
+#if defined(ENABLE_ANTIALIAS) && ENABLE_ANTIALIAS
         if (anti) {
             DrawLineAnti(gfxDstBuffer, arcInfo, mask, style, opa);
         }
@@ -193,6 +184,20 @@ void DrawArc::DrawCircleNoEndpoint(BufferInfo& gfxDstBuffer,
 
         DrawLineWithDegree(gfxDstBuffer, arcInfo, lineStart_, lineEnd_, y_, mask, style, opa, ARC_QUADRANT_FOUR);
     }
+}
+
+void DrawArc::CalculatedYStartAndYEnd(int16_t& yStart, int16_t& yEnd)
+{
+    if ((yStart >= 0) && (yEnd >= 0)) {
+        int16_t tmp = yStart;
+        yStart = -yEnd;
+        yEnd = -tmp;
+    } else if ((yStart < 0) && (yEnd > 0)) {
+        yStart = MATH_MIN(yStart, -yEnd);
+        yEnd = -1;
+    }
+    yStart = MATH_MAX(yStart, -outRadius_) - 1;
+    yEnd = MATH_MIN(yEnd, -1);
 }
 
 void DrawArc::DrawAxisLine(BufferInfo& gfxDstBuffer,

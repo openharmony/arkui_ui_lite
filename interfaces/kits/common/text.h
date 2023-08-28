@@ -573,6 +573,14 @@ private:
     uint8_t verticalAlign_ : 4;   // UITextLanguageAlignment
     bool eliminateTrailingSpaces_;
     static constexpr uint8_t FONT_ID_MAX = 0xFF;
+#if defined(ENABLE_ICU) && ENABLE_ICU
+    void SetLineBytes(uint16_t& lineBytes, uint16_t lineBegin);
+#endif
+    void CalculatedCurLineHeight(int16_t& lineHeight, int16_t& curLineHeight,
+                                 uint16_t fontHeight, const Style& style, uint16_t lineMaxHeight);
+    void SetNextLineBegin(const Style& style, uint16_t lineMaxHeight, int16_t& curLineHeight, Point& pos,
+                          int16_t& tempLetterIndex, int16_t& lineHeight, uint16_t& lineBegin, uint16_t letterIndex);
+    Point GetPos(int16_t& lineHeight, const Style& style, uint16_t& lineCount, const Rect& coords);
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_TEXT_H

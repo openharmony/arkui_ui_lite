@@ -24,16 +24,16 @@
 namespace OHOS {
 UIScrollView::UIScrollView() : scrollListener_(nullptr)
 {
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
     rotateFactor_ = DEFAULT_SCROLL_VIEW_ROTATE_FACTOR;
     rotateThrowthreshold_ = SCROLLVIEW_ROTATE_THROW_THRESHOLD;
     rotateAccCoefficient_ = SCROLLVIEW_ROTATE_DISTANCE_COEFF;
 #endif
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     totalRotateLen_ = 0;
     lastVibratorRotateLen_ = 0;
 #endif
-#if ENABLE_FOCUS_MANAGER
+#if defined(ENABLE_FOCUS_MANAGER) && ENABLE_FOCUS_MANAGER
     focusable_ = true;
 #endif
     direction_ = HORIZONTAL_AND_VERTICAL;
@@ -86,25 +86,17 @@ bool UIScrollView::OnPressEvent(const PressEvent& event)
     return UIView::OnPressEvent(event);
 }
 
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
 bool UIScrollView::OnRotateEvent(const RotateEvent& event)
 {
     if (direction_ == HORIZONTAL_NOR_VERTICAL) {
         return UIView::OnRotateEvent(event);
     }
     int16_t rotateLen = static_cast<int16_t>(event.GetRotate() * rotateFactor_);
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     bool lastIsEdge = false;
     Rect childRect = GetAllChildRelativeRect();
-    if (direction_ == HORIZONTAL) {
-        if (childRect.GetLeft() - scrollBlankSize_ >= 0 || childRect.GetRight() + scrollBlankSize_ <= GetWidth()) {
-            lastIsEdge = true;
-        }
-    } else {
-        if (childRect.GetTop() - scrollBlankSize_ >= 0 || childRect.GetBottom() + scrollBlankSize_ <= GetHeight()) {
-            lastIsEdge = true;
-        }
-    }
+    SetIsEdge(lastIsEdge, childRect);
 #endif
     RefreshRotate(rotateLen);
     if (direction_ == HORIZONTAL) {
@@ -112,7 +104,7 @@ bool UIScrollView::OnRotateEvent(const RotateEvent& event)
     } else {
         DragYInner(rotateLen);
     }
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     totalRotateLen_ += rotateLen;
     childRect = GetAllChildRelativeRect();
     bool isEdge = false;
@@ -152,6 +144,21 @@ bool UIScrollView::OnRotateEndEvent(const RotateEvent& event)
     }
     return UIAbstractScroll::OnRotateEndEvent(event);
 }
+
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
+void UIScrollView::SetIsEdge(bool& lastIsEdge, Rect childRect)
+{
+    if (direction_ == HORIZONTAL) {
+        if (childRect.GetLeft() - scrollBlankSize_ >= 0 || childRect.GetRight() + scrollBlankSize_ <= GetWidth()) {
+            lastIsEdge = true;
+        }
+    } else {
+        if (childRect.GetTop() - scrollBlankSize_ >= 0 || childRect.GetBottom() + scrollBlankSize_ <= GetHeight()) {
+            lastIsEdge = true;
+        }
+    }
+}
+#endif
 #endif
 
 void UIScrollView::ScrollBy(int16_t xDistance, int16_t yDistance)
