@@ -179,7 +179,8 @@ BufferInfo UIFontAllocator::GetCacheBuffer(uint16_t fontId,
                                            uint32_t unicode,
                                            ColorMode mode,
                                            GlyphNode& glyphNode,
-                                           bool hasMetric)
+                                           bool hasMetric,
+                                           TextStyle textStyle)
 {
     BufferInfo bufInfo{Rect(), 0, nullptr, nullptr, glyphNode.cols, glyphNode.rows, mode, 0};
     bufInfo.stride = BIT_TO_BYTE(bufInfo.width * DrawUtils::GetPxSizeByColorMode(bufInfo.mode));
@@ -189,7 +190,6 @@ BufferInfo UIFontAllocator::GetCacheBuffer(uint16_t fontId,
     if (hasMetric) {
         bitmapSize += sizeof(Metric);
     }
-    TextStyle textStyle = TEXT_STYLE_NORMAL;
     bufInfo.virAddr =
         reinterpret_cast<void*>(UIFontCacheManager::GetInstance()->GetSpace(fontId, unicode, bitmapSize, textStyle));
     return bufInfo;

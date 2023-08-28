@@ -268,7 +268,7 @@ uint8_t* UIFontBitmap::SearchInFont(uint32_t unicode, GlyphNode& glyphNode, uint
         return nullptr;
     }
     ColorMode mode = UIFont::GetInstance()->GetColorType(fontId);
-    BufferInfo bufInfo = UIFontAllocator::GetCacheBuffer(fontId, unicode, mode, glyphNode, false);
+    BufferInfo bufInfo = UIFontAllocator::GetCacheBuffer(fontId, unicode, mode, glyphNode, false, textStyle);
     ret = dynamicFont_.GetBitmap(unicode, bufInfo, fontId);
     if (ret == RET_VALUE_OK) {
         return reinterpret_cast<uint8_t*>(bufInfo.virAddr);
