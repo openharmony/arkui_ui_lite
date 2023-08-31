@@ -1736,8 +1736,7 @@ void DrawUtils::DrawTriangleTransform(BufferInfo& gfxDstBuffer,
     uint8_t yErr = 1;
     if (triangleInfo.p2.y == triangleInfo.p1.y) {
         yErr = 0;
-        GetInstance()->SetPartEdge(gfxDstBuffer, triangleInfo, edge1, edge2,
-                                   p3IsInRight, mask, yErr, part);
+        GetInstance()->SetPartEdge(gfxDstBuffer, triangleInfo, edge1, edge2, p3IsInRight, mask, yErr, part);
         return;
     }
     if (p3IsInRight) {
@@ -1753,6 +1752,7 @@ void DrawUtils::DrawTriangleTransform(BufferInfo& gfxDstBuffer,
     part.edge1 = edge1;
     part.edge2 = edge2;
     DrawTriangleTransformPart(gfxDstBuffer, part);
+    GetInstance()->SetPartEdge(gfxDstBuffer, triangleInfo, edge1, edge2, p3IsInRight, mask, yErr, part);
 }
 
 void DrawUtils::SetPartEdge(BufferInfo& gfxDstBuffer, const TriangleTransformDataInfo& triangleInfo,
