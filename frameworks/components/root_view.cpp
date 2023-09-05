@@ -611,6 +611,19 @@ void RootView::RestoreMapBufferInfo()
         dc_.mapBufferInfo->width * (DrawUtils::GetPxSizeByColorMode(dc_.mapBufferInfo->mode) >> 3); // 3: Shift 3 bits
 }
 
+bool RootView::CheckNeedRootViewTransView(UIView *curView) {
+    if ((curView->GetViewType() == UI_IMAGE_VIEW) && (curView->GetStyle(STYLE_BORDER_WIDTH) == 0)) {
+        return false;
+    }
+    if (curView->GetViewType() == UI_TEXTURE_MAPPER) {
+        return false;
+    }
+    if (curView->IsTransInvalid()) {
+        return false;
+    }
+    return true;
+}
+
 void RootView::DrawTop(UIView* view, const Rect& rect)
 {
     if (view == nullptr) {
@@ -642,8 +655,7 @@ void RootView::DrawTop(UIView* view, const Rect& rect)
         if (curView != nullptr) {
             if (curView->IsVisible()) {
                 if (curViewRect.Intersect(curView->GetMaskedRect(), mask) || enableAnimator) {
-                    if ((curView->GetViewType() != UI_IMAGE_VIEW) && (curView->GetViewType() != UI_TEXTURE_MAPPER) &&
-                        !curView->IsTransInvalid() && !enableAnimator) {
+                    if (CheckNeedRootViewTransView(curView) && !enableAnimator) {
                         origRect = curView->GetOrigRect();
                         relativeRect = curView->GetRelativeRect();
                         curView->GetTransformMap().SetInvalid(true);
