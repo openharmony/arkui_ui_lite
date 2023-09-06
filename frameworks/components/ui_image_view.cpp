@@ -460,7 +460,10 @@ void UIImageView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
                                                        static_cast<BlurLevel>(blurLevel_),
                                                        static_cast<TransformAlgorithm>(algorithm_)};
                 OpacityType opaScale = DrawUtils::GetMixOpacity(opa, style_->imageOpa_);
-                baseGfxEngine->DrawTransform(gfxDstBuffer, trunc, {0, 0}, Color::Black(),
+                Matrix4<float> scaleMatrix = drawTransMap_->GetScaleMatrix();
+                int16_t paddingX = style_->paddingLeft_ * scaleMatrix[0][0];
+                int16_t paddingY = style_->paddingTop_ * scaleMatrix[1][1];
+                baseGfxEngine->DrawTransform(gfxDstBuffer, trunc, {paddingX, paddingY}, Color::Black(),
                                              opaScale, *drawTransMap_, imageTranDataInfo);
             }
         }
