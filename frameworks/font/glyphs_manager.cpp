@@ -49,6 +49,7 @@ int8_t GlyphsManager::SetFile(const char* fontName, int32_t fp, uint32_t start, 
     if (instance->SetFile(fontName, fp, start) != RET_VALUE_OK) {
         delete instance;
         instance = nullptr;
+        GRAPHIC_LOGE("GlyphsManager::SetFile() instance->SetFile() failed");
         return INVALID_RET_VALUE;
     }
 

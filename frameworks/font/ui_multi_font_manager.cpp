@@ -153,10 +153,10 @@ int32_t UIMultiFontManager::GetSearchFontList(uint16_t fontListId, uint16_t** fo
 {
     if ((fontListId >= UIFontBuilder::GetInstance()->GetTotalFontId()) || (fontIds == nullptr) ||
         (fontIdIndex_ == nullptr) || (fontIdIndex_[fontListId] >= MAX_FONT_SEARCH_NUM)) {
-        return INVALID_RET_VALUE;
+        return static_cast<uint32_t>(INVALID_RET_VALUE);
     }
     *fontIds = fontNodes_[fontIdIndex_[fontListId]].fontIds;
-    return fontNodes_[fontIdIndex_[fontListId]].size;
+    return static_cast<uint32_t>(fontNodes_[fontIdIndex_[fontListId]].size);
 }
 
 bool UIMultiFontManager::IsNeedShaping(const char *text, uint8_t &ttfId, uint32_t &script)

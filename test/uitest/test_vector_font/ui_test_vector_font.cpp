@@ -200,8 +200,8 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestJALang001()
         UIFont::GetInstance()->RegisterFontInfo(NOTOSANSCJKJP_REGULAR);
         UIFont::GetInstance()->RegisterFontInfo(HYQIHEI_65S);
         UIFont::GetInstance()->RegisterFontInfo(ROBOTOCONDENSED_REGULAR);
-        uint8_t findPath[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
-                              UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
+        uint16_t findPath[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
+                               UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
         UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(HYQIHEI_65S), findPath,
                                                              sizeof(findPath));
         UILabel* label = new UILabel();
@@ -237,8 +237,8 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestKRLang001()
         UIFont::GetInstance()->RegisterFontInfo(NOTOSANSCJKJP_REGULAR);
         UIFont::GetInstance()->RegisterFontInfo(HYQIHEI_65S);
         UIFont::GetInstance()->RegisterFontInfo(ROBOTOCONDENSED_REGULAR);
-        uint8_t findPath[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
-                              UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
+        uint16_t findPath[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
+                               UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
         UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(NOTOSANSCJKJP_REGULAR),
                                                              findPath, sizeof(findPath));
         UILabel* label = new UILabel();
@@ -259,8 +259,8 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestVILang001()
         UIFont::GetInstance()->RegisterFontInfo(NOTOSANSCJKJP_REGULAR);
         UIFont::GetInstance()->RegisterFontInfo(HYQIHEI_65S);
         UIFont::GetInstance()->RegisterFontInfo(ROBOTOCONDENSED_REGULAR);
-        uint8_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
-                               UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
+        uint16_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
+                                UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
         UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(NOTOSANSCJKJP_REGULAR),
                                                              findPath4, sizeof(findPath4));
         UILabel* label = new UILabel();
@@ -281,8 +281,8 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestCSLang001()
         UIFont::GetInstance()->RegisterFontInfo(NOTOSANSCJKJP_REGULAR);
         UIFont::GetInstance()->RegisterFontInfo(HYQIHEI_65S);
         UIFont::GetInstance()->RegisterFontInfo(ROBOTOCONDENSED_REGULAR);
-        uint8_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
-                               UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
+        uint16_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
+                                UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
         UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(NOTOSANSCJKJP_REGULAR),
                                                              findPath4, sizeof(findPath4));
         UILabel* label = new UILabel();
@@ -303,8 +303,8 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestELLang001()
         UIFont::GetInstance()->RegisterFontInfo(NOTOSANSCJKJP_REGULAR);
         UIFont::GetInstance()->RegisterFontInfo(HYQIHEI_65S);
         UIFont::GetInstance()->RegisterFontInfo(ROBOTOCONDENSED_REGULAR);
-        uint8_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
-                               UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
+        uint16_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
+                                UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
         UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(NOTOSANSCJKJP_REGULAR),
                                                              findPath4, sizeof(findPath4));
         UILabel* label = new UILabel();
@@ -325,8 +325,8 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestROLang001()
         UIFont::GetInstance()->RegisterFontInfo(NOTOSANSCJKJP_REGULAR);
         UIFont::GetInstance()->RegisterFontInfo(HYQIHEI_65S);
         UIFont::GetInstance()->RegisterFontInfo(ROBOTOCONDENSED_REGULAR);
-        uint8_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
-                               UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
+        uint16_t findPath4[] = {UIFont::GetInstance()->GetFontId(HYQIHEI_65S),
+                                UIFont::GetInstance()->GetFontId(ROBOTOCONDENSED_REGULAR)};
         UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(NOTOSANSCJKJP_REGULAR),
                                                              findPath4, sizeof(findPath4));
         UILabel* label = new UILabel();

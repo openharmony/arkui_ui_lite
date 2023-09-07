@@ -43,6 +43,9 @@ public:
     UILabelButton* GetLabelButton(const char* buttonname);
 
 private:
+    void TearDown001();
+    void CreateLabelButtons001(GridLayout* layout);
+    void CreateButtons002(UIViewGroup* group3);
     UIScrollView* container_ = nullptr;
     UIView::OnClickListener* clickDumpDomListener1_ = nullptr;
     UIView::OnClickListener* clickDumpDomListener2_ = nullptr;

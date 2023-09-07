@@ -86,10 +86,10 @@ void UIFontCacheManager::BitmapCacheClear()
     bitmapCache_ = nullptr;
 }
 
-uint8_t* UIFontCacheManager::GetSpace(uint16_t fontKey, uint32_t unicode, uint32_t size)
+uint8_t* UIFontCacheManager::GetSpace(uint16_t fontKey, uint32_t unicode, uint32_t size, TextStyle textStyle)
 {
     if (bitmapCache_ != nullptr) {
-        return bitmapCache_->GetSpace(fontKey, unicode, size);
+        return bitmapCache_->GetSpace(fontKey, unicode, size, textStyle);
     }
     GRAPHIC_LOGE("UIFontCacheManager::GetSpace invalid bitmapCache");
     return nullptr;
@@ -103,10 +103,10 @@ void UIFontCacheManager::PutSpace(uint8_t* addr)
     GRAPHIC_LOGE("UIFontCacheManager::PutSpace invalid bitmapCache");
 }
 
-uint8_t* UIFontCacheManager::GetBitmap(uint16_t fontKey, uint32_t unicode)
+uint8_t* UIFontCacheManager::GetBitmap(uint16_t fontKey, uint32_t unicode, TextStyle textStyle)
 {
     if (bitmapCache_ != nullptr) {
-        return bitmapCache_->GetBitmap(fontKey, unicode);
+        return bitmapCache_->GetBitmap(fontKey, unicode, textStyle);
     }
     GRAPHIC_LOGE("UIFontCacheManager::GetBitmap invalid bitmapCache");
     return nullptr;

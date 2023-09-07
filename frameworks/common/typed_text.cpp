@@ -71,11 +71,7 @@ Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize
     }
 
     if (!hasLineHeight) {
-        if (size.y == 0) {
-            size.y = letterHeight;
-        } else {
-            size.y -= lineSpace;
-        }
+        size.y = (size.y == 0) ? letterHeight : (size.y - lineSpace);
     } else {
         if (size.y == 0) {
             size.y = lineHeight;
@@ -118,8 +114,7 @@ Rect TypedText::GetArcTextRect(const char* text,
         uint16_t letterWidth = UIFont::GetInstance()->GetWidth(letter, fontId, fontSize, 0);
         if (tmp == arcTextInfo.lineStart) {
             angle += xorFlag ? GetAngleForArcLen(static_cast<float>(letterWidth), letterHeight, arcTextInfo.radius,
-                                                 arcTextInfo.direct, orientation)
-                             : 0;
+                                                 arcTextInfo.direct, orientation) : 0;
             GetArcLetterPos(arcCenter, arcTextInfo.radius, angle, posX, posY);
             rect.SetPosition(MATH_ROUND(posX), MATH_ROUND(posY));
         }

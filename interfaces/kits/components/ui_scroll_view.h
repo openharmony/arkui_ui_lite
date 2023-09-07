@@ -142,7 +142,7 @@ public:
         return UI_SCROLL_VIEW;
     }
 
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
     bool OnRotateEvent(const RotateEvent& event) override;
 
     bool OnRotateEndEvent(const RotateEvent& event) override;
@@ -245,9 +245,10 @@ private:
     void CalculateReboundDistance(int16_t& dragDistanceX, int16_t& dragDistanceY) override;
     void RefreshScrollBar();
     OnScrollListener* scrollListener_;
-#if ENABLE_VIBRATOR
+#if defined(ENABLE_VIBRATOR) && ENABLE_VIBRATOR
     int16_t totalRotateLen_;
     int16_t lastVibratorRotateLen_;
+    void SetIsEdge(bool& lastIsEdge, Rect childRect);
 #endif
 };
 } // namespace OHOS

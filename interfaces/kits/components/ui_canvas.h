@@ -708,6 +708,10 @@ protected:
     static void InitGfxMapBuffer(const BufferInfo& srcBuff, const Rect& rect);
     static BufferInfo* UpdateMapBufferInfo(const BufferInfo& srcBuff, const Rect& rect);
     static void DestroyMapBufferInfo();
+    void SetArcParamInfo(const Point& center, uint16_t radius, int16_t startAngle, int16_t endAngle);
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+    void SetDrawLinePath(const Point& startPoint, int16_t height, int16_t width, const Paint& paint);
+#endif
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_CANVAS_H

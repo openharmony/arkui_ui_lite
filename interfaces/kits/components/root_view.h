@@ -317,6 +317,13 @@ private:
     void ClearMapBuffer();
     void UpdateMapBufferInfo(Rect& invalidatedArea);
     void RestoreMapBufferInfo();
+    /**
+     * @brief check need rootview to trans view
+     *
+     * @param  param UIView
+     * @return true if need rootview to trans view
+     */
+    bool CheckNeedRootViewTransView(UIView* curview);
 #if LOCAL_RENDER
     void RemoveViewFromInvalidMap(UIView *view);
     void DrawInvalidMap(const Rect &buffRect);

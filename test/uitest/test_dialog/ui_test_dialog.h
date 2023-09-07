@@ -49,6 +49,11 @@ public:
     void UIKitDialogTest010();
 
 private:
+    void SetShowInfo001();
+    void SetShowInfo002();
+    void SetShowInfo003();
+    void SetShowInfo006();
+    void SetShowInfo007();
     UIScrollView* container_ = nullptr;
     UILabel* label_ = nullptr;
     UILabelButton* button1_ = nullptr;

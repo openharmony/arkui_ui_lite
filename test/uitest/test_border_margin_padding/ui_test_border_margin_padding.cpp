@@ -158,6 +158,29 @@ void UITestBorderMarginPadding::SetUp()
     }
     paddingBtn->SetViewId(UI_TEST_PADDING_BTN);
 
+    SetUpButtons(marginBtn, borderBtn, paddingBtn);
+
+    if (borderListener_ == nullptr) {
+        borderListener_ = new BorderListener(this);
+    }
+    borderBtn->SetOnChangeListener(borderListener_);
+    if (marginListener_ == nullptr) {
+        marginListener_ = new MarginListener(this);
+    }
+    marginBtn->SetOnChangeListener(marginListener_);
+    if (paddingListener_ == nullptr) {
+        paddingListener_ = new PaddingListener(this);
+    }
+    paddingBtn->SetOnChangeListener(paddingListener_);
+
+    SetUpAdapterData();
+    InitStyle();
+}
+
+void UITestBorderMarginPadding::SetUpButtons(UIToggleButton* marginBtn,
+                                             UIToggleButton* borderBtn,
+                                             UIToggleButton* paddingBtn)
+{
     UILabel* labelMargin = new UILabel();
     UILabel* labelBorder = new UILabel();
     UILabel* labelPadding = new UILabel();
@@ -211,20 +234,10 @@ void UITestBorderMarginPadding::SetUp()
     layoutButton_->Add(labelPadding);
     layoutButton_->Add(paddingBtn);
     layoutButton_->LayoutChildren();
+}
 
-    if (borderListener_ == nullptr) {
-        borderListener_ = new BorderListener(this);
-    }
-    borderBtn->SetOnChangeListener(borderListener_);
-    if (marginListener_ == nullptr) {
-        marginListener_ = new MarginListener(this);
-    }
-    marginBtn->SetOnChangeListener(marginListener_);
-    if (paddingListener_ == nullptr) {
-        paddingListener_ = new PaddingListener(this);
-    }
-    paddingBtn->SetOnChangeListener(paddingListener_);
-
+void UITestBorderMarginPadding::SetUpAdapterData()
+{
     if (adapterData_ == nullptr) {
         adapterData_ = new List<const char*>();
         adapterData_->PushBack("000");
@@ -241,7 +254,6 @@ void UITestBorderMarginPadding::SetUp()
         adapterData_->PushBack("BBB");
         adapterData_->PushBack("CCC");
     }
-    InitStyle();
 }
 
 void UITestBorderMarginPadding::TearDown()

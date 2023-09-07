@@ -83,9 +83,7 @@ private:
     };
     TtcInfo ttcInfos_[FONT_TTC_MAX] = {};
     void SetFace(FaceInfo& faceInfo, uint32_t unicode);
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     void SetFace(FaceInfo& faceInfo, uint32_t unicode, TextStyle textStyle);
-#endif
     uint16_t GetFontId(uint32_t unicode) const;
     uint16_t GetKey(uint16_t fontId, uint8_t size);
     int8_t LoadGlyphIntoFace(uint16_t& fontId, uint8_t fontSize, uint32_t unicode, GlyphNode& glyphNode);

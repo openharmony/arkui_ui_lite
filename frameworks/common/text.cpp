@@ -304,24 +304,10 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
     int16_t lineHeight = style.lineHeight_;
     int16_t curLineHeight;
     UIFont* font = UIFont::GetInstance();
-    if (lineHeight <= 0) {
-        lineHeight = font->GetHeight(fontId_, fontSize_);
-        lineHeight += style.lineSpace_;
-    }
-    if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
-        uint16_t letterIndex = 0;
-        curLineHeight = font->GetLineMaxHeight(text_, textLine_[0].lineBytes, fontId_, fontSize_,
-                                               letterIndex, sizeSpans_);
-        curLineHeight += style.lineSpace_;
-    } else {
-        curLineHeight = lineHeight;
-    }
-    Point pos;
-    if (lineHeight == style.lineHeight_) {
-        pos.y = TextPositionY(coords, (lineCount * lineHeight));
-    } else {
-        pos.y = TextPositionY(coords, (lineCount * lineHeight - style.lineSpace_));
-    }
+    uint16_t fontHeight = font->GetHeight(fontId_, fontSize_);
+    uint16_t lineMaxHeight = font->GetLineMaxHeight(text_, textLine_[0].lineBytes, fontId_, fontSize_, 0, sizeSpans_);
+    CalculatedCurLineHeight(lineHeight, curLineHeight, fontHeight, style, lineMaxHeight);
+    Point pos = GetPos(lineHeight, style, lineCount, coords);
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.textOpa_);
     uint16_t letterIndex = 0;
     for (uint16_t i = 0; i < lineCount; i++) {
@@ -335,13 +321,7 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
         int16_t tempLetterIndex = letterIndex;
         uint16_t lineBytes = textLine_[i].lineBytes;
 #if defined(ENABLE_ICU) && ENABLE_ICU
-        if (this->IsEliminateTrailingSpaces()) {
-            int j = lineBytes - 1;
-            while (j >= 0 && text_[lineBegin + j] == ' ') {
-                --j;
-            }
-            lineBytes = j + 1;
-        }
+        SetLineBytes(lineBytes, lineBegin);
 #endif
         if (nextLine >= mask.GetTop()) {
             pos.x = LineStartPos(coords, textLine_[i].linePixelWidth);
@@ -362,16 +342,63 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
         } else {
             letterIndex = TypedText::GetUTF8CharacterSize(text_, lineBegin + lineBytes);
         }
-        if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
-            curLineHeight = font->GetLineMaxHeight(&text_[lineBegin], textLine_[i].lineBytes, fontId_,
-                                                   fontSize_, tempLetterIndex, sizeSpans_);
-            curLineHeight += style.lineSpace_;
-        } else {
-            curLineHeight = lineHeight;
-        }
-        lineBegin += textLine_[i].lineBytes;
-        pos.y += curLineHeight;
+        lineMaxHeight = font->GetLineMaxHeight(&text_[lineBegin], textLine_[i].lineBytes, fontId_,
+                                               fontSize_, tempLetterIndex, sizeSpans_);
+        SetNextLineBegin(style, lineMaxHeight, curLineHeight, pos,
+                         tempLetterIndex, lineHeight, lineBegin, i);
     }
+}
+
+void Text::CalculatedCurLineHeight(int16_t& lineHeight, int16_t& curLineHeight,
+                                   uint16_t fontHeight, const Style& style, uint16_t lineMaxHeight)
+{
+    if (lineHeight <= 0) {
+        lineHeight = fontHeight;
+        lineHeight += style.lineSpace_;
+    }
+    if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
+        curLineHeight = lineMaxHeight;
+        curLineHeight += style.lineSpace_;
+    } else {
+        curLineHeight = lineHeight;
+    }
+}
+
+Point Text::GetPos(int16_t& lineHeight, const Style& style, uint16_t& lineCount, const Rect& coords)
+{
+    Point pos;
+    if (lineHeight == style.lineHeight_) {
+        pos.y = TextPositionY(coords, (lineCount * lineHeight));
+    } else {
+        pos.y = TextPositionY(coords, (lineCount * lineHeight - style.lineSpace_));
+    }
+    return pos;
+}
+
+#if defined(ENABLE_ICU) && ENABLE_ICU
+void Text::SetLineBytes(uint16_t& lineBytes, uint16_t lineBegin)
+{
+    if (this->IsEliminateTrailingSpaces()) {
+        int j = lineBytes - 1;
+        while (j >= 0 && text_[lineBegin + j] == ' ') {
+            --j;
+        }
+        lineBytes = j + 1;
+    }
+}
+#endif
+
+void Text::SetNextLineBegin(const Style& style, uint16_t lineMaxHeight, int16_t& curLineHeight, Point& pos,
+                            int16_t& tempLetterIndex, int16_t& lineHeight, uint16_t& lineBegin, uint16_t letterIndex)
+{
+    if ((style.lineSpace_ == 0) && (sizeSpans_ != nullptr)) {
+        curLineHeight = lineMaxHeight;
+        curLineHeight += style.lineSpace_;
+    } else {
+        curLineHeight = lineHeight;
+    }
+    lineBegin += textLine_[letterIndex].lineBytes;
+    pos.y += curLineHeight;
 }
 
 int16_t Text::TextPositionY(const Rect& textRect, int16_t textHeight)

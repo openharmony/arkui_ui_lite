@@ -312,8 +312,7 @@ void UITestUISwipeView::UIKitSwipeViewTestAlign001(UISwipeView::AlignMode alignM
 
     UILabel* label;
     if (alignMode == UISwipeView::ALIGN_LEFT) {
-        const char* leftTitle = "UISwipeView 子组件左对齐";
-        label = GetTitleLabel(leftTitle);
+        label = GetTitleLabel("UISwipeView 子组件左对齐");
     } else if (alignMode == UISwipeView::ALIGN_RIGHT) {
         const char* rightTitle = "UISwipeView 子组件右对齐";
         label = GetTitleLabel(rightTitle);

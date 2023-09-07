@@ -51,8 +51,12 @@ public:
 
     void Free(void* addr);
 
-    static BufferInfo
-        GetCacheBuffer(uint16_t fontId, uint32_t unicode, ColorMode mode, GlyphNode& glyphNode, bool hasMetric);
+    static BufferInfo GetCacheBuffer(uint16_t fontId,
+                                     uint32_t unicode,
+                                     ColorMode mode,
+                                     GlyphNode& glyphNode,
+                                     bool hasMetric,
+                                     TextStyle textStyle);
 
     static void RearrangeBitmap(BufferInfo& bufInfo, uint32_t fileSz, bool hasMetric);
 

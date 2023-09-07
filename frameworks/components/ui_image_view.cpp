@@ -442,17 +442,7 @@ void UIImageView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
             cordsTmp.SetBottom(viewRect.GetY() + imageHeight_ - 1);
 
             if ((drawTransMap_ == nullptr) || drawTransMap_->IsInvalid()) {
-                while (cordsTmp.GetTop() <= viewRect.GetBottom()) {
-                    cordsTmp.SetLeft(viewRect.GetX());
-                    cordsTmp.SetRight(viewRect.GetX() + imageWidth_ - 1);
-                    while (cordsTmp.GetLeft() <= viewRect.GetRight()) {
-                        image_.DrawImage(gfxDstBuffer, cordsTmp, trunc, *style_, opa);
-                        cordsTmp.SetLeft(cordsTmp.GetLeft() + imageWidth_);
-                        cordsTmp.SetRight(cordsTmp.GetRight() + imageWidth_);
-                    }
-                    cordsTmp.SetTop(cordsTmp.GetTop() + imageHeight_);
-                    cordsTmp.SetBottom(cordsTmp.GetBottom() + imageHeight_);
-                }
+                SetCordsTmpRect(gfxDstBuffer, viewRect, trunc, cordsTmp, opa);
             } else if ((drawTransMap_ != nullptr) && !drawTransMap_->IsInvalid()) {
                 ImageInfo imgInfo;
                 if (srcType == IMG_SRC_FILE) {
@@ -470,10 +460,29 @@ void UIImageView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
                                                        static_cast<BlurLevel>(blurLevel_),
                                                        static_cast<TransformAlgorithm>(algorithm_)};
                 OpacityType opaScale = DrawUtils::GetMixOpacity(opa, style_->imageOpa_);
-                baseGfxEngine->DrawTransform(gfxDstBuffer, trunc, {0, 0}, Color::Black(),
+                Matrix4<float> scaleMatrix = drawTransMap_->GetScaleMatrix();
+                int16_t paddingX = style_->paddingLeft_ * scaleMatrix[0][0];
+                int16_t paddingY = style_->paddingTop_ * scaleMatrix[1][1];
+                baseGfxEngine->DrawTransform(gfxDstBuffer, trunc, {paddingX, paddingY}, Color::Black(),
                                              opaScale, *drawTransMap_, imageTranDataInfo);
             }
         }
+    }
+}
+
+void UIImageView::SetCordsTmpRect(BufferInfo& gfxDstBuffer, Rect& viewRect, Rect& trunc,
+                                  Rect& cordsTmp, OpacityType opa)
+{
+    while (cordsTmp.GetTop() <= viewRect.GetBottom()) {
+        cordsTmp.SetLeft(viewRect.GetX());
+        cordsTmp.SetRight(viewRect.GetX() + imageWidth_ - 1);
+        while (cordsTmp.GetLeft() <= viewRect.GetRight()) {
+            image_.DrawImage(gfxDstBuffer, cordsTmp, trunc, *style_, opa);
+            cordsTmp.SetLeft(cordsTmp.GetLeft() + imageWidth_);
+            cordsTmp.SetRight(cordsTmp.GetRight() + imageWidth_);
+        }
+        cordsTmp.SetTop(cordsTmp.GetTop() + imageHeight_);
+        cordsTmp.SetBottom(cordsTmp.GetBottom() + imageHeight_);
     }
 }
 

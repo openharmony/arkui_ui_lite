@@ -15,6 +15,7 @@
 
 #include "draw/draw_utils.h"
 
+#include "color_fill.h"
 #include "draw/draw_triangle.h"
 #include "engines/gfx/gfx_engine_manager.h"
 #include "font/ui_font.h"
@@ -46,136 +47,6 @@ namespace OHOS {
     ColorMode bufferMode = gfxBufferInfo.mode;                            \
     uint8_t bufferPxSize = GetByteSizeByColorMode(bufferMode);            \
     uint16_t screenBufferWidth = gfxBufferInfo.width;
-
-/* cover mode, src alpha is 255 */
-#define COLOR_FILL_COVER(d, dm, r2, g2, b2, sm)               \
-    if ((dm) == ARGB8888 || (dm) == XRGB8888) {               \
-        reinterpret_cast<Color32*>(d)->alpha = OPA_OPAQUE;    \
-        if (sm == RGB565) {                                   \
-            reinterpret_cast<Color32*>(d)->red = (r2) << 3;   \
-            reinterpret_cast<Color32*>(d)->green = (g2) << 2; \
-            reinterpret_cast<Color32*>(d)->blue = (b2) << 3;  \
-        } else {                                              \
-            reinterpret_cast<Color32*>(d)->red = (r2);        \
-            reinterpret_cast<Color32*>(d)->green = (g2);      \
-            reinterpret_cast<Color32*>(d)->blue = (b2);       \
-        }                                                     \
-    } else if ((dm) == RGB888) {                              \
-        if (sm == RGB565) {                                   \
-            reinterpret_cast<Color24*>(d)->red = (r2) << 3;   \
-            reinterpret_cast<Color24*>(d)->green = (g2) << 2; \
-            reinterpret_cast<Color24*>(d)->blue = (b2) << 3;  \
-        } else {                                              \
-            reinterpret_cast<Color24*>(d)->red = (r2);        \
-            reinterpret_cast<Color24*>(d)->green = (g2);      \
-            reinterpret_cast<Color24*>(d)->blue = (b2);       \
-        }                                                     \
-    } else if ((dm) == RGB565) {                              \
-        if ((sm) == ARGB8888 || (sm) == RGB888 || (sm) == XRGB8888) {  \
-            reinterpret_cast<Color16*>(d)->red = (r2) >> 3;   \
-            reinterpret_cast<Color16*>(d)->green = (g2) >> 2; \
-            reinterpret_cast<Color16*>(d)->blue = (b2) >> 3;  \
-        } else {                                              \
-            reinterpret_cast<Color16*>(d)->red = (r2);        \
-            reinterpret_cast<Color16*>(d)->green = (g2);      \
-            reinterpret_cast<Color16*>(d)->blue = (b2);       \
-        }                                                     \
-    } else {                                                  \
-        ASSERT(0);                                            \
-    }
-
-#if defined(ENABLE_FIXED_POINT) && ENABLE_FIXED_POINT
-#define COLOR_BLEND_RGBA(r1, g1, b1, a1, r2, g2, b2, a2)                                                      \
-    const uint16_t Alpha3 = 65025 - (OPA_OPAQUE - (a1)) * (OPA_OPAQUE - (a2));                                \
-    if ( Alpha3 != 0 )                                                                                             \
-    {                                                                                                         \
-        (r1) = static_cast<uint8_t>(((a2) * (r2) * OPA_OPAQUE + (OPA_OPAQUE - (a2)) * (a1) * (r1)) / Alpha3); \
-        (g1) = static_cast<uint8_t>(((a2) * (g2) * OPA_OPAQUE + (OPA_OPAQUE - (a2)) * (a1) * (g1)) / Alpha3); \
-        (b1) = static_cast<uint8_t>(((a2) * (b2) * OPA_OPAQUE + (OPA_OPAQUE - (a2)) * (a1) * (b1)) / Alpha3); \
-        (a1) = static_cast<uint8_t>(Alpha3 / OPA_OPAQUE);                                                     \
-    }
-#else
-#define COLOR_BLEND_RGBA(r1, g1, b1, a1, r2, g2, b2, a2)                                  \
-    const float Alpha1 = static_cast<float>(a1) / OPA_OPAQUE;                             \
-    const float Alpha2 = static_cast<float>(a2) / OPA_OPAQUE;                             \
-    const float Alpha3 = 1 - (1 - Alpha1) * (1 - Alpha2);                                 \
-    (r1) = static_cast<uint8_t>((Alpha2 * (r2) + (1 - Alpha2) * Alpha1 * (r1)) / Alpha3); \
-    (g1) = static_cast<uint8_t>((Alpha2 * (g2) + (1 - Alpha2) * Alpha1 * (g1)) / Alpha3); \
-    (b1) = static_cast<uint8_t>((Alpha2 * (b2) + (1 - Alpha2) * Alpha1 * (b1)) / Alpha3); \
-    (a1) = static_cast<uint8_t>(Alpha3 * OPA_OPAQUE)
-#endif
-
-#define COLOR_BLEND_XRGB(r1, g1, b1, a1, r2, g2, b2, a2)                               \
-    (r1) = (((r2) * (a2)) / OPA_OPAQUE) + (((r1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE); \
-    (g1) = (((g2) * (a2)) / OPA_OPAQUE) + (((g1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE); \
-    (b1) = (((b2) * (a2)) / OPA_OPAQUE) + (((b1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE); \
-    (a1) = static_cast<uint8_t>(OPA_OPAQUE)
-
-#define COLOR_BLEND_RGB(r1, g1, b1, r2, g2, b2, a2)                                    \
-    (r1) = (((r2) * (a2)) / OPA_OPAQUE) + (((r1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE); \
-    (g1) = (((g2) * (a2)) / OPA_OPAQUE) + (((g1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE); \
-    (b1) = (((b2) * (a2)) / OPA_OPAQUE) + (((b1) * (OPA_OPAQUE - (a2))) / OPA_OPAQUE)
-
-// 565
-#define COLOR_FILL_BLEND(d, dm, s, sm, a)                                                                           \
-    if ((dm) == ARGB8888) {                                                                                         \
-        Color32* p = reinterpret_cast<Color32*>(d);                                                                 \
-        if ((sm) == ARGB8888 || (sm) == XRGB8888) {                                                                 \
-            Color32* sTmp = reinterpret_cast<Color32*>(s);                                                          \
-            uint8_t alpha = (sTmp->alpha * (a)) / OPA_OPAQUE;                                                       \
-            COLOR_BLEND_RGBA(p->red, p->green, p->blue, p->alpha, sTmp->red, sTmp->green, sTmp->blue, alpha);       \
-        } else if ((sm) == RGB888) {                                                                                \
-            Color24* sTmp = reinterpret_cast<Color24*>(s);                                                          \
-            COLOR_BLEND_RGBA(p->red, p->green, p->blue, p->alpha, sTmp->red, sTmp->green, sTmp->blue, a);           \
-        } else if ((sm) == RGB565) {                                                                                \
-            Color16* sTmp = reinterpret_cast<Color16*>(s);                                                          \
-            COLOR_BLEND_RGBA(p->red, p->green, p->blue, p->alpha, (sTmp->red) << 3, (sTmp->green) << 2,             \
-                             (sTmp->blue) << 3, a);                                                                 \
-        }                                                                                                           \
-    } else if ((dm) == XRGB8888) {                                                                                  \
-        Color32* p = reinterpret_cast<Color32*>(d);                                                                 \
-        if ((sm) == ARGB8888 || (sm) == XRGB8888) {                                                                 \
-            Color32* sTmp = reinterpret_cast<Color32*>(s);                                                          \
-            uint8_t alpha = (sTmp->alpha * (a)) / OPA_OPAQUE;                                                       \
-            COLOR_BLEND_XRGB(p->red, p->green, p->blue, p->alpha, sTmp->red, sTmp->green, sTmp->blue, alpha);       \
-        } else if ((sm) == RGB888) {                                                                                \
-            Color24* sTmp = reinterpret_cast<Color24*>(s);                                                          \
-            COLOR_BLEND_XRGB(p->red, p->green, p->blue, p->alpha, sTmp->red, sTmp->green, sTmp->blue, a);           \
-        } else if ((sm) == RGB565) {                                                                                \
-            Color16* sTmp = reinterpret_cast<Color16*>(s);                                                          \
-            COLOR_BLEND_XRGB(p->red, p->green, p->blue, p->alpha, (sTmp->red) << 3, (sTmp->green) << 2,             \
-                             (sTmp->blue) << 3, a);                                                                 \
-        }                                                                                                           \
-    } else if ((dm) == RGB888) {                                                                                    \
-        Color24* p = reinterpret_cast<Color24*>(d);                                                                 \
-        if ((sm) == ARGB8888 || (sm) == XRGB8888) {                                                                 \
-            Color32* sTmp = reinterpret_cast<Color32*>(s);                                                          \
-            uint8_t alpha = (sTmp->alpha * (a)) / OPA_OPAQUE;                                                       \
-            COLOR_BLEND_RGB(p->red, p->green, p->blue, sTmp->red, sTmp->green, sTmp->blue, alpha);                  \
-        } else if ((sm) == RGB888) {                                                                                \
-            Color24* sTmp = reinterpret_cast<Color24*>(s);                                                          \
-            COLOR_BLEND_RGB(p->red, p->green, p->blue, sTmp->red, sTmp->green, sTmp->blue, a);                      \
-        } else if ((sm) == RGB565) {                                                                                \
-            Color16* sTmp = reinterpret_cast<Color16*>(s);                                                          \
-            COLOR_BLEND_RGB(p->red, p->green, p->blue, (sTmp->red) << 3, (sTmp->green) << 2, (sTmp->blue) << 3, a); \
-        }                                                                                                           \
-    } else if ((dm) == RGB565) {                                                                                    \
-        Color16* p = reinterpret_cast<Color16*>(d);                                                                 \
-        if ((sm) == ARGB8888 || (sm) == XRGB8888) {                                                                 \
-            Color32* sTmp = reinterpret_cast<Color32*>(s);                                                          \
-            uint8_t alpha = (sTmp->alpha * (a)) / OPA_OPAQUE;                                                       \
-            COLOR_BLEND_RGB(p->red, p->green, p->blue, (sTmp->red) >> 3, (sTmp->green) >> 2, (sTmp->blue) >> 3,     \
-                            alpha);                                                                                 \
-        } else if ((sm) == RGB888) {                                                                                \
-            Color24* sTmp = reinterpret_cast<Color24*>(s);                                                          \
-            COLOR_BLEND_RGB(p->red, p->green, p->blue, (sTmp->red) >> 3, (sTmp->green) >> 2, (sTmp->blue) >> 3, a); \
-        } else if ((sm) == RGB565) {                                                                                \
-            Color16* sTmp = reinterpret_cast<Color16*>(s);                                                          \
-            COLOR_BLEND_RGB(p->red, p->green, p->blue, sTmp->red, sTmp->green, sTmp->blue, a);                      \
-        }                                                                                                           \
-    } else {                                                                                                        \
-        ASSERT(0);                                                                                                  \
-    }
 
 namespace {
 static constexpr uint8_t OPACITY_STEP_A1 = 255;
@@ -306,7 +177,7 @@ void DrawUtils::DrawColorLetter(BufferInfo& gfxDstBuffer,
                                 const LabelLetterInfo& letterInfo,
                                 uint8_t* fontMap,
                                 GlyphNode node,
-                                uint8_t maxLetterSize) const
+                                int16_t lineHeight) const
 {
     if (fontMap == nullptr) {
         return;
@@ -317,7 +188,8 @@ void DrawUtils::DrawColorLetter(BufferInfo& gfxDstBuffer,
     int16_t posX;
     int16_t posY;
     if (letterInfo.baseLine) {
-        posY = letterInfo.pos.y + maxLetterSize - node.top + letterInfo.offsetY;
+        // 2:Half the size between lineHeight and node.rows of emoji
+        posY = letterInfo.pos.y + (lineHeight - letterH) / 2 + letterInfo.offsetY;
     } else {
         FontHeader head;
         if (fontEngine->GetFontHeader(head, letterInfo.fontId, letterInfo.fontSize) != 0) {
@@ -716,31 +588,8 @@ void DrawUtils::BlendWithSoftWare(const uint8_t* src1,
     uint32_t width = srcRect.GetWidth();
     uint32_t height = srcRect.GetHeight();
 #ifdef ARM_NEON_OPT
-    {
-        DEBUG_PERFORMANCE_TRACE("BlendWithSoftWare_neon");
-        NeonBlendPipeLine pipeLine;
-        pipeLine.Construct(destMode, srcMode);
-        int16_t dstStep = NEON_STEP_8 * GetByteSizeByColorMode(destMode);
-        int16_t srcStep = NEON_STEP_8 * GetByteSizeByColorMode(srcMode);
-        for (uint32_t row = 0; row < height; ++row) {
-            uint8_t* dstBuf = dest;
-            uint8_t* srcBuf = const_cast<uint8_t*>(src);
-            int16_t tmpWidth = width;
-            while (tmpWidth >= NEON_STEP_8) {
-                pipeLine.Invoke(dstBuf, srcBuf, opa);
-                dstBuf += dstStep;
-                srcBuf += srcStep;
-                tmpWidth -= NEON_STEP_8;
-            }
-            for (int16_t i = 0; i < tmpWidth; ++i) {
-                COLOR_FILL_BLEND(dstBuf, destMode, srcBuf, srcMode, opa);
-                dstBuf += destByteSize;
-                srcBuf += srcByteSize;
-            }
-            dest += destStride;
-            src += srcStride;
-        }
-    }
+    GetInstance()->SetDestAndSrc(srcMode, destMode, height, src, width, opa, dest,
+                                 destStride, srcStride, destByteSize, srcByteSize);
 #else
     {
         DEBUG_PERFORMANCE_TRACE("BlendWithSoftWare");
@@ -758,6 +607,37 @@ void DrawUtils::BlendWithSoftWare(const uint8_t* src1,
     }
 #endif
 }
+
+#ifdef ARM_NEON_OPT
+void DrawUtils::SetDestAndSrc(ColorMode& srcMode, ColorMode& destMode, uint32_t height, uint8_t* src,
+                              uint32_t width, OpacityType opa, uint8_t* dest, uint32_t destStride,
+                              uint32_t srcStride, uint8_t destByteSize, uint8_t srcByteSize) const
+{
+    DEBUG_PERFORMANCE_TRACE("BlendWithSoftWare_neon");
+    NeonBlendPipeLine pipeLine;
+    pipeLine.Construct(destMode, srcMode);
+    int16_t dstStep = NEON_STEP_8 * GetByteSizeByColorMode(destMode);
+    int16_t srcStep = NEON_STEP_8 * GetByteSizeByColorMode(srcMode);
+    for (uint32_t row = 0; row < height; ++row) {
+        uint8_t* dstBuf = dest;
+        uint8_t* srcBuf = const_cast<uint8_t*>(src);
+        int16_t tmpWidth = width;
+        while (tmpWidth >= NEON_STEP_8) {
+            pipeLine.Invoke(dstBuf, srcBuf, opa);
+            dstBuf += dstStep;
+            srcBuf += srcStep;
+            tmpWidth -= NEON_STEP_8;
+        }
+        for (int16_t i = 0; i < tmpWidth; ++i) {
+            COLOR_FILL_BLEND(dstBuf, destMode, srcBuf, srcMode, opa);
+            dstBuf += destByteSize;
+            srcBuf += srcByteSize;
+        }
+        dest += destStride;
+        src += srcStride;
+    }
+}
+#endif
 
 void DrawUtils::GetXAxisErrForJunctionLine(bool ignoreJunctionPoint,
                                            bool isRightPart,
@@ -1772,6 +1652,12 @@ void DrawUtils::DrawTriangleTransformPart(BufferInfo& gfxDstBuffer, const Triang
     if (screenBuffer == nullptr) {
         return;
     }
+    GetInstance()->SetFucInfo(gfxDstBuffer, part, screenBuffer, init);
+}
+
+void DrawUtils::SetFucInfo(BufferInfo& gfxDstBuffer, const TrianglePartInfo& part,
+                           uint8_t* screenBuffer, TransformInitState& init)
+{
     ColorMode bufferMode = gfxDstBuffer.mode;
     uint8_t bufferPxSize = GetByteSizeByColorMode(bufferMode);
 
@@ -1850,7 +1736,8 @@ void DrawUtils::DrawTriangleTransform(BufferInfo& gfxDstBuffer,
     uint8_t yErr = 1;
     if (triangleInfo.p2.y == triangleInfo.p1.y) {
         yErr = 0;
-        goto BottomHalf;
+        GetInstance()->SetPartEdge(gfxDstBuffer, triangleInfo, edge1, edge2, p3IsInRight, mask, yErr, part);
+        return;
     }
     if (p3IsInRight) {
         edge1 = TriangleEdge(triangleInfo.p1.x, triangleInfo.p1.y, triangleInfo.p2.x, triangleInfo.p2.y);
@@ -1865,7 +1752,13 @@ void DrawUtils::DrawTriangleTransform(BufferInfo& gfxDstBuffer,
     part.edge1 = edge1;
     part.edge2 = edge2;
     DrawTriangleTransformPart(gfxDstBuffer, part);
-BottomHalf:
+    GetInstance()->SetPartEdge(gfxDstBuffer, triangleInfo, edge1, edge2, p3IsInRight, mask, yErr, part);
+}
+
+void DrawUtils::SetPartEdge(BufferInfo& gfxDstBuffer, const TriangleTransformDataInfo& triangleInfo,
+                            TriangleEdge& edge1, TriangleEdge& edge2, bool p3IsInRight,
+                            const Rect& mask, uint8_t yErr, TrianglePartInfo& part) const
+{
     if (triangleInfo.p2.y == triangleInfo.p3.y) {
         return;
     }

@@ -37,6 +37,34 @@ void UITestBUTTON::SetUp()
 
 void UITestBUTTON::TearDown()
 {
+    TearDownListeners001();
+    TearDownListeners002();
+    if (clickUpListener_ != nullptr) {
+        delete clickUpListener_;
+        clickUpListener_ = nullptr;
+    }
+    if (clickDownListener_ != nullptr) {
+        delete clickDownListener_;
+        clickDownListener_ = nullptr;
+    }
+    if (clickSmallListener_ != nullptr) {
+        delete clickSmallListener_;
+        clickSmallListener_ = nullptr;
+    }
+    if (enableAnimationListener_ != nullptr) {
+        delete enableAnimationListener_;
+        enableAnimationListener_ = nullptr;
+    }
+    if (disableAnimationListener_ != nullptr) {
+        delete disableAnimationListener_;
+        disableAnimationListener_ = nullptr;
+    }
+    DeleteChildren(container_);
+    container_ = nullptr;
+}
+
+void UITestBUTTON::TearDownListeners001()
+{
     if (checkBoxChangeListener_ != nullptr) {
         delete checkBoxChangeListener_;
         checkBoxChangeListener_ = nullptr;
@@ -73,6 +101,10 @@ void UITestBUTTON::TearDown()
         delete toggleChangeListener2_;
         toggleChangeListener2_ = nullptr;
     }
+}
+
+void UITestBUTTON::TearDownListeners002()
+{
     if (clickEnableVisiableListener_ != nullptr) {
         delete clickEnableVisiableListener_;
         clickEnableVisiableListener_ = nullptr;
@@ -117,28 +149,6 @@ void UITestBUTTON::TearDown()
         delete clickRightListener_;
         clickRightListener_ = nullptr;
     }
-    if (clickUpListener_ != nullptr) {
-        delete clickUpListener_;
-        clickUpListener_ = nullptr;
-    }
-    if (clickDownListener_ != nullptr) {
-        delete clickDownListener_;
-        clickDownListener_ = nullptr;
-    }
-    if (clickSmallListener_ != nullptr) {
-        delete clickSmallListener_;
-        clickSmallListener_ = nullptr;
-    }
-    if (enableAnimationListener_ != nullptr) {
-        delete enableAnimationListener_;
-        enableAnimationListener_ = nullptr;
-    }
-    if (disableAnimationListener_ != nullptr) {
-        delete disableAnimationListener_;
-        disableAnimationListener_ = nullptr;
-    }
-    DeleteChildren(container_);
-    container_ = nullptr;
 }
 
 class TestBtnOnStateChangeListener : public OHOS::UICheckBox::OnChangeListener {
@@ -650,75 +660,37 @@ void UITestBUTTON::UIKitButtonTest002(UIScrollView* container, UIButton* button)
     if ((container == nullptr) || (button == nullptr)) {
         return;
     }
+    InitButtonListeners002(button);
     UILabelButton* button8 =
         GetTestUIButton("隐藏", 430, 940, button, UI_TEST_BUTTON_7); // 430: x-coordinate, 940: y-coordinate
-    if (clickEnableVisiableListener_ == nullptr) {
-        clickEnableVisiableListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickVisableListener(reinterpret_cast<UIView*>(button), false));
-    }
     button8->SetOnClickListener(clickEnableVisiableListener_);
 
     UILabelButton* button9 =
         GetTestUIButton("显示", 430, 990, button, UI_TEST_BUTTON_8); // 430: x-coordinate, 990: y-coordinate
-    if (clickDisableVisiableListener_ == nullptr) {
-        clickDisableVisiableListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickVisableListener(reinterpret_cast<UIView*>(button), true));
-    }
     button9->SetOnClickListener(clickDisableVisiableListener_);
 
     UILabelButton* button10 =
         GetTestUIButton("可触摸 ", 520, 940, button, UI_TEST_BUTTON_9); // 520: x-coordinate, 940: y-coordinate
-    if (clickEnableTouchableListener_ == nullptr) {
-        clickEnableTouchableListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickTouchableListener(reinterpret_cast<UIView*>(button), true));
-    }
     button10->SetOnClickListener(clickEnableTouchableListener_);
 
     UILabelButton* button11 =
         GetTestUIButton("不可触摸", 520, 990, button, UI_TEST_BUTTON_10); // 520: x-coordinate, 990: y-coordinate
-    if (clickDisableTouchableListener_ == nullptr) {
-        clickDisableTouchableListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickTouchableListener(reinterpret_cast<UIView*>(button), false));
-    }
     button11->SetOnClickListener(clickDisableTouchableListener_);
 
     UILabelButton* button12 =
         GetTestUIButton("变白", 160, 1040, button, UI_TEST_BUTTON_11); // 160: x-coordinate, 1040: y-coordinate
-    if (clickColorToWhiteListener_ == nullptr) {
-        clickColorToWhiteListener_ = static_cast<UIView::OnClickListener*>(
-            new TestBtnOnClickChangeColorListener(reinterpret_cast<UIView*>(button), 0xFF, 0xFF, 0xFF));
-    }
     button12->SetOnClickListener(clickColorToWhiteListener_);
 
     UILabelButton* button13 =
         GetTestUIButton("变红", 160, 1090, button, UI_TEST_BUTTON_12); // 160: x-coordinate, 1090: y-coordinate
-    if (clickColorToRedListener_ == nullptr) {
-        clickColorToRedListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickChangeColorListener(reinterpret_cast<UIView*>(button), 0xFF, 0, 0));
-    }
     button13->SetOnClickListener(clickColorToRedListener_);
 
     UILabelButton* button14 =
         GetTestUIButton("色彩还原", 250, 1040, button, UI_TEST_BUTTON_13); // 250: x-coordinate, 1040: y-coordinate
-    if (clickRevetColorListener_ == nullptr) {
-        clickRevetColorListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickRevertColorListener(reinterpret_cast<UIView*>(button)));
-    }
     button14->SetOnClickListener(clickRevetColorListener_);
 
     UILabelButton* button15 =
         GetTestUIButton("全部还原", 250, 1090, button, UI_TEST_BUTTON_14); // 250: x-coordinate, 1090: y-coordinate
-    if (clickRevetToOriginListener_ == nullptr) {
-        clickRevetToOriginListener_ =
-            static_cast<UIView::OnClickListener*>(
-                new TestBtnOnClickRevertToOriginStateListener(reinterpret_cast<UIView*>(button)));
-    }
     button15->SetOnClickListener(clickRevetToOriginListener_);
 
     container->Add(button8);
@@ -731,6 +703,56 @@ void UITestBUTTON::UIKitButtonTest002(UIScrollView* container, UIButton* button)
     container->Add(button15);
 
 #if defined(DEFAULT_ANIMATION) && DEFAULT_ANIMATION
+    EnableAnimator(container, button);
+#endif
+}
+
+void UITestBUTTON::InitButtonListeners002(UIButton* button)
+{
+    if (clickEnableVisiableListener_ == nullptr) {
+        clickEnableVisiableListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickVisableListener(reinterpret_cast<UIView*>(button), false));
+    }
+    if (clickDisableVisiableListener_ == nullptr) {
+        clickDisableVisiableListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickVisableListener(reinterpret_cast<UIView*>(button), true));
+    }
+    if (clickEnableTouchableListener_ == nullptr) {
+        clickEnableTouchableListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickTouchableListener(reinterpret_cast<UIView*>(button), true));
+    }
+    if (clickDisableTouchableListener_ == nullptr) {
+        clickDisableTouchableListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickTouchableListener(reinterpret_cast<UIView*>(button), false));
+    }
+    if (clickColorToWhiteListener_ == nullptr) {
+        clickColorToWhiteListener_ = static_cast<UIView::OnClickListener*>(
+            new TestBtnOnClickChangeColorListener(reinterpret_cast<UIView*>(button), 0xFF, 0xFF, 0xFF));
+    }
+    if (clickColorToRedListener_ == nullptr) {
+        clickColorToRedListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickChangeColorListener(reinterpret_cast<UIView*>(button), 0xFF, 0, 0));
+    }
+    if (clickRevetColorListener_ == nullptr) {
+        clickRevetColorListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickRevertColorListener(reinterpret_cast<UIView*>(button)));
+    }
+    if (clickRevetToOriginListener_ == nullptr) {
+        clickRevetToOriginListener_ =
+            static_cast<UIView::OnClickListener*>(
+                new TestBtnOnClickRevertToOriginStateListener(reinterpret_cast<UIView*>(button)));
+    }
+}
+
+#if defined(DEFAULT_ANIMATION) && DEFAULT_ANIMATION
+void UITestBUTTON::EnableAnimator(UIScrollView* container, UIButton* button)
+{
     // 340: x-coordinate, 1040: y-coordinate
     UILabelButton* button16 = GetTestUIButton("开启动效", 340, 1040, button, UI_TEST_BUTTON_15);
     if (enableAnimationListener_ == nullptr) {
@@ -751,8 +773,8 @@ void UITestBUTTON::UIKitButtonTest002(UIScrollView* container, UIButton* button)
 
     container->Add(button16);
     container->Add(button17);
-#endif
 }
+#endif
 
 void UITestBUTTON::UIKitButtonTest001()
 {
@@ -767,58 +789,31 @@ void UITestBUTTON::UIKitButtonTest001()
         button->SetImageSrc(BLUE_IMAGE_PATH, YELLOW_IMAGE_PATH);
         button->SetViewId(UI_TEST_BUTTON_17);
 
+        InitButtonListeners001(button);
         UILabelButton* button2 =
             GetTestUIButton("放大", 160, 940, button, UI_TEST_BUTTON_1); // 160: x-coordinate, 940: y-coordinate
-        if (clickBigListener_ == nullptr) {
-            clickBigListener_ =
-                static_cast<UIView::OnClickListener*>(new TestBtnOnClickShapeChangeListener(button, CHANGE_SIZE));
-        }
         button2->SetOnClickListener(clickBigListener_);
 
         UILabelButton* button3 =
             GetTestUIButton("缩小", 160, 990, button, UI_TEST_BUTTON_2); // 160: x-coordinate, 990: y-coordinate
-        if (clickSmallListener_ == nullptr) {
-            clickSmallListener_ =
-                static_cast<UIView::OnClickListener*>(new TestBtnOnClickShapeChangeListener(button, -CHANGE_SIZE));
-        }
         button3->SetOnClickListener(clickSmallListener_);
 
         UILabelButton* button4 =
             GetTestUIButton("左移", 250, 940, button, UI_TEST_BUTTON_3); // 250: x-coordinate, 940: y-coordinate
-        if (clickLeftListener_ == nullptr) {
-            clickLeftListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
-                reinterpret_cast<UIView*>(button),
-                TestBtnOnClickPositionChangeListener::MoveType::MOVE_LEFT, CHANGE_SIZE));
-        }
         button4->SetOnClickListener(clickLeftListener_);
 
         UILabelButton* button5 =
             GetTestUIButton("右移", 250, 990, button, UI_TEST_BUTTON_4); // 250: x-coordinate, 990: y-coordinate
         button5->SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_DEFAULT_SIZE);
-        if (clickRightListener_ == nullptr) {
-            clickRightListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
-                reinterpret_cast<UIView*>(button),
-                TestBtnOnClickPositionChangeListener::MoveType::MOVE_RIGHT, CHANGE_SIZE));
-        }
         button5->SetOnClickListener(clickRightListener_);
 
         UILabelButton* button6 =
             GetTestUIButton("上移", 340, 940, button, UI_TEST_BUTTON_5); // 340: x-coordinate, 940: y-coordinate
         button6->SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_DEFAULT_SIZE);
-        if (clickUpListener_ == nullptr) {
-            clickUpListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
-                reinterpret_cast<UIView*>(button),
-                TestBtnOnClickPositionChangeListener::MoveType::MOVE_TOP, CHANGE_SIZE));
-        }
         button6->SetOnClickListener(clickUpListener_);
 
         UILabelButton* button7 =
             GetTestUIButton("下移", 340, 990, button, UI_TEST_BUTTON_6); // 340: x-coordinate, 990: y-coordinate
-        if (clickDownListener_ == nullptr) {
-            clickDownListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
-                reinterpret_cast<UIView*>(button),
-                TestBtnOnClickPositionChangeListener::MoveType::MOVE_BOTTOM, CHANGE_SIZE));
-        }
         button7->SetOnClickListener(clickDownListener_);
 
         container_->Add(button);
@@ -830,6 +825,38 @@ void UITestBUTTON::UIKitButtonTest001()
         container_->Add(button7);
 
         UIKitButtonTest002(container_, button);
+    }
+}
+
+void UITestBUTTON::InitButtonListeners001(UIButton* button)
+{
+    if (clickBigListener_ == nullptr) {
+        clickBigListener_ =
+            static_cast<UIView::OnClickListener*>(new TestBtnOnClickShapeChangeListener(button, CHANGE_SIZE));
+    }
+    if (clickSmallListener_ == nullptr) {
+        clickSmallListener_ =
+            static_cast<UIView::OnClickListener*>(new TestBtnOnClickShapeChangeListener(button, -CHANGE_SIZE));
+    }
+    if (clickLeftListener_ == nullptr) {
+        clickLeftListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
+            reinterpret_cast<UIView*>(button),
+            TestBtnOnClickPositionChangeListener::MoveType::MOVE_LEFT, CHANGE_SIZE));
+    }
+    if (clickRightListener_ == nullptr) {
+        clickRightListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
+            reinterpret_cast<UIView*>(button),
+            TestBtnOnClickPositionChangeListener::MoveType::MOVE_RIGHT, CHANGE_SIZE));
+    }
+    if (clickUpListener_ == nullptr) {
+        clickUpListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
+            reinterpret_cast<UIView*>(button),
+            TestBtnOnClickPositionChangeListener::MoveType::MOVE_TOP, CHANGE_SIZE));
+    }
+    if (clickDownListener_ == nullptr) {
+        clickDownListener_ = static_cast<UIView::OnClickListener*>(new TestBtnOnClickPositionChangeListener(
+            reinterpret_cast<UIView*>(button),
+            TestBtnOnClickPositionChangeListener::MoveType::MOVE_BOTTOM, CHANGE_SIZE));
     }
 }
 } // namespace OHOS

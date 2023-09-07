@@ -49,7 +49,7 @@ if (os_level != "standard") {
         "ENABLE_BITMAP_FONT=0",
         "ENABLE_SHAPING=0",
         "ENABLE_ICU=1",
-        "ENABLE_MULTI_FONT=0",
+        "ENABLE_MULTI_FONT=1",
         "DEFAULT_ANIMATION=1",
       ]
       if (ohos_kernel_type == "linux") {
@@ -267,12 +267,7 @@ if (os_level != "standard") {
 
       ldflags = [ "-Wl,-rpath-link=$ohos_root_path/$root_out_dir" ]
     }
-    if (defined(enable_gif)) {
-      defines += [ "ENABLE_GIF=1" ]
-      deps += [ "//third_party/giflib:libgif" ]
-    } else {
-      defines += [ "ENABLE_GIF=0" ]
-    }
+    defines += [ "ENABLE_GIF=0" ]
 
     public_deps = [ "//foundation/graphic/graphic_utils_lite:utils_lite" ]
     public_configs = [ ":graphic_define_config" ]

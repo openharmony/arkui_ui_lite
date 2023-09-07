@@ -209,7 +209,7 @@ public:
 
     bool OnDragEndEvent(const DragEvent& event) override;
 
-#if ENABLE_ROTATE_INPUT
+#if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
     bool OnRotateEvent(const RotateEvent& event) override;
 
     bool OnRotateEndEvent(const RotateEvent& event) override;

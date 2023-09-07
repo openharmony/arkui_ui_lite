@@ -213,7 +213,7 @@ public:
                          const LabelLetterInfo& letterInfo,
                          uint8_t* fontMap,
                          GlyphNode node,
-                         uint8_t maxLetterSize) const;
+                         int16_t lineHeight) const;
     void DrawNormalLetter(BufferInfo& gfxDstBuffer,
                           const LabelLetterInfo& letterInfo,
                           uint8_t* fontMap,
@@ -362,6 +362,18 @@ private:
 
     void FillArea(BufferInfo& gfxDstBuffer, const Rect& rect, const Rect& mask,
                   bool isTransparent, const ColorType* colorBuf);
+
+#ifdef ARM_NEON_OPT
+    void SetDestAndSrc(ColorMode& srcMode, ColorMode& destMode, uint32_t height, uint8_t* src,
+                       uint32_t width, OpacityType opa, uint8_t* dest, uint32_t destStride,
+                       uint32_t srcStride, uint8_t destByteSize, uint8_t srcByteSize) const;
+#endif
+
+    void SetFucInfo(BufferInfo& gfxDstBuffer, const TrianglePartInfo& part,
+                    uint8_t* screenBuffer, TransformInitState& init);
+    void SetPartEdge(BufferInfo& gfxDstBuffer, const TriangleTransformDataInfo& triangleInfo,
+                     TriangleEdge& edge1, TriangleEdge& edge2, bool p3IsInRight,
+                     const Rect& mask, uint8_t yErr, TrianglePartInfo& part) const;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_DRAW_UTILS_H

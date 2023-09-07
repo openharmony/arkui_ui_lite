@@ -20,7 +20,7 @@
 #include "graphic_config.h"
 #include "test_resource_config.h"
 
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
 namespace OHOS {
 namespace {
 const int16_t GAP = 5;
@@ -346,40 +346,11 @@ void UITestDialog::UIKitDialogTest010()
 bool UITestDialog::OnClick(UIView &view, const ClickEvent& event)
 {
     if (&view == button1_) {
-        if (dialog_ != nullptr) {
-            delete dialog_;
-            dialog_ = nullptr;
-        }
-        dialog_ = new UIDialog();
-        dialog_->SetTitle("标题标题标题标题标题");
-        dialog_->SetText("段落文本");
-        listener1_->SetDialog(&dialog_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_LEFT, "Button1", listener1_);
-        dialog_->Show();
+        SetShowInfo001();
     } else if (&view == button2_) {
-        if (dialog_ != nullptr) {
-            delete dialog_;
-            dialog_ = nullptr;
-        }
-        dialog_ = new UIDialog();
-        dialog_->SetTitle("标题");
-        dialog_->SetText("段落文本段落文本段落文本段落文本段落文本段落文本段落文本");
-        listener1_->SetDialog(&dialog_);
-        listener3_->SetDialog(&dialog_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_LEFT, "Button1", listener1_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_RIGHT, "Button2", listener3_);
-        dialog_->Show();
+        SetShowInfo002();
     } else if (&view == button3_) {
-        if (dialog_ != nullptr) {
-            delete dialog_;
-            dialog_ = nullptr;
-        }
-        dialog_ = new UIDialog();
-        dialog_->SetTitle("标题");
-        dialog_->SetText("段落文本");
-        listener2_->SetDialog(&dialog_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_MID, "Button1Button1Button1Button1", listener2_);
-        dialog_->Show();
+        SetShowInfo003();
     } else if (&view == button4_) {
         if (dialog_ != nullptr) {
             delete dialog_;
@@ -412,42 +383,96 @@ bool UITestDialog::OnClick(UIView &view, const ClickEvent& event)
     return true;
 }
 
+void UITestDialog::SetShowInfo001()
+{
+    if (dialog_ != nullptr) {
+        delete dialog_;
+        dialog_ = nullptr;
+    }
+    dialog_ = new UIDialog();
+    dialog_->SetTitle("标题标题标题标题标题");
+    dialog_->SetText("段落文本");
+    listener1_->SetDialog(&dialog_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_LEFT, "Button1", listener1_);
+    dialog_->Show();
+}
+
+void UITestDialog::SetShowInfo002()
+{
+    if (dialog_ != nullptr) {
+        delete dialog_;
+        dialog_ = nullptr;
+    }
+    dialog_ = new UIDialog();
+    dialog_->SetTitle("标题");
+    dialog_->SetText("段落文本段落文本段落文本段落文本段落文本段落文本段落文本");
+    listener1_->SetDialog(&dialog_);
+    listener3_->SetDialog(&dialog_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_LEFT, "Button1", listener1_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_RIGHT, "Button2", listener3_);
+    dialog_->Show();
+}
+
+void UITestDialog::SetShowInfo003()
+{
+    if (dialog_ != nullptr) {
+        delete dialog_;
+        dialog_ = nullptr;
+    }
+    dialog_ = new UIDialog();
+    dialog_->SetTitle("标题");
+    dialog_->SetText("段落文本");
+    listener2_->SetDialog(&dialog_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_MID, "Button1Button1Button1Button1", listener2_);
+    dialog_->Show();
+}
+
+void UITestDialog::SetShowInfo006()
+{
+    if (dialog_ != nullptr) {
+        delete dialog_;
+        dialog_ = nullptr;
+    }
+    dialog_ = new UIDialog();
+    dialog_->SetText("段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本");
+    dialog_->EnableAutoCancel(true);
+    listener_->SetDialog(&dialog_);
+    dialog_->SetOnCancelListener(listener_);
+    dialog_->Show();
+}
+
+void UITestDialog::SetShowInfo007()
+{
+    if (dialog_ != nullptr) {
+        delete dialog_;
+        dialog_ = nullptr;
+    }
+    dialog_ = new UIDialog();
+    dialog_->SetTitle("段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本");
+    dialog_->SetText(
+        "段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文 \
+        段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文");
+    listener1_->SetDialog(&dialog_);
+    listener2_->SetDialog(&dialog_);
+    listener3_->SetDialog(&dialog_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_LEFT, "Button111111111111111111111", listener1_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_MID, "Button22222222222222222222", listener2_);
+    dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_RIGHT, "Button33333333333333333333", listener3_);
+    dialog_->Show();
+}
+
 bool UITestDialog::ClickExpand(UIView &view, const ClickEvent& event)
 {
     if (&view == button6_) {
-        if (dialog_ != nullptr) {
-            delete dialog_;
-            dialog_ = nullptr;
-        }
-        dialog_ = new UIDialog();
-        dialog_->SetText("段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本");
-        dialog_->EnableAutoCancel(true);
-        listener_->SetDialog(&dialog_);
-        dialog_->SetOnCancelListener(listener_);
-        dialog_->Show();
+        SetShowInfo006();
     } else if (&view == button7_) {
-        if (dialog_ != nullptr) {
-            delete dialog_;
-            dialog_ = nullptr;
-        }
-        dialog_ = new UIDialog();
-        dialog_->SetTitle("段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本");
-        dialog_->SetText(
-            "段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文 \
-            段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文本段落文");
-        listener1_->SetDialog(&dialog_);
-        listener2_->SetDialog(&dialog_);
-        listener3_->SetDialog(&dialog_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_LEFT, "Button111111111111111111111", listener1_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_MID, "Button22222222222222222222", listener2_);
-        dialog_->SetButton(UIDialog::DialogButtonType::BUTTON_RIGHT, "Button33333333333333333333", listener3_);
-        dialog_->Show();
+        SetShowInfo007();
     } else if (&view == button8_) {
         if (dialog_ != nullptr) {
             delete dialog_;

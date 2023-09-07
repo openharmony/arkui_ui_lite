@@ -834,20 +834,31 @@ void UIChartPolyline::DrawGradientColor(BufferInfo& gfxDstBuffer,
         end.y = enableReverse_ ? (end.y - startY) : (startY - end.y);
         polyLine = {start, end};
         FindCrossPoints(linePoints, polyLine, cross);
-        if (cross.firstFind && cross.secondFind) {
-            cross.first.y = enableReverse_ ? (cross.first.y + startY) : (startY - cross.first.y);
-            cross.second.y = enableReverse_ ? (cross.second.y + startY) : (startY - cross.second.y);
-            baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second, invalidatedArea, 1, data->GetFillColor(),
-                                    mixData_[mixScale]);
-            cross.firstFind = false;
-            cross.secondFind = false;
-        }
+        SetDrawLineCross(gfxDstBuffer, invalidatedArea, data, cross, baseGfxEngine, startY, mixScale);
     }
     if (cross.firstFind && !cross.secondFind) {
         cross.second = {limitPoints.end.x, y};
         cross.first.y = y;
         baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second, invalidatedArea, 1, data->GetFillColor(),
                                 mixData_[mixScale]);
+    }
+}
+
+void UIChartPolyline::SetDrawLineCross(BufferInfo& gfxDstBuffer,
+                                       const Rect& invalidatedArea,
+                                       UIChartDataSerial* data,
+                                       CrossPointSet& cross,
+                                       BaseGfxEngine* baseGfxEngine,
+                                       int16_t startY,
+                                       int16_t mixScale)
+{
+    if (cross.firstFind && cross.secondFind) {
+        cross.first.y = enableReverse_ ? (cross.first.y + startY) : (startY - cross.first.y);
+        cross.second.y = enableReverse_ ? (cross.second.y + startY) : (startY - cross.second.y);
+        baseGfxEngine->DrawLine(gfxDstBuffer, cross.first, cross.second, invalidatedArea, 1, data->GetFillColor(),
+                                mixData_[mixScale]);
+        cross.firstFind = false;
+        cross.secondFind = false;
     }
 }
 

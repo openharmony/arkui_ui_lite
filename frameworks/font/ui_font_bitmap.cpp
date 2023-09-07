@@ -226,7 +226,8 @@ int8_t UIFontBitmap::GetDynamicFontBitmap(uint32_t unicode, BufferInfo& bufInfo,
 
 uint8_t* UIFontBitmap::GetCacheBitmap(uint16_t fontId, uint32_t unicode)
 {
-    return UIFontCacheManager::GetInstance()->GetBitmap(fontId, unicode);
+    TextStyle textStyle = TEXT_STYLE_NORMAL;
+    return UIFontCacheManager::GetInstance()->GetBitmap(fontId, unicode, textStyle);
 }
 
 void UIFontBitmap::PutCacheSpace(uint8_t* addr)
@@ -254,7 +255,8 @@ uint8_t* UIFontBitmap::SearchInFont(uint32_t unicode, GlyphNode& glyphNode, uint
     if (ret != RET_VALUE_OK) {
         return nullptr;
     }
-    uint8_t* bitmap = fontCacheManager->GetBitmap(fontId, unicode);
+    TextStyle textStyle = TEXT_STYLE_NORMAL;
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontId, unicode, textStyle);
     if (bitmap != nullptr) {
         if (glyphNode.dataFlag == glyphNode.fontId && fontId == glyphNode.fontId) {
             return bitmap;
@@ -266,7 +268,7 @@ uint8_t* UIFontBitmap::SearchInFont(uint32_t unicode, GlyphNode& glyphNode, uint
         return nullptr;
     }
     ColorMode mode = UIFont::GetInstance()->GetColorType(fontId);
-    BufferInfo bufInfo = UIFontAllocator::GetCacheBuffer(fontId, unicode, mode, glyphNode, false);
+    BufferInfo bufInfo = UIFontAllocator::GetCacheBuffer(fontId, unicode, mode, glyphNode, false, textStyle);
     ret = dynamicFont_.GetBitmap(unicode, bufInfo, fontId);
     if (ret == RET_VALUE_OK) {
         return reinterpret_cast<uint8_t*>(bufInfo.virAddr);

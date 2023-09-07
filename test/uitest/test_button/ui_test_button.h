@@ -107,6 +107,13 @@ private:
                                     const char* id = nullptr,
                                     UIViewType type = UI_CHECK_BOX,
                                     const char* name = "aa");
+    void TearDownListeners001();
+    void TearDownListeners002();
+#if defined(DEFAULT_ANIMATION) && DEFAULT_ANIMATION
+    void EnableAnimator(UIScrollView* container, UIButton* button);
+#endif
+    void InitButtonListeners001(UIButton* button);
+    void InitButtonListeners002(UIButton* button);
     static constexpr int16_t CHANGE_SIZE = 10;
     UIScrollView* container_ = nullptr;
 

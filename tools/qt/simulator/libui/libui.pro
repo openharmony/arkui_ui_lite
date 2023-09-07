@@ -13,8 +13,9 @@ DEFINES += QT_DEPRECATED_WARNINGS \
     "ENABLE_SHAPING=0" \
     "ENABLE_ICU=1" \
     "ENABLE_VECTOR_FONT=1" \
+    "ENABLE_SPANNABLE_STRING=1" \
     "ENABLE_BITMAP_FONT=0" \
-    "ENABLE_MULTI_FONT=0" \
+    "ENABLE_MULTI_FONT=1" \
     "ENABLE_STATIC_FONT=0" \
     "GRAPHIC_ENABLE_LINECAP_FLAG=1" \
     "GRAPHIC_ENABLE_LINEJOIN_FLAG=1" \
@@ -44,6 +45,7 @@ DEFINES += QT_COMPILER
 DESTDIR = ../libs
 
 SOURCES += \
+    ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/common/paint.cpp \
     ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/depiction/depict_curve.cpp \
     ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_cells_antialias.cpp \
     ../../../../../../graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_scanline_antialias.cpp \

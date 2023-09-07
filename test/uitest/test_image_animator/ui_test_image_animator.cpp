@@ -89,11 +89,11 @@ void UITestImageAnimator::InitImageInfo()
     const uint16_t width = 100;       // 100: image's width
     const uint16_t height = 100;      // 100: image's height
     uint32_t dataSize = width * height * pixelByteSize;
+
     uint8_t* srcData1 = static_cast<uint8_t*>(UIMalloc(dataSize));
     if (srcData1 == nullptr) {
         return;
     }
-
     for (uint32_t i = 0; i < dataSize; i += pixelByteSize) {
         srcData1[i] = 255;            // 255: pixel value
         srcData1[i + 1] = 0;          // 1: set green channel
@@ -105,12 +105,7 @@ void UITestImageAnimator::InitImageInfo()
         UIFree(srcData1);
         return;
     }
-
-    imageInfo1_->header.width = width;
-    imageInfo1_->header.height = height;
-    imageInfo1_->header.colorMode = ColorMode::ARGB8888;
-    imageInfo1_->dataSize = dataSize;
-    imageInfo1_->data = srcData1;
+    SetImageInfoPara(imageInfo1_, width, height, dataSize, srcData1);
 
     uint8_t* srcData2 = static_cast<uint8_t*>(UIMalloc(dataSize));
     if (srcData2 == nullptr) {
@@ -124,7 +119,6 @@ void UITestImageAnimator::InitImageInfo()
         srcData2[i + 2] = 0;          // 2: set red channel
         srcData2[i + 3] = OPA_OPAQUE; // 3: set alpha channel
     }
-
     imageInfo2_ = static_cast<ImageInfo*>(UIMalloc(sizeof(ImageInfo)));
     if (imageInfo2_ == nullptr) {
         UIFree(srcData2);
@@ -132,18 +126,28 @@ void UITestImageAnimator::InitImageInfo()
         UIFree(srcData1);
         return;
     }
-    imageInfo2_->header.width = width;
-    imageInfo2_->header.height = height;
-    imageInfo2_->header.colorMode = ARGB8888;
-    imageInfo2_->dataSize = dataSize;
-    imageInfo2_->data = srcData2;
+    SetImageInfoPara(imageInfo2_, width, height, dataSize, srcData2);
 
     uint8_t* srcData3 = static_cast<uint8_t*>(UIMalloc(dataSize));
+    bool isReturn = false;
+    SetSrcData3(srcData3, srcData2, srcData1, dataSize, isReturn, pixelByteSize);
+    if (isReturn) {
+        return;
+    }
+    SetImageInfoPara(imageInfo3_, width, height, dataSize, srcData3);
+
+    SetimageAnimatorImageInfos();
+}
+
+void UITestImageAnimator::SetSrcData3(uint8_t* srcData3, uint8_t* srcData2, uint8_t* srcData1,
+                                      uint32_t dataSize, bool& isReturn, const uint16_t pixelByteSize)
+{
     if (srcData3 == nullptr) {
         UIFree(imageInfo2_);
         UIFree(srcData2);
         UIFree(imageInfo1_);
         UIFree(srcData1);
+        isReturn = true;
         return;
     }
     for (uint32_t i = 0; i < dataSize; i += pixelByteSize) {
@@ -152,7 +156,6 @@ void UITestImageAnimator::InitImageInfo()
         srcData3[i + 2] = 255;        // 2: set red channel 255: pixel value
         srcData3[i + 3] = OPA_OPAQUE; // 3: set alpha channel
     }
-
     imageInfo3_ = static_cast<ImageInfo*>(UIMalloc(sizeof(ImageInfo)));
     if (imageInfo3_ == nullptr) {
         UIFree(srcData3);
@@ -160,14 +163,26 @@ void UITestImageAnimator::InitImageInfo()
         UIFree(srcData2);
         UIFree(imageInfo1_);
         UIFree(srcData1);
+        isReturn = true;
         return;
     }
-    imageInfo3_->header.width = width;
-    imageInfo3_->header.height = height;
-    imageInfo3_->header.colorMode = ARGB8888;
-    imageInfo3_->dataSize = dataSize;
-    imageInfo3_->data = srcData3;
+}
 
+void UITestImageAnimator::SetImageInfoPara(ImageInfo* imageInfo,
+                                           const uint16_t width,
+                                           const uint16_t height,
+                                           uint32_t dataSize,
+                                           uint8_t* srcData)
+{
+    imageInfo->header.width = width;
+    imageInfo->header.height = height;
+    imageInfo->header.colorMode = ARGB8888;
+    imageInfo->dataSize = dataSize;
+    imageInfo->data = srcData;
+}
+
+void UITestImageAnimator::SetimageAnimatorImageInfos()
+{
     imageAnimatorImageInfo_[0].imageInfo = imageInfo1_;
     imageAnimatorImageInfo_[0].pos = {84, 108};
     imageAnimatorImageInfo_[0].width = 100;  // 100: width value

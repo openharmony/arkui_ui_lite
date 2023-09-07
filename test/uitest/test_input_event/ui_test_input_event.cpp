@@ -29,176 +29,6 @@ const int16_t GAP = 5;
 const int16_t TEST_VIEW_GAP = 80;
 } // namespace
 
-class TestView : public UIView {
-public:
-    TestView() {}
-    virtual ~TestView() {}
-    bool OnLongPressEvent(const LongPressEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("long press!");
-            label_->Invalidate();
-        }
-        return UIView::OnLongPressEvent(event);
-    }
-
-    bool OnDragEvent(const DragEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("drag!");
-            label_->Invalidate();
-        }
-        return UIView::OnDragEvent(event);
-    }
-
-    void SetSentence(const char* sentence)
-    {
-        sentence_ = sentence;
-    }
-
-    bool OnClickEvent(const ClickEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText(sentence_);
-            label_->Invalidate();
-        }
-        return UIView::OnClickEvent(event);
-    }
-
-    bool OnPressEvent(const PressEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("press!");
-            label_->Invalidate();
-        }
-        return UIView::OnPressEvent(event);
-    }
-
-    bool OnReleaseEvent(const ReleaseEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("release!");
-            label_->Invalidate();
-        }
-        return UIView::OnReleaseEvent(event);
-    }
-
-    bool OnCancelEvent(const CancelEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("cancel!");
-            label_->Invalidate();
-        }
-        return UIView::OnCancelEvent(event);
-    }
-
-    void SetLabel(UILabel* label)
-    {
-        label_ = label;
-    }
-
-    void SetLabel2(UILabel* label)
-    {
-        label2_ = label;
-    }
-
-private:
-    UILabel* label_ = nullptr;
-    UILabel* label2_ = nullptr;
-    const char* sentence_ = "click";
-};
-
-class TestUIScrollView : public UIScrollView {
-public:
-    TestUIScrollView() {}
-    virtual ~TestUIScrollView() {}
-    bool OnLongPressEvent(const LongPressEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("long press!");
-            label_->Invalidate();
-        }
-        return UIView::OnLongPressEvent(event);
-    }
-
-    bool OnDragEvent(const DragEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("drag!");
-            label_->Invalidate();
-        }
-        return UIScrollView::OnDragEvent(event);
-    }
-
-    bool OnDragStartEvent(const DragEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("drag start!");
-            label_->Invalidate();
-        }
-        return UIScrollView::OnDragStartEvent(event);
-    }
-
-    bool OnDragEndEvent(const DragEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("drag end!");
-            label_->Invalidate();
-        }
-        return UIScrollView::OnDragEndEvent(event);
-    }
-
-    void SetSentence(const char* sentence)
-    {
-        sentence_ = sentence;
-    }
-
-    bool OnClickEvent(const ClickEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText(sentence_);
-            label_->Invalidate();
-        }
-        return UIView::OnClickEvent(event);
-    }
-
-    bool OnPressEvent(const PressEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("press!");
-            label_->Invalidate();
-        }
-        return UIView::OnPressEvent(event);
-    }
-
-    bool OnReleaseEvent(const ReleaseEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("release!");
-            label_->Invalidate();
-        }
-        return UIView::OnReleaseEvent(event);
-    }
-
-    bool OnCancelEvent(const CancelEvent& event) override
-    {
-        if (label_ != nullptr) {
-            label_->SetText("cancel!");
-            label_->Invalidate();
-        }
-        return UIView::OnCancelEvent(event);
-    }
-
-    void SetLabel(UILabel* label)
-    {
-        label_ = label;
-    }
-
-private:
-    UILabel* label_ = nullptr;
-    const char* sentence_ = "click";
-};
-
 void UITestInputEvent::SetUp()
 {
     if (container_ == nullptr) {
@@ -498,32 +328,38 @@ void UITestInputEvent::InnerBubbleTest(const char* title,
         testView->SetLabel2(label2);
 
         if (hasListener) {
-            UIView::OnClickListener* clickListenerParent =
-                new TestOnClickListener(label2, const_cast<char*>("l-parent click"), isBubble);
-            UIView::OnClickListener* clickListenerChild =
-                new TestOnClickListener(label1, const_cast<char*>("l-click"), isBubble);
-            testView->SetOnClickListener(clickListenerChild);
-            parentContainer->SetOnClickListener(clickListenerParent);
-
-            UIView::OnLongPressListener* longTouchListenerParent =
-                new TestOnLongPressListener(label2, const_cast<char*>("l-parent long press"), isBubble);
-            UIView::OnLongPressListener* longTouchListenerChild =
-                new TestOnLongPressListener(label1, const_cast<char*>("l-long press"), isBubble);
-            testView->SetOnLongPressListener(longTouchListenerChild);
-            parentContainer->SetOnLongPressListener(longTouchListenerParent);
-
-            UIView::OnTouchListener* touchListenerParent = new TestOnTouchListener(
-                label2, const_cast<char*>("l-parent press"), const_cast<char*>("l-parent release"),
-                const_cast<char*>("l-parent cancel"), isBubble);
-            UIView::OnTouchListener* touchListenerChild =
-                new TestOnTouchListener(label1, const_cast<char*>("l-press"), const_cast<char*>("l-release"),
-                                        const_cast<char*>("l-cancel"), isBubble);
-            testView->SetOnTouchListener(touchListenerChild);
-            parentContainer->SetOnTouchListener(touchListenerParent);
+            SetViewAndContainerListeners(isBubble, parentContainer, testView, label1, label2);
         }
 
         positionY_ += ITEM_H;
     }
+}
+
+void UITestInputEvent::SetViewAndContainerListeners(bool isBubble, OHOS::UIScrollView* parentContainer,
+                                                    TestView* testView, UILabel* label1, UILabel* label2)
+{
+    UIView::OnClickListener* clickListenerParent =
+        new TestOnClickListener(label2, const_cast<char*>("l-parent click"), isBubble);
+    UIView::OnClickListener* clickListenerChild =
+        new TestOnClickListener(label1, const_cast<char*>("l-click"), isBubble);
+    testView->SetOnClickListener(clickListenerChild);
+    parentContainer->SetOnClickListener(clickListenerParent);
+
+    UIView::OnLongPressListener* longTouchListenerParent =
+        new TestOnLongPressListener(label2, const_cast<char*>("l-parent long press"), isBubble);
+    UIView::OnLongPressListener* longTouchListenerChild =
+        new TestOnLongPressListener(label1, const_cast<char*>("l-long press"), isBubble);
+    testView->SetOnLongPressListener(longTouchListenerChild);
+    parentContainer->SetOnLongPressListener(longTouchListenerParent);
+
+    UIView::OnTouchListener* touchListenerParent = new TestOnTouchListener(
+        label2, const_cast<char*>("l-parent press"), const_cast<char*>("l-parent release"),
+        const_cast<char*>("l-parent cancel"), isBubble);
+    UIView::OnTouchListener* touchListenerChild =
+        new TestOnTouchListener(label1, const_cast<char*>("l-press"), const_cast<char*>("l-release"),
+                                const_cast<char*>("l-cancel"), isBubble);
+    testView->SetOnTouchListener(touchListenerChild);
+    parentContainer->SetOnTouchListener(touchListenerParent);
 }
 
 void UITestInputEvent::InnerBubbleDragTest(const char* title,
@@ -580,39 +416,45 @@ void UITestInputEvent::InnerBubbleDragTest(const char* title,
         parentScroll->SetLabel(label2);
 
         if (hasListener) {
-            UIView::OnClickListener* clickListenerParent =
-                new TestOnClickListener(label2, const_cast<char*>("l-parent click"), isBubble);
-            UIView::OnClickListener* clickListenerChild =
-                new TestOnClickListener(label1, const_cast<char*>("l-click"), isBubble);
-            childScroll->SetOnClickListener(clickListenerChild);
-            parentScroll->SetOnClickListener(clickListenerParent);
-
-            UIView::OnLongPressListener* longTouchListenerParent =
-                new TestOnLongPressListener(label2, const_cast<char*>("l-parent long press"), isBubble);
-            UIView::OnLongPressListener* longTouchListenerChild =
-                new TestOnLongPressListener(label1, const_cast<char*>("l-long press"), isBubble);
-            childScroll->SetOnLongPressListener(longTouchListenerChild);
-            parentScroll->SetOnLongPressListener(longTouchListenerParent);
-
-            UIView::OnTouchListener* touchListenerParent = new TestOnTouchListener(
-                label2, const_cast<char*>("l-parent press"), const_cast<char*>("l-parent release"),
-                const_cast<char*>("l-parent cancel"), isBubble);
-            UIView::OnTouchListener* touchListenerChild =
-                new TestOnTouchListener(label1, const_cast<char*>("l-press"), const_cast<char*>("l-release"),
-                                        const_cast<char*>("l-cancel"), isBubble);
-            childScroll->SetOnTouchListener(touchListenerChild);
-            parentScroll->SetOnTouchListener(touchListenerParent);
-
-            UIView::OnDragListener* dragListenerParent = new TestOnDragListener(
-                label2, const_cast<char*>("l-dragStart parent"), const_cast<char*>("l-drag parent"),
-                const_cast<char*>("l-dragEnd parent"), isBubble);
-            UIView::OnDragListener* dragListenerChild =
-                new TestOnDragListener(label1, const_cast<char*>("l-dragStart"), const_cast<char*>("l-drag"),
-                                       const_cast<char*>("l-dragEnd"), isBubble);
-            childScroll->SetOnDragListener(dragListenerChild);
-            parentScroll->SetOnDragListener(dragListenerParent);
+            SetScrollsListeners(isBubble, parentScroll, childScroll, label1, label2);
         }
         positionY_ += itemH1;
     }
+}
+
+void UITestInputEvent::SetScrollsListeners(bool isBubble, OHOS::UIScrollView* parentScroll,
+                                           OHOS::UIScrollView* childScroll, UILabel* label1, UILabel* label2)
+{
+    UIView::OnClickListener* clickListenerParent =
+        new TestOnClickListener(label2, const_cast<char*>("l-parent click"), isBubble);
+    UIView::OnClickListener* clickListenerChild =
+        new TestOnClickListener(label1, const_cast<char*>("l-click"), isBubble);
+    childScroll->SetOnClickListener(clickListenerChild);
+    parentScroll->SetOnClickListener(clickListenerParent);
+
+    UIView::OnLongPressListener* longTouchListenerParent =
+        new TestOnLongPressListener(label2, const_cast<char*>("l-parent long press"), isBubble);
+    UIView::OnLongPressListener* longTouchListenerChild =
+        new TestOnLongPressListener(label1, const_cast<char*>("l-long press"), isBubble);
+    childScroll->SetOnLongPressListener(longTouchListenerChild);
+    parentScroll->SetOnLongPressListener(longTouchListenerParent);
+
+    UIView::OnTouchListener* touchListenerParent = new TestOnTouchListener(
+        label2, const_cast<char*>("l-parent press"), const_cast<char*>("l-parent release"),
+        const_cast<char*>("l-parent cancel"), isBubble);
+    UIView::OnTouchListener* touchListenerChild =
+        new TestOnTouchListener(label1, const_cast<char*>("l-press"), const_cast<char*>("l-release"),
+                                const_cast<char*>("l-cancel"), isBubble);
+    childScroll->SetOnTouchListener(touchListenerChild);
+    parentScroll->SetOnTouchListener(touchListenerParent);
+
+    UIView::OnDragListener* dragListenerParent = new TestOnDragListener(
+        label2, const_cast<char*>("l-dragStart parent"), const_cast<char*>("l-drag parent"),
+        const_cast<char*>("l-dragEnd parent"), isBubble);
+    UIView::OnDragListener* dragListenerChild =
+        new TestOnDragListener(label1, const_cast<char*>("l-dragStart"), const_cast<char*>("l-drag"),
+                                const_cast<char*>("l-dragEnd"), isBubble);
+    childScroll->SetOnDragListener(dragListenerChild);
+    parentScroll->SetOnDragListener(dragListenerParent);
 }
 } // namespace OHOS

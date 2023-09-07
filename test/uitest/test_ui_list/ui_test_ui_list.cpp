@@ -65,32 +65,7 @@ void UITestUIList::TearDown()
 {
     DeleteChildren(container_);
     container_ = nullptr;
-    if (adapterData1_ != nullptr) {
-        adapterData1_->Clear();
-        delete adapterData1_;
-        adapterData1_ = nullptr;
-    }
-    if (adapterData2_ != nullptr) {
-        adapterData2_->Clear();
-        delete adapterData2_;
-        adapterData2_ = nullptr;
-    }
-    if (adapter1_ != nullptr) {
-        delete adapter1_;
-        adapter1_ = nullptr;
-    }
-    if (adapter2_ != nullptr) {
-        delete adapter2_;
-        adapter2_ = nullptr;
-    }
-    if (adapter3_ != nullptr) {
-        delete adapter3_;
-        adapter3_ = nullptr;
-    }
-    if (adapter4_ != nullptr) {
-        delete adapter4_;
-        adapter4_ = nullptr;
-    }
+    TearDown001();
     setBlankBtn_ = nullptr;
     setBlankOffBtn_ = nullptr;
     setThrowDragBtn_ = nullptr;
@@ -119,6 +94,36 @@ void UITestUIList::TearDown()
     setSwitchDirectionBtn_ = nullptr;
     lastX_ = 0;
     lastY_ = 0;
+}
+
+void UITestUIList::TearDown001()
+{
+    if (adapterData1_ != nullptr) {
+        adapterData1_->Clear();
+        delete adapterData1_;
+        adapterData1_ = nullptr;
+    }
+    if (adapterData2_ != nullptr) {
+        adapterData2_->Clear();
+        delete adapterData2_;
+        adapterData2_ = nullptr;
+    }
+    if (adapter1_ != nullptr) {
+        delete adapter1_;
+        adapter1_ = nullptr;
+    }
+    if (adapter2_ != nullptr) {
+        delete adapter2_;
+        adapter2_ = nullptr;
+    }
+    if (adapter3_ != nullptr) {
+        delete adapter3_;
+        adapter3_ = nullptr;
+    }
+    if (adapter4_ != nullptr) {
+        delete adapter4_;
+        adapter4_ = nullptr;
+    }
 }
 
 const UIView* UITestUIList::GetTestView()
@@ -219,6 +224,12 @@ void UITestUIList::SetControlButton()
     if (setSelectOffBtn_ == nullptr) {
         setSelectOffBtn_ = new UILabelButton();
     }
+    InitButtons();
+    SetUpButtons001();
+}
+
+void UITestUIList::InitButtons()
+{
     if (setAutoAlignBtn_ == nullptr) {
         setAutoAlignBtn_ = new UILabelButton();
     }
@@ -255,6 +266,10 @@ void UITestUIList::SetControlButton()
     if (setSwitchDirectionBtn_ == nullptr) {
         setSwitchDirectionBtn_ = new UILabelButton();
     }
+}
+
+void UITestUIList::SetUpButtons001()
+{
     positionX_ += 5; // 5: increase y-coordinate
     SetUpButton(setBlankBtn_, "开启blank");
     SetUpButton(setBlankOffBtn_, "关闭blank");
@@ -296,14 +311,7 @@ void UITestUIList::UIKitListScrollTestBlankSet001()
     container_->Add(label);
     label->SetPosition(TEXT_DISTANCE_TO_LEFT_SIDE, g_listH - 132); // 132: decrease y-coordinate
 
-    if (adapter4_ == nullptr) {
-        adapter4_ = new TextAdapter();
-    }
-    adapter4_->SetLineBreakMode(UILabel::LINE_BREAK_CLIP);
-    adapter4_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_DEFAULT_SIZE);
-    adapter4_->SetHeight(100); // 100: mean adapter height
-    adapter4_->SetWidth(100);  // 100: mean adapter width
-    adapter4_->SetData(adapterData2_);
+    InitAdapter4();
 
     UIList* list = new UIList(UIList::VERTICAL);
     list->SetIntercept(true);
@@ -347,6 +355,18 @@ void UITestUIList::UIKitListScrollTestBlankSet001()
     container_->Add(scrollStateLabel_);
     container_->Add(scrollSelectLabel_);
     SetLastPos(list);
+}
+
+void UITestUIList::InitAdapter4()
+{
+    if (adapter4_ == nullptr) {
+        adapter4_ = new TextAdapter();
+    }
+    adapter4_->SetLineBreakMode(UILabel::LINE_BREAK_CLIP);
+    adapter4_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_DEFAULT_SIZE);
+    adapter4_->SetHeight(100); // 100: mean adapter height
+    adapter4_->SetWidth(100);  // 100: mean adapter width
+    adapter4_->SetData(adapterData2_);
 }
 
 bool UITestUIList::OnClick(UIView& view, const ClickEvent& event)
