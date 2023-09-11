@@ -143,6 +143,7 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
                             uint16_t fontId,
                             uint8_t fontSize,
                             const ArcTextInfo arcTextInfo,
+                            const float changeAngle,
                             TextOrientation orientation,
                             const Style& style,
                             OpacityType opaScale,
@@ -161,16 +162,18 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
 
     uint16_t letterHeight = fontEngine->GetHeight(fontId, fontSize);
     uint32_t i = arcTextInfo.lineStart;
-    float angle = arcTextInfo.startAngle;
+    bool orientationFlag = (orientation == TextOrientation::INSIDE);
+    bool directFlag = (arcTextInfo.direct == TEXT_DIRECT_LTR);
+    bool xorFlag = !directFlag;
+    if (compatibilityMode) {
+        xorFlag = !((orientationFlag && directFlag) || (!orientationFlag && !directFlag));
+    }
+    float angle = directFlag ? (arcTextInfo.startAngle + changeAngle) : (arcTextInfo.startAngle - changeAngle);
+
     float posX;
     float posY;
     float rotateAngle;
-
-    bool orientationFlag = (orientation == TextOrientation::INSIDE);
-    bool directFlag = (arcTextInfo.direct == TEXT_DIRECT_LTR);
-    bool xorFlag = !((orientationFlag && directFlag) || (!orientationFlag && !directFlag));
-
-    while (i < arcTextInfo.lineEnd) {
+    while (i < strlen(text)) {
         uint32_t tmp = i;
         uint32_t letter = TypedText::GetUTF8Next(text, tmp, i);
         if (letter == 0) {
@@ -187,8 +190,12 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
             continue;
         }
 
-        DrawLetterWithRotate(gfxDstBuffer, mask, fontId, fontSize, letter, Point { MATH_ROUND(posX), MATH_ROUND(posY) },
-                             static_cast<int16_t>(rotateAngle), style.textColor_, opaScale, compatibilityMode);
+        ArcLetterInfo letterInfo;
+        letterInfo.InitData(fontId, fontSize, letter, { MATH_ROUND(posX), MATH_ROUND(posY) },
+            static_cast<int16_t>(rotateAngle), style.textColor_, opaScale, arcTextInfo.startAngle,
+            arcTextInfo.endAngle, angle, arcTextInfo.radius, compatibilityMode, directFlag, orientationFlag);
+
+        DrawLetterWithRotate(gfxDstBuffer, mask, letterInfo, posX, posY);
     }
 }
 
@@ -233,7 +240,7 @@ bool DrawLabel::CalculateAngle(uint16_t letterWidth,
         }
 
         float fineTuningAngle = incrementAngle / DIVIDER_BY_TWO;
-        rotateAngle = xorFlag ?  (angle - SEMICIRCLE_IN_DEGREE - fineTuningAngle) : (angle + fineTuningAngle);
+        rotateAngle = xorFlag ? (angle - SEMICIRCLE_IN_DEGREE - fineTuningAngle) : (angle + fineTuningAngle);
         TypedText::GetArcLetterPos(arcCenter, arcTextInfo.radius, angle, posX, posY);
         angle = xorFlag ? (angle - incrementAngle) : (angle + incrementAngle);
     }
@@ -243,14 +250,9 @@ bool DrawLabel::CalculateAngle(uint16_t letterWidth,
 
 void DrawLabel::DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
                                      const Rect& mask,
-                                     uint16_t fontId,
-                                     uint8_t fontSize,
-                                     uint32_t letter,
-                                     const Point& pos,
-                                     int16_t rotateAngle,
-                                     const ColorType& color,
-                                     OpacityType opaScale,
-                                     bool compatibilityMode)
+                                     const ArcLetterInfo& letterInfo,
+                                     float posX,
+                                     float posY)
 {
     UIFont* fontEngine = UIFont::GetInstance();
     FontHeader head;
@@ -258,27 +260,216 @@ void DrawLabel::DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     node.textStyle = TEXT_STYLE_NORMAL;
 #endif
-    if (fontEngine->GetFontHeader(head, fontId, fontSize) != 0) {
+    if (fontEngine->GetFontHeader(head, letterInfo.fontId, letterInfo.fontSize) != 0) {
         return;
     }
 
-    const uint8_t* fontMap = fontEngine->GetBitmap(letter, node, fontId, fontSize, 0);
+    const uint8_t* fontMap = fontEngine->GetBitmap(letterInfo.letter, node,
+        letterInfo.fontId, letterInfo.fontSize, 0);
     if (fontMap == nullptr) {
         return;
     }
-    uint8_t fontWeight = fontEngine->GetFontWeight(fontId);
-    ColorMode colorMode = fontEngine->GetColorType(fontId);
+    uint8_t fontWeight = fontEngine->GetFontWeight(letterInfo.fontId);
+    ColorMode colorMode = fontEngine->GetColorType(letterInfo.fontId);
 
-    int16_t offset = compatibilityMode ? head.ascender : 0;
+    int16_t offset = letterInfo.compatibilityMode ? head.ascender : 0;
     Rect rectLetter;
-    rectLetter.SetPosition(pos.x + node.left, pos.y + offset - node.top);
     rectLetter.Resize(node.cols, node.rows);
     TransformMap transMap(rectLetter);
-    transMap.Rotate(rotateAngle, Vector2<float>(-node.left, node.top - offset));
+    // Avoiding errors caused by rounding calculations
+    transMap.Translate(Vector2<float>(posX + node.left, posY + offset - node.top));
+    transMap.Rotate(letterInfo.rotateAngle, Vector2<float>(posX, posY));
+
     TransformDataInfo letterTranDataInfo = {ImageHeader{colorMode, 0, 0, 0, node.cols, node.rows}, fontMap, fontWeight,
                                             BlurLevel::LEVEL0, TransformAlgorithm::BILINEAR};
-    BaseGfxEngine::GetInstance()->DrawTransform(gfxDstBuffer, mask, Point { 0, 0 }, color, opaScale, transMap,
-                                                letterTranDataInfo);
+
+    uint8_t* buffer = nullptr;
+    bool inRange = DrawLabel::CalculatedTransformDataInfo(buffer, letterTranDataInfo, letterInfo);
+    if (inRange == false) {
+        return;
+    }
+
+    BaseGfxEngine::GetInstance()->DrawTransform(gfxDstBuffer, mask, Point { 0, 0 }, letterInfo.color,
+        letterInfo.opaScale, transMap, letterTranDataInfo);
+    if (buffer != nullptr) {
+        UIFree(buffer);
+    }
+}
+
+bool DrawLabel::CalculatedClipAngle(const ArcLetterInfo& letterInfo, float& angle)
+{
+    if (letterInfo.directFlag) {
+        if ((letterInfo.compatibilityMode && letterInfo.orientationFlag) || !letterInfo.compatibilityMode) {
+            if (letterInfo.currentAngle > letterInfo.endAngle) {
+                angle = letterInfo.currentAngle - letterInfo.endAngle;
+            } else if (letterInfo.currentAngle > letterInfo.startAngle) {
+                angle = letterInfo.currentAngle - letterInfo.startAngle;
+            } else {
+                return false;
+            }
+        } else {
+            if (letterInfo.currentAngle > letterInfo.endAngle) {
+                angle = letterInfo.currentAngle - letterInfo.endAngle;
+            } else if (letterInfo.currentAngle > letterInfo.startAngle) {
+                angle = letterInfo.currentAngle - letterInfo.startAngle;
+            } else {
+                return false;
+            }
+        }
+    } else {
+        if (letterInfo.compatibilityMode && letterInfo.orientationFlag) {
+            if (letterInfo.currentAngle < letterInfo.endAngle) {
+                angle = letterInfo.endAngle - letterInfo.currentAngle;
+            } else if (letterInfo.currentAngle < letterInfo.startAngle) {
+                angle = letterInfo.startAngle - letterInfo.currentAngle;
+            } else {
+                return false;
+            }
+        } else if ((letterInfo.compatibilityMode && !letterInfo.orientationFlag) || !letterInfo.compatibilityMode) {
+            if (letterInfo.currentAngle < letterInfo.endAngle) {
+                angle = letterInfo.endAngle - letterInfo.currentAngle;
+            } else if (letterInfo.currentAngle < letterInfo.startAngle) {
+                angle = letterInfo.startAngle - letterInfo.currentAngle;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void DrawLabel::OnCalculatedClockwise(const ArcLetterInfo& letterInfo, const uint16_t sizePerPx,
+                                      const uint16_t cols, const int16_t offsetX, uint16_t& begin,
+                                      uint16_t& copyCols, TextInRange& range)
+{
+    if (!letterInfo.directFlag) {
+        return;
+    }
+    if ((letterInfo.compatibilityMode && letterInfo.orientationFlag) || !letterInfo.compatibilityMode) {
+        if (letterInfo.currentAngle > letterInfo.endAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::OUT_RANGE;
+            }
+            copyCols = cols - offsetX;
+        } else if (letterInfo.currentAngle > letterInfo.startAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::IN_RANGE;
+            }
+            copyCols = offsetX;
+            begin = (cols - offsetX) * sizePerPx;
+        }
+    } else {
+        if (letterInfo.currentAngle > letterInfo.endAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::OUT_RANGE;
+            }
+            copyCols = cols - offsetX;
+            begin = offsetX * sizePerPx;
+        } else if (letterInfo.currentAngle > letterInfo.startAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::IN_RANGE;
+            }
+            copyCols = offsetX;
+        }
+    }
+}
+
+void DrawLabel::OnCalculatedAnticlockwise(const ArcLetterInfo& letterInfo, const uint16_t sizePerPx,
+                                          const uint16_t cols, const int16_t offsetX, uint16_t& begin,
+                                          uint16_t& copyCols, TextInRange& range)
+{
+    if (letterInfo.directFlag) {
+        return;
+    }
+    if (letterInfo.compatibilityMode && letterInfo.orientationFlag) {
+        if (letterInfo.currentAngle < letterInfo.endAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::OUT_RANGE;
+            }
+            copyCols = cols - offsetX;
+            begin = offsetX * sizePerPx;
+        } else if (letterInfo.currentAngle < letterInfo.startAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::IN_RANGE;
+            }
+            copyCols = offsetX;
+        }
+    } else if ((letterInfo.compatibilityMode && !letterInfo.orientationFlag) || !letterInfo.compatibilityMode) {
+        if (letterInfo.currentAngle < letterInfo.endAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::OUT_RANGE;
+            }
+            copyCols = cols - offsetX;
+        } else if (letterInfo.currentAngle < letterInfo.startAngle) {
+            if (offsetX >= cols) {
+                range = TextInRange::IN_RANGE;
+            }
+            copyCols = offsetX;
+            begin = (cols - offsetX) * sizePerPx;
+        }
+    }
+}
+
+void DrawLabel::CalculatedBeginAndCopySize(const ArcLetterInfo& letterInfo, const uint16_t sizePerPx,
+                                           const uint16_t cols, const int16_t offsetX, uint16_t& begin,
+                                           uint16_t& copyCols, TextInRange& range)
+{
+    if (letterInfo.directFlag) {
+        OnCalculatedClockwise(letterInfo, sizePerPx, cols, offsetX, begin, copyCols, range);
+    } else {
+        OnCalculatedAnticlockwise(letterInfo, sizePerPx, cols, offsetX, begin, copyCols, range);
+    }
+}
+
+bool DrawLabel::CalculatedTransformDataInfo(uint8_t* buffer, TransformDataInfo& letterTranDataInfo,
+    const ArcLetterInfo& letterInfo)
+{
+    float angle = 0.0f;
+    if (DrawLabel::CalculatedClipAngle(letterInfo, angle) == false) {
+        return false;
+    }
+    if (angle >= -EPSINON && angle <= EPSINON) {
+        return true;
+    }
+
+    int16_t offsetX = static_cast<uint16_t>(angle * letterInfo.radius * UI_PI / SEMICIRCLE_IN_DEGREE);
+    uint16_t copyCols = 0;
+    uint16_t begin = 0;
+    uint16_t sizePerPx = letterTranDataInfo.pxSize / 8; // 8 bit
+    TextInRange range = TextInRange::NEED_CLIP;
+    uint16_t cols = letterTranDataInfo.header.width;
+    uint16_t rows = letterTranDataInfo.header.height;
+    DrawLabel::CalculatedBeginAndCopySize(letterInfo, sizePerPx, cols, offsetX, begin, copyCols, range);
+    if (range == TextInRange::IN_RANGE) {
+        return true;
+    } else if (range == TextInRange::OUT_RANGE) {
+        return false;
+    }
+
+    const uint8_t* fontMap = letterTranDataInfo.data;
+
+    uint32_t size = cols * rows * sizePerPx;
+    buffer = static_cast<uint8_t*>(UIMalloc(size));
+    if (buffer == nullptr) {
+        return false;
+    }
+
+    if (memset_s(buffer, size, 0, size) != EOK) {
+        UIFree(buffer);
+        return false;
+    }
+
+    for (uint16_t i = 0; i < rows; i++) {
+        uint16_t beginSize = i * cols * sizePerPx + begin;
+        uint16_t copySize = copyCols * sizePerPx;
+        if (memcpy_s(buffer + beginSize, copySize, fontMap + beginSize, copySize) != EOK) {
+            UIFree(buffer);
+            return false;
+        }
+    }
+    letterTranDataInfo.data = buffer;
+    return true;
 }
 
 void DrawLabel::GetLineBackgroundColor(uint16_t letterIndex, List<LineBackgroundColor>* linebackgroundColor,

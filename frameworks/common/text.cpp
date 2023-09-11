@@ -696,4 +696,9 @@ uint16_t Text::GetNextCharacterFullDispalyOffset(const Rect& textRect,
 {
     return GetPosXByLetterIndex(textRect, style, beginIndex, num);
 }
+
+int16_t Text::GetMetaTextWidth(const Style& style)
+{
+    return TypedText::GetTextWidth(text_, GetFontId(), GetFontSize(), strlen(text_), style.letterSpace_);
+}
 } // namespace OHOS

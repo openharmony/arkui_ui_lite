@@ -37,10 +37,16 @@
 #ifndef GRAPHIC_LITE_UI_ARC_LABEL_H
 #define GRAPHIC_LITE_UI_ARC_LABEL_H
 
+#include "animator/animator.h"
 #include "common/text.h"
 #include "components/ui_view.h"
 
 namespace OHOS {
+class ArcLabelScrollListener : public HeapBase {
+public:
+    virtual void Finish() = 0;
+};
+
 /**
  * @brief Defines functions related to an arc label.
  *
@@ -349,12 +355,53 @@ public:
      */
     void OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea) override;
 
+    /**
+     * @brief Start animation.
+     *
+     */
+    void Start();
+
+    /**
+     * @brief Stop animation.
+     *
+     */
+    void Stop();
+
+    /**
+     * @brief Sets the number of cycles.
+     *
+     * @param rollCount Indicates number of cycles.
+     */
+    void SetRollCount(const uint16_t rollCount);
+
+    /**
+     * @brief Register a listener that contains a callback to be invoked scroll state change.
+     *
+     * @param scrollListener Indicates the listener to register.
+     */
+    void RegisterScrollListener(ArcLabelScrollListener* scrollListener);
+
+    /**
+     * @brief Set animation speed.
+     *
+     * @param speed Indicates the scroll speed to set.
+     */
+    void SetRollSpeed(const uint16_t speed);
+
+    /**
+     * @brief Obtains the scroll speed for this arclabel.
+     *
+     * @return Returns the scroll speed.
+     */
+    uint16_t GetRollSpeed() const;
+
     void ReMeasure() override;
 protected:
     Text* arcLabelText_;
     bool compatibilityMode_;
-    bool needRefresh_;
+    float offsetAngle_;
     ArcTextInfo arcTextInfo_;
+    bool needRefresh_;
 
     virtual void InitArcLabelText()
     {
@@ -382,16 +429,26 @@ protected:
                                 TextOrientation orientation,
                                 const ArcTextInfo& arcTextInfo);
 
-    virtual uint32_t GetLineEnd(int16_t maxLenght);
-
+    virtual uint32_t GetLineEnd(int16_t maxLength);
 private:
+    friend class ArcLabelAnimator;
     void MeasureArcTextInfo();
+    void OnMeasureArcTextInfo(const uint16_t arcAngle, const uint16_t letterHeight);
+
     Point textSize_;
     uint16_t radius_;
     int16_t startAngle_;
     int16_t endAngle_;
     Point arcCenter_;
     TextOrientation orientation_;
+    bool hasAnimator_;
+    struct {
+        Animator* animator;
+        ArcLabelScrollListener* scrollListener;
+        uint16_t speed;
+        uint16_t rollCount;
+        float secondLapOffsetAngle_;
+    } animator_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_ARC_LABEL_H

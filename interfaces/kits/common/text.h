@@ -88,6 +88,7 @@ enum UITextLanguageDirect : uint8_t {
 struct ArcTextInfo {
     uint16_t radius;
     float startAngle;
+    float endAngle;
     Point arcCenter;
     uint32_t lineStart;
     uint32_t lineEnd;
@@ -95,6 +96,55 @@ struct ArcTextInfo {
     uint32_t* codePoints;
     uint16_t codePointsNum;
     uint8_t shapingFontId;
+};
+
+/**
+ * @brief Stores attribute information for this arc text to be drawn.
+ */
+struct ArcLetterInfo {
+    void InitData(uint16_t inFontId, uint8_t inFontSize, uint32_t inLetter, Point inPos,
+        int16_t inRotateAngle, ColorType inColor, OpacityType inOpaScale,
+        float inStartAngle, float inEndAngle, float inCurrentAngle, uint16_t inRadius,
+        bool inCompatibilityMode, bool inDirectFlag, bool inOrientationFlag)
+    {
+        fontId = inFontId;
+        fontSize = inFontSize;
+        letter = inLetter;
+        pos = inPos;
+        rotateAngle = inRotateAngle;
+        color = inColor;
+        opaScale = inOpaScale;
+        startAngle = inStartAngle;
+        endAngle = inEndAngle;
+        currentAngle = inCurrentAngle;
+        radius = inRadius;
+        compatibilityMode = inCompatibilityMode;
+        directFlag = inDirectFlag;
+        orientationFlag = inOrientationFlag;
+    }
+    uint16_t fontId;
+    uint8_t fontSize;
+    uint32_t letter;
+    Point pos;
+    int16_t rotateAngle;
+    ColorType color;
+    OpacityType opaScale;
+    float startAngle;
+    float endAngle;
+    float currentAngle;
+    uint16_t radius;
+    bool compatibilityMode;
+    bool directFlag;
+    bool orientationFlag;
+};
+
+/**
+ * @brief Enumerates text orientations.
+ */
+enum TextInRange {
+    IN_RANGE,
+    OUT_RANGE,
+    NEED_CLIP
 };
 
 /**
@@ -510,6 +560,15 @@ public:
      */
     virtual uint16_t GetNextCharacterFullDispalyOffset(const Rect& textRect,
         const Style& style, uint16_t beginIndex, uint16_t num);
+
+    /**
+     * @brief Obtains the width of the meta text.
+     *
+     * @param style Indicates the style of text.
+     *
+     * @return Return meta text width.
+     */
+    virtual int16_t GetMetaTextWidth(const Style& style);
 
 protected:
     struct TextLine {
