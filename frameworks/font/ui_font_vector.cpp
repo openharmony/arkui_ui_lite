@@ -649,7 +649,7 @@ int8_t UIFontVector::GetGlyphNode(uint32_t unicode, GlyphNode& glyphNode, uint16
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode, glyphNode.textStyle);
 #else
-    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode, TEXT_STYLE_NORMAL);
 #endif
     if (bitmap != nullptr) {
         Metric* f = reinterpret_cast<Metric*>(bitmap);
@@ -688,7 +688,7 @@ uint8_t* UIFontVector::GetBitmap(uint32_t unicode, GlyphNode& glyphNode, uint16_
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode, glyphNode.textStyle);
 #else
-    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode);
+    uint8_t* bitmap = fontCacheManager->GetBitmap(fontKey, unicode, TEXT_STYLE_NORMAL);
 #endif
     if (bitmap != nullptr) {
         Metric* f = reinterpret_cast<Metric*>(bitmap);
@@ -719,7 +719,7 @@ uint8_t* UIFontVector::GetBitmap(uint32_t unicode, GlyphNode& glyphNode, uint16_
 #if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     bitmap = fontCacheManager->GetBitmap(fontKey, unicode, glyphNode.textStyle);
 #else
-    bitmap = fontCacheManager->GetBitmap(fontKey, unicode);
+    bitmap = fontCacheManager->GetBitmap(fontKey, unicode, TEXT_STYLE_NORMAL);
 #endif
     if (bitmap != nullptr) {
         return bitmap + sizeof(Metric);
