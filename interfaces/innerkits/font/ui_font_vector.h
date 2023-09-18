@@ -87,12 +87,12 @@ private:
     uint16_t GetFontId(uint32_t unicode) const;
     uint16_t GetKey(uint16_t fontId, uint8_t size);
     int8_t LoadGlyphIntoFace(uint16_t& fontId, uint8_t fontSize, uint32_t unicode, GlyphNode& glyphNode);
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     int8_t LoadGlyphIntoFace(uint16_t& fontId, uint32_t unicode, FT_Face face, TextStyle textStyle);
 #endif
     void SaveGlyphNode(uint32_t unicode, uint16_t fontKey, Metric* metric);
     uint8_t IsGlyphFont(uint32_t unicode);
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     void SetItaly(FT_GlyphSlot slot);
     void SetBold(uint16_t fontId);
 #endif
