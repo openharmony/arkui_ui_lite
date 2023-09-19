@@ -18,9 +18,7 @@
 #include "components/ui_checkbox.h"
 #include "components/ui_label.h"
 #include "font/ui_font.h"
-#if defined(ENABLE_VECTOR_FONT) && ENABLE_VECTOR_FONT
-#include "common/spannable_string.h"
-#endif
+
 namespace OHOS {
 void UITestLabel::SetUp()
 {

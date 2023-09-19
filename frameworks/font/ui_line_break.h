@@ -118,7 +118,7 @@ public:
                                  int16_t& maxWidth,
                                  int16_t& maxHeight,
                                  uint16_t& letterIndex,
-                                 SizeSpan* sizeSpans,
+                                 SpannableString* spannableString,
                                  uint16_t len = 0xFFFF,
                                  bool eliminateTrailingSpaces = false);
     bool IsBreakPos(uint32_t unicode, uint16_t fontId, uint8_t fontSize, int32_t& state);
@@ -132,7 +132,7 @@ private:
 
     void LoadRule();
     int16_t GetLetterWidth(uint32_t unicode, uint16_t& letterIndex, int16_t& maxHeight,
-                           uint16_t fontId, uint8_t fontSize, SizeSpan* sizeSpans);
+                           uint16_t fontId, uint8_t fontSize, SpannableString* spannableString);
     static constexpr const int32_t LINE_BREAK_STATE_START = 1;
     static constexpr const int32_t LINE_BREAK_STATE_STOP = 0;
     bool initSuccess_;

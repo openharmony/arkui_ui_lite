@@ -53,7 +53,7 @@ public:
                                      float posY);
 
     static uint8_t GetLineMaxLetterSize(const char* text, uint16_t lineLength, uint16_t fontId, uint8_t fontSize,
-                                        uint16_t letterIndex, SizeSpan* sizeSpans);
+                                        uint16_t letterIndex, SpannableString* spannableString);
     static void GetLineBackgroundColor(uint16_t letterIndex, List<LineBackgroundColor>* linebackgroundColor,
                                        bool& havelinebackground, ColorType& linebgColor);
     static void GetBackgroundColor(uint16_t letterIndex, List<BackgroundColor>* backgroundColor,

@@ -119,7 +119,7 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
                                                 int16_t& maxWidth,
                                                 int16_t& maxHeight,
                                                 uint16_t& letterIndex,
-                                                SizeSpan* sizeSpans,
+                                                SpannableString* spannableString,
                                                 uint16_t len,
                                                 bool eliminateTrailingSpaces)
 {
@@ -153,7 +153,7 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
             lastIndex = preIndex;
             lastWidth = eliminateTrailingSpaces ? preWidth : curWidth;
         }
-        width = GetLetterWidth(unicode, letterIndex, height, fontId, fontSize, sizeSpans);
+        width = GetLetterWidth(unicode, letterIndex, height, fontId, fontSize, spannableString);
         letterIndex++;
         if (height > maxHeight) {
             maxHeight = height;
@@ -190,24 +190,21 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
     return preIndex;
 }
 
-int16_t UILineBreakEngine::GetLetterWidth(uint32_t unicode, uint16_t& letterIndex, int16_t& height,
-                                          uint16_t fontId, uint8_t fontSize, SizeSpan* sizeSpans)
+int16_t UILineBreakEngine::GetLetterWidth(uint32_t unicode,
+                                          uint16_t& letterIndex,
+                                          int16_t& height,
+                                          uint16_t fontId,
+                                          uint8_t fontSize,
+                                          SpannableString* spannableString)
 {
     UIFont* fontEngine = UIFont::GetInstance();
-    if (sizeSpans != nullptr && sizeSpans[letterIndex].isSizeSpan) {
-        int16_t width = fontEngine->GetWidth(unicode, sizeSpans[letterIndex].fontId,
-                                             sizeSpans[letterIndex].size, 0);
-
-        if (sizeSpans[letterIndex].height == 0) {
-            height = fontEngine->GetHeight(sizeSpans[letterIndex].fontId,
-                                           sizeSpans[letterIndex].size);
-            sizeSpans[letterIndex].height = height;
-        } else {
-            height = sizeSpans[letterIndex].height;
-        }
+    if (spannableString != nullptr && spannableString->GetSpannable(letterIndex)) {
+        spannableString->GetFontHeight(letterIndex, height, fontId, fontSize);
+        int16_t width = fontEngine->GetWidth(unicode, fontId, fontSize, 0);
         return width;
     } else {
-        height = fontEngine->GetHeight(fontId, fontSize);
+        uint16_t tempHeight = fontEngine->GetHeight(fontId, fontSize);
+        height = static_cast<int16_t>(tempHeight);
         return fontEngine->GetWidth(unicode, fontId, fontSize, 0);
     }
 }

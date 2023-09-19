@@ -183,7 +183,7 @@ void UILabel::SetText(const char* text)
     }
 }
 
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+
 void UILabel::SetText(const SpannableString* text)
 {
     InitLabelText();
@@ -192,7 +192,7 @@ void UILabel::SetText(const SpannableString* text)
         RefreshLabel();
     }
 }
-#endif
+
 
 void UILabel::SetAbsoluteSizeSpan(uint16_t start, uint16_t end, uint8_t size)
 {

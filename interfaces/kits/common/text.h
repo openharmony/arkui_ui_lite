@@ -36,16 +36,16 @@
 #ifndef GRAPHIC_LITE_TEXT_H
 #define GRAPHIC_LITE_TEXT_H
 
+#include <cstring>
+#include "common/spannable_string.h"
+#include "engines/gfx/gfx_engine_manager.h"
+#include "font/ui_font_header.h"
+
 #include "gfx_utils/geometry2d.h"
 #include "gfx_utils/graphic_types.h"
 #include "gfx_utils/list.h"
 #include "gfx_utils/style.h"
 #include "gfx_utils/vector.h"
-#include "engines/gfx/gfx_engine_manager.h"
-#include "font/ui_font_header.h"
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
-#include "common/spannable_string.h"
-#endif
 
 namespace OHOS {
 namespace {
@@ -176,13 +176,6 @@ struct LineBackgroundColor : public HeapBase {
     ColorType linebackgroundColor;
 };
 
-struct SizeSpan {
-    bool isSizeSpan;
-    uint8_t size;
-    uint16_t fontId;
-    int16_t height;
-};
-
 struct LabelLineInfo;
 
 /**
@@ -223,7 +216,6 @@ public:
      */
     virtual void SetText(const char* text);
 
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     /**
      * @brief Sets the SpannableString for this text.
      *
@@ -232,7 +224,7 @@ public:
      * @version 1.0
      */
     void SetSpannableString(const SpannableString* spannableString);
-#endif
+
     /**
      * @brief Obtains the content of this text.
      *
@@ -587,7 +579,7 @@ protected:
 
     virtual uint32_t
         GetTextLine(uint32_t begin, uint32_t textLen, int16_t width, uint16_t lineNum, uint8_t letterSpace,
-                    uint16_t& letterIndex, SizeSpan* sizeSpans, TextLine& textLine);
+                    uint16_t& letterIndex, SpannableString* spannableString, TextLine& textLine);
 
     virtual uint16_t GetLetterIndexByPosition(const Rect& textRect, const Style& style, const Point& pos);
 
@@ -606,9 +598,9 @@ protected:
     uint32_t CalculateLineWithEllipsis(uint32_t begin, uint32_t textLen, int16_t width,
                                        uint8_t letterSpace, uint16_t& lineNum,
                                        uint16_t& letterIndex,
-                                       SizeSpan* sizeSpans);
+                                       SpannableString* spannableString);
     uint16_t GetSpanFontIdBySize(uint8_t size);
-    void InitSizeSpans();
+    SpannableString* CreateSpannableString();
 #if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     TextStyle* textStyles_;
 #endif
@@ -624,8 +616,8 @@ protected:
     List<BackgroundColor> backgroundColor_;
     List<ForegroundColor> foregroundColor_;
     List<LineBackgroundColor> linebackgroundColor_;
-    SizeSpan* sizeSpans_;
     uint32_t characterSize_;
+    SpannableString* spannableString_;
     TextLine preIndexLine_;
 
 private:

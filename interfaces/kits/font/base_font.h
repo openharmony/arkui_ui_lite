@@ -226,7 +226,7 @@ public:
     virtual uint16_t GetOffsetPosY(const char* text, uint16_t lineLength, bool& isEmoijLarge,
                                    uint16_t fontId, uint8_t fontSize) = 0;
     virtual uint16_t GetLineMaxHeight(const char* text, uint16_t lineLength, uint16_t fontId, uint8_t fontSize,
-                                      uint16_t& letterIndex, SizeSpan* sizeSpans) = 0;
+                                      uint16_t& letterIndex, SpannableString* spannableString) = 0;
     virtual bool IsEmojiFont(uint16_t fontId) = 0;
 
 private:

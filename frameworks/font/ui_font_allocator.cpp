@@ -175,6 +175,7 @@ void UIFontAllocator::Free(void* addr)
     freeSize_ += chunk->next - (reinterpret_cast<uint8_t*>(chunk) - ram_);
     CombineFree(chunk);
 }
+
 BufferInfo UIFontAllocator::GetCacheBuffer(uint16_t fontId,
                                            uint32_t unicode,
                                            ColorMode mode,

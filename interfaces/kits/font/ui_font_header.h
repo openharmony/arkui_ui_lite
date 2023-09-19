@@ -277,6 +277,7 @@ enum TextStyle : uint8_t {
 /**
  * @brief struct GlyphNode for font
  * refer to ui_font.h
+ * be careful about glyphNode struct's size, if ENABLE_TEXT_STYLE changes, glyphs.bin shall be reconstruct.
  */
 struct GlyphNode {
     uint32_t unicode;  // GLYPH_UNICODE_OFFSET

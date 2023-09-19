@@ -98,8 +98,7 @@ uint8_t* UIFontCache::GetBitmap(uint16_t fontKey, uint32_t unicode, TextStyle te
     Bitmap* bitmap = nullptr;
     ListHead* head = hashTable_ + unicode % FONT_CACHE_HASH_NR;
     for (ListHead* node = head->next; node != head; node = node->next) {
-        bitmap = reinterpret_cast<struct Bitmap*>(reinterpret_cast<uint8_t*>(node) -
-                                                  offsetof(struct Bitmap, hashHead));
+        bitmap = reinterpret_cast<struct Bitmap*>(reinterpret_cast<uint8_t*>(node) - offsetof(struct Bitmap, hashHead));
         if ((bitmap->fontId == fontKey) &&
 #if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
             (bitmap->textStyle == textStyle) &&
