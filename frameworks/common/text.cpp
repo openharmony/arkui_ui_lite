@@ -42,7 +42,7 @@ Text::Text()
       eliminateTrailingSpaces_(false)
 
 {
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     textStyles_ = nullptr;
 #endif
     SetFont(DEFAULT_VECTOR_FONT_FILENAME, DEFAULT_VECTOR_FONT_SIZE);
@@ -54,7 +54,7 @@ Text::~Text()
         UIFree(text_);
         text_ = nullptr;
     }
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     if (textStyles_ != nullptr) {
         UIFree(textStyles_);
         textStyles_ = nullptr;
@@ -79,10 +79,12 @@ Text::~Text()
 void Text::SetSpannableString(const SpannableString* spannableString)
 {
     SetText(spannableString->text_);
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     if (textStyles_ != nullptr) {
         UIFree(textStyles_);
         textStyles_ = nullptr;
     }
+#endif
     if (spannableString->spanList_.IsEmpty()) {
         return;
     }
@@ -90,6 +92,7 @@ void Text::SetSpannableString(const SpannableString* spannableString)
     if (textLen == 0 || textLen > MAX_TEXT_LENGTH) {
         return;
     }
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     textStyles_ = static_cast<TextStyle*>(UIMalloc(textLen));
     if (textStyles_ == nullptr) {
         GRAPHIC_LOGE("Text::SetSpannableString invalid parameter");
@@ -104,6 +107,7 @@ void Text::SetSpannableString(const SpannableString* spannableString)
         }
         node = node->next_;
     }
+#endif
     needRefresh_ = true;
 }
 #endif
@@ -132,7 +136,7 @@ void Text::SetText(const char* text)
         text_ = nullptr;
         return;
     }
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     if (textStyles_ != nullptr) {
         UIFree(textStyles_);
         textStyles_ = nullptr;
@@ -329,7 +333,7 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
                                      0, opa, style, &text_[lineBegin], lineBytes,
                                      lineBegin, fontId_, fontSize_, 0, static_cast<UITextLanguageDirect>(direct_),
                                      nullptr, baseLine_,
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
                                      textStyles_,
 #endif
                                      &backgroundColor_, &foregroundColor_, &linebackgroundColor_, sizeSpans_, 0};

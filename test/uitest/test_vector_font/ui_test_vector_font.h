@@ -74,7 +74,7 @@ public:
     void FontFontEngineMultiLanguageTestROLang001();
 #endif
 
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     void TestDrawTextITALYBOLD();
 #endif
 private:

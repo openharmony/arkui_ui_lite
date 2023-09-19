@@ -185,7 +185,7 @@ HWTEST_F(TextTest, TextSetRelativeSpan_001, TestSize.Level1)
     text = nullptr;
 }
 
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
 HWTEST_F(TextTest, TextSetStyleSpan_001, TestSize.Level1)
 {
     SpannableString spannableString("图形子系统测试正常粗体斜体粗斜体");

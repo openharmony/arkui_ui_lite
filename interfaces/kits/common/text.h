@@ -609,7 +609,7 @@ protected:
                                        SizeSpan* sizeSpans);
     uint16_t GetSpanFontIdBySize(uint8_t size);
     void InitSizeSpans();
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     TextStyle* textStyles_;
 #endif
     char* text_;

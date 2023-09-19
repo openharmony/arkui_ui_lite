@@ -290,7 +290,7 @@ struct GlyphNode {
     uint16_t kernSize; // GLYPH_KERN_SIZE_OFFSET
     uint16_t fontId;    // GLYPH_FONT_ID
     uint16_t dataFlag;  // GLYPH_DATA_HEAD_FLAG
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
     TextStyle textStyle; // GLYPH_TEXT_STYLE
 #endif
 };
