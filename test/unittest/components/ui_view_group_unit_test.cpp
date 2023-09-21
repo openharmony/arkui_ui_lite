@@ -14,8 +14,11 @@
  */
 
 #include "components/ui_view_group.h"
+
 #include <climits>
 #include <gtest/gtest.h>
+
+#include "components/ui_label.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -353,5 +356,114 @@ HWTEST_F(UIViewGroupTest, Graphic_UIView_Test_UpdateRenderView_001, TestSize.Lev
     delete view1;
     delete view2;
     delete viewGroup;
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_ZIndex_001
+ * @tc.desc: check zIndex
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewGroupTest, Graphic_UIView_Test_ZIndex_001, TestSize.Level0)
+{
+    UIViewGroup* group = new UIViewGroup();
+    struct ZIndexView {
+        const char* text;
+        int16_t zIndex;
+    };
+    constexpr uint8_t VIEW_NUM = 12;
+    const ZIndexView VIEW_GROUP[VIEW_NUM] = {{"label1=0", 1}, {"label1=1", 1}, {"label1=2", 1}, {"label1=3", 1},
+                                             {"label2=0", 2}, {"label2=1", 2}, {"label2=2", 2}, {"label2=3", 2},
+                                             {"label3=0", 3}, {"label3=1", 3}, {"label3=2", 3}, {"label3=3", 3}};
+    for (int16_t i = 0; i < VIEW_NUM; i++) {
+        UILabel* label = new UILabel();
+        label->SetText(VIEW_GROUP[i].text);
+        label->SetViewId(VIEW_GROUP[i].text);
+        label->SetZIndex(VIEW_GROUP[i].zIndex);
+        group->Add(label);
+    }
+
+    UIView* label = group->GetChildrenHead();
+    // check child head
+    UIView* targetLabel = group->GetChildById(VIEW_GROUP[0].text); // 0: label1=0
+    EXPECT_EQ(group->GetChildrenRenderHead(), targetLabel);
+
+    // check head change zIndex
+    targetLabel->SetZIndex(3);                                     // 3: zIndex
+    UIView* beforeLabel = group->GetChildById(VIEW_GROUP[7].text); // 7: label2=3
+    EXPECT_EQ(beforeLabel->GetNextRenderSibling(), targetLabel);
+
+    UIView* newRenderHead = group->GetChildById(VIEW_GROUP[1].text); // 7: label1=1
+    EXPECT_EQ(group->GetChildrenRenderHead(), newRenderHead);
+
+    targetLabel->SetZIndex(0);
+    EXPECT_EQ(group->GetChildrenRenderHead(), targetLabel);
+
+    targetLabel->SetZIndex(5);                              // 5: zIndex
+    beforeLabel = group->GetChildById(VIEW_GROUP[11].text); // 11: label3=3
+    EXPECT_EQ(beforeLabel->GetNextRenderSibling(), targetLabel);
+
+    // free view
+    for (int16_t i = 0; i < VIEW_NUM; i++) {
+        UIView* label = group->GetChildrenHead();
+        group->Remove(label);
+        delete label;
+    }
+    delete group;
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_ZIndex_002
+ * @tc.desc: check zIndex
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewGroupTest, Graphic_UIView_Test_ZIndex_002, TestSize.Level0)
+{
+    struct ZIndexView {
+        const char* text;
+        int16_t zIndex;
+    };
+    constexpr uint8_t VIEW_NUM = 14;
+    const ZIndexView VIEW_GROUP[VIEW_NUM] = {{"label1=0", 1}, {"label1=1", 1}, {"label1=2", 1}, {"label1=3", 1},
+                                             {"label2=0", 2}, {"label2=1", 2}, {"label2=2", 2}, {"label2=3", 2},
+                                             {"label3=0", 3}, {"label3=1", 3}, {"label3=2", 3}, {"label3=3", 3},
+                                             {"label5=0", 5}, {"label6=0", 6}};
+    UIViewGroup* group = new UIViewGroup();
+    for (int16_t i = 0; i < VIEW_NUM; i++) {
+        UILabel* label = new UILabel();
+        label->SetText(VIEW_GROUP[i].text);
+        label->SetViewId(VIEW_GROUP[i].text);
+        label->SetZIndex(VIEW_GROUP[i].zIndex);
+        group->Add(label);
+    }
+
+    UIView* label = group->GetChildrenHead();
+    // check child head
+    UIView* targetLabel = group->GetChildById(VIEW_GROUP[0].text);
+
+    targetLabel->SetZIndex(4); // 4: zIndex
+    UIView* beforeLabel = group->GetChildById(VIEW_GROUP[11].text); // 11: label3=3
+    EXPECT_EQ(beforeLabel->GetNextRenderSibling(), targetLabel);
+
+    targetLabel = group->GetChildById(VIEW_GROUP[2].text); // 2: label1=2
+    targetLabel->SetZIndex(2);                             // 2: zIndex
+    beforeLabel = group->GetChildById(VIEW_GROUP[3].text); // 3: label1=3
+    EXPECT_EQ(beforeLabel->GetNextRenderSibling(), targetLabel);
+
+    targetLabel->SetZIndex(6);                              // 6: zIndex
+    beforeLabel = group->GetChildById(VIEW_GROUP[12].text); // 12: label5=0
+    EXPECT_EQ(beforeLabel->GetNextRenderSibling(), targetLabel);
+
+    targetLabel = group->GetChildById(VIEW_GROUP[12].text); // 12: label5=0
+    targetLabel->SetZIndex(2);                              // 2: zIndex
+    beforeLabel = group->GetChildById(VIEW_GROUP[7].text);  // 7: label2=3
+    EXPECT_EQ(beforeLabel->GetNextRenderSibling(), targetLabel);
+
+    // free view
+    for (int16_t i = 0; i < VIEW_NUM; i++) {
+        UIView* label = group->GetChildrenHead();
+        group->Remove(label);
+        delete label;
+    }
+    delete group;
 }
 } // namespace OHOS
