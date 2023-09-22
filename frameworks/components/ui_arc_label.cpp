@@ -266,7 +266,10 @@ void UIArcLabel::DrawArcText(BufferInfo& gfxDstBuffer,
     center.y = arcTextInfo_.arcCenter.y + GetRect().GetY();
     Rect temp = mask;
     if (compatibilityMode_ && hasAnimator_) {
-        temp.SetRect(center.x - radius_, center.y - radius_, radius_ * 2, radius_ * 2); // 2 mean diameter
+        temp.SetLeft(center.x - radius_);
+        temp.SetTop(center.y - radius_);
+        temp.SetWidth(radius_ * 2); // 2 mean diameter
+        temp.SetHeight(radius_ * 2);
     }
 
     DrawLabel::DrawArcText(gfxDstBuffer, temp, arcLabelText_->GetText(), center, arcLabelText_->GetFontId(),
