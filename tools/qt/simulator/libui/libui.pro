@@ -372,6 +372,7 @@ INCLUDEPATH += \
     ../../../../../../../third_party/cJSON \
     ../../../../../../../third_party/libjpeg-turbo \
     ../../../../../../../third_party/libpng \
+    ../../../../../../../third_party/libpng/libpng-1.6.37 \
     ../../../../../../../third_party/qrcodegen/cpp 
 
 

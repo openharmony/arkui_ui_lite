@@ -16,22 +16,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 DESTDIR = ../../libs
 
+LIBPNG_PATH = ../../../../../../../../third_party/libpng
+LIBPNG_SOURCE_PATH = ../../../../../../../../third_party/libpng/libpng-1.6.37
+system("tar -zxvf $${LIBPNG_PATH}\\libpng-1.6.37.tar.gz -C $${LIBPNG_PATH}")
+
 SOURCES += \
-    ../../../../../../../../third_party/libpng/png.c \
-    ../../../../../../../../third_party/libpng/pngerror.c \
-    ../../../../../../../../third_party/libpng/pngget.c \
-    ../../../../../../../../third_party/libpng/pngmem.c \
-    ../../../../../../../../third_party/libpng/pngpread.c \
-    ../../../../../../../../third_party/libpng/pngread.c \
-    ../../../../../../../../third_party/libpng/pngrio.c \
-    ../../../../../../../../third_party/libpng/pngrtran.c \
-    ../../../../../../../../third_party/libpng/pngrutil.c \
-    ../../../../../../../../third_party/libpng/pngset.c \
-    ../../../../../../../../third_party/libpng/pngtrans.c \
-    ../../../../../../../../third_party/libpng/pngwio.c \
-    ../../../../../../../../third_party/libpng/pngwrite.c \
-    ../../../../../../../../third_party/libpng/pngwtran.c \
-    ../../../../../../../../third_party/libpng/pngwutil.c
+    $${LIBPNG_SOURCE_PATH}/png.c \
+    $${LIBPNG_SOURCE_PATH}/pngerror.c \
+    $${LIBPNG_SOURCE_PATH}/pngget.c \
+    $${LIBPNG_SOURCE_PATH}/pngmem.c \
+    $${LIBPNG_SOURCE_PATH}/pngpread.c \
+    $${LIBPNG_SOURCE_PATH}/pngread.c \
+    $${LIBPNG_SOURCE_PATH}/pngrio.c \
+    $${LIBPNG_SOURCE_PATH}/pngrtran.c \
+    $${LIBPNG_SOURCE_PATH}/pngrutil.c \
+    $${LIBPNG_SOURCE_PATH}/pngset.c \
+    $${LIBPNG_SOURCE_PATH}/pngtrans.c \
+    $${LIBPNG_SOURCE_PATH}/pngwio.c \
+    $${LIBPNG_SOURCE_PATH}/pngwrite.c \
+    $${LIBPNG_SOURCE_PATH}/pngwtran.c \
+    $${LIBPNG_SOURCE_PATH}/pngwutil.c
 
 INCLUDEPATH += \
     ../../../../../../../../third_party/libpng \
