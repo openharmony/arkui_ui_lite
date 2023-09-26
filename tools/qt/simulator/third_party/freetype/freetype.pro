@@ -68,6 +68,7 @@ SOURCES += \
 
 INCLUDEPATH += \
     ../../../../../../../../third_party/freetype/include \
-    ../../../../../../../../third_party/libpng
+    ../../../../../../../../third_party/libpng \
+    ../../../../../../../../third_party/libpng/libpng-1.6.37
 
 LIBS += $$OUT_PWD/../../libs/libpng.dll
