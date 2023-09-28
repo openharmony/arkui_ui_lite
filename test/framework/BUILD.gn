@@ -55,6 +55,7 @@ test_sources = [
   "../uitest/test_screenshot/ui_test_screenshot.cpp",
   "../uitest/test_scroll_bar/ui_test_scroll_bar.cpp",
   "../uitest/test_slider/ui_test_slider.cpp",
+  "../uitest/test_spannable_string/ui_test_spannnable_string.cpp",
   "../uitest/test_texture_mapper/ui_test_texture_mapper.cpp",
   "../uitest/test_transform/ui_test_transform.cpp",
   "../uitest/test_ui_analog_clock/ui_test_analog_clock.cpp",
