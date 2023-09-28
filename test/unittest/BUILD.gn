@@ -80,6 +80,7 @@ if (os_level != "standard") {
           "components/ui_scroll_bar_test.cpp",
           "components/ui_scroll_view_unit_test.cpp",
           "components/ui_slider_unit_test.cpp",
+          "components/ui_spannable_string_unit_test.cpp",
           "components/ui_surface_view_unit_test.cpp",
           "components/ui_swipe_view_unit_test.cpp",
           "components/ui_time_picker_unit_test.cpp",
