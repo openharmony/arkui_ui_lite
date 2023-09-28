@@ -14,7 +14,6 @@
  */
 
 #include "draw/draw_label.h"
-#include <cstdio>
 #include "common/typed_text.h"
 #include "draw/draw_utils.h"
 #include "engines/gfx/gfx_engine_manager.h"
@@ -23,8 +22,7 @@
 #include "gfx_utils/graphic_log.h"
 
 namespace OHOS {
-uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInfo& labelLine,
-                                    uint16_t& letterIndex)
+uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInfo& labelLine, uint16_t& letterIndex)
 {
     if (labelLine.text == nullptr) {
         return 0;
@@ -40,16 +38,25 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
     uint16_t retOffsetY = 0; // ret value elipse offsetY
     uint16_t offsetPosY = 0;
     uint8_t maxLetterSize = GetLineMaxLetterSize(labelLine.text, labelLine.lineLength, labelLine.fontId,
-                                                 labelLine.fontSize, letterIndex, labelLine.sizeSpans);
+                                                 labelLine.fontSize, letterIndex, labelLine.spannableString);
     DrawLineBackgroundColor(gfxDstBuffer, letterIndex, labelLine);
     GlyphNode glyphNode;
     while (i < labelLine.lineLength) {
         uint32_t letter = TypedText::GetUTF8Next(labelLine.text, i, i);
         uint16_t fontId = labelLine.fontId;
         uint8_t fontSize = labelLine.fontSize;
-        if (labelLine.sizeSpans != nullptr && labelLine.sizeSpans[letterIndex].isSizeSpan) {
-            fontId = labelLine.sizeSpans[letterIndex].fontId;
-            fontSize = labelLine.sizeSpans[letterIndex].size;
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
+        TextStyle textStyle = TEXT_STYLE_NORMAL;
+        if (labelLine.textStyles) {
+            textStyle = labelLine.textStyles[letterIndex];
+        }
+#endif
+        if (labelLine.spannableString != nullptr && labelLine.spannableString->GetSpannable(letterIndex)) {
+            labelLine.spannableString->GetFontId(letterIndex, fontId);
+            labelLine.spannableString->GetFontSize(letterIndex, fontSize);
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
+            labelLine.spannableString->GetTextStyle(letterIndex, textStyle);
+#endif
         }
         bool havebackgroundColor = false;
         ColorType backgroundColor;
@@ -57,12 +64,6 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
 
         ColorType foregroundColor = labelLine.style.textColor_;
         GetForegroundColor(letterIndex, labelLine.foregroundColor, foregroundColor);
-#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
-        TextStyle textStyle = TEXT_STYLE_NORMAL;
-        if (labelLine.textStyles) {
-            textStyle = labelLine.textStyles[letterIndex];
-        }
-#endif
         LabelLetterInfo letterInfo{labelLine.pos,
                                    labelLine.mask,
                                    foregroundColor,
@@ -105,16 +106,15 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
         } else {
             labelLine.pos.x += (glyphNode.advance + labelLine.style.letterSpace_);
         }
-
         letterIndex++;
     }
     return retOffsetY;
 }
 
 uint8_t DrawLabel::GetLineMaxLetterSize(const char* text, uint16_t lineLength, uint16_t fontId, uint8_t fontSize,
-                                        uint16_t letterIndex, SizeSpan* sizeSpans)
+                                        uint16_t letterIndex, SpannableString* spannableString)
 {
-    if (sizeSpans == nullptr) {
+    if (spannableString == nullptr) {
         return fontSize;
     }
     uint32_t i = 0;
@@ -125,8 +125,9 @@ uint8_t DrawLabel::GetLineMaxLetterSize(const char* text, uint16_t lineLength, u
             letterIndex++;
             continue;
         }
-        if (sizeSpans != nullptr && sizeSpans[letterIndex].isSizeSpan) {
-            uint8_t tempSize = sizeSpans[letterIndex].size;
+        if (spannableString != nullptr && spannableString->GetSpannable(letterIndex)) {
+            uint8_t tempSize = fontSize;
+            spannableString->GetFontSize(letterIndex, tempSize);
             if (tempSize > maxLetterSize) {
                 maxLetterSize = tempSize;
             }

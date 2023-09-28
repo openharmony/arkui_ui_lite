@@ -19,9 +19,8 @@
 #include <locale>
 #include <string>
 #include "common/text.h"
-#if defined(ENABLE_VECTOR_FONT) && ENABLE_VECTOR_FONT
 #include "common/spannable_string.h"
-#else
+#if !(defined(ENABLE_VECTOR_FONT) && ENABLE_VECTOR_FONT)
 #include "common/ui_text_language.h"
 #endif
 #include "gfx_utils/color.h"
@@ -192,7 +191,7 @@ HWTEST_F(TextTest, TextSetStyleSpan_001, TestSize.Level1)
     spannableString.SetTextStyle(TEXT_STYLE_ITALIC, 11, 13);
     spannableString.SetTextStyle(TEXT_STYLE_BOLD, 9, 11);
     spannableString.SetTextStyle(TEXT_STYLE_BOLD_ITALIC, 13, 16);
-    EXPECT_EQ(spannableString.spanList_.Size(), 3);
+    EXPECT_EQ(spannableString.styleList_.Size(), 3);
 }
 #endif
 

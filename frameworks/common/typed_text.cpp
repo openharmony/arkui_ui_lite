@@ -26,7 +26,7 @@
 namespace OHOS {
 #ifndef _FONT_TOOL
 Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize, int16_t letterSpace,
-                             int16_t lineHeight, int16_t maxWidth, int8_t lineSpace, SizeSpan* sizeSpans,
+                             int16_t lineHeight, int16_t maxWidth, int8_t lineSpace, SpannableString* spannableString,
                              bool eliminateTrailingSpaces)
 {
     Point size{0, 0};
@@ -46,7 +46,7 @@ Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize
     while (text[lineBegin] != '\0') {
         int16_t lineWidth = maxWidth;
         newLineBegin += UIFontAdaptor::GetNextLineAndWidth(&text[lineBegin], fontId, fontSize, letterSpace, lineWidth,
-                                                           curLetterHeight, letterIndex, sizeSpans, false,
+                                                           curLetterHeight, letterIndex, spannableString, false,
                                                            0xFFFF, eliminateTrailingSpaces);
         if (!hasLineHeight) {
             curLineHeight = curLetterHeight + lineSpace;

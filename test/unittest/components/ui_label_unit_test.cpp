@@ -279,7 +279,7 @@ HWTEST_F(UILabelTest, UILabelSetText_002, TestSize.Level1)
     spannableString.SetTextStyle(TEXT_STYLE_BOLD, 9, 11);
     spannableString.SetTextStyle(TEXT_STYLE_BOLD_ITALIC, 13, 16);
     label_->SetText(&spannableString);
-    EXPECT_EQ(spannableString.spanList_.Size(), 3);
+    EXPECT_EQ(spannableString.styleList_.Size(), 3);
 }
 #endif
 

@@ -34,13 +34,10 @@
 
 #ifndef GRAPHIC_LITE_UI_LABEL_H
 #define GRAPHIC_LITE_UI_LABEL_H
-
+    
 #include "animator/animator.h"
 #include "common/text.h"
 #include "components/ui_view.h"
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
-#include "common/spannable_string.h"
-#endif
 
 namespace OHOS {
 /**
@@ -188,7 +185,6 @@ public:
      */
     void SetText(const char* text);
 
-#if defined(ENABLE_SPANNABLE_STRING) && ENABLE_SPANNABLE_STRING
     /**
      * @brief Sets the SpannableString content for this label.
      *
@@ -196,7 +192,6 @@ public:
      */
     void SetText(const SpannableString* text);
 
-#endif
     /**
      * @brief Obtains the text of this label.
      *

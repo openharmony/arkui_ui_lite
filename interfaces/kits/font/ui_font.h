@@ -230,7 +230,7 @@ public:
     }
 
     virtual uint16_t GetLineMaxHeight(const char* text, uint16_t lineLength, uint16_t fontId, uint8_t fontSize,
-                                      uint16_t letterIndex, SizeSpan* sizeSpans);
+                                      uint16_t letterIndex, SpannableString* spannableString);
 
     bool IsEmojiFont(uint16_t fontid)
     {

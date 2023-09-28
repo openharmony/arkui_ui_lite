@@ -14,7 +14,6 @@
  */
 
 #include "font/ui_font_vector.h"
-
 #include <freetype/ftbitmap.h>
 #include <freetype/ftoutln.h>
 #include <freetype/internal/ftobjs.h>
@@ -24,6 +23,7 @@
 #include "common/typed_text.h"
 #include "draw/draw_utils.h"
 #include "font/font_ram_allocator.h"
+#include "font/ui_font_cache_manager.h"
 #include "gfx_utils/file.h"
 #include "gfx_utils/graphic_log.h"
 #include "graphic_config.h"
@@ -34,7 +34,7 @@
 #if defined(ENABLE_SHAPING) && ENABLE_SHAPING
 #include "font/ui_text_shaping.h"
 #endif
-#include "font/ui_font_cache_manager.h"
+
 
 namespace OHOS {
 UIFontVector::UIFontVector()
@@ -639,8 +639,7 @@ int8_t UIFontVector::GetGlyphNode(uint32_t unicode, GlyphNode& glyphNode, uint16
     // get glyph from glyph cache
     uint16_t fontKey = GetKey(fontId, fontSize);
     UIFontCacheManager* fontCacheManager = UIFontCacheManager::GetInstance();
-    GlyphCacheNode* cacheNode =
-        fontCacheManager->GetNodeFromCache(unicode, fontKey, GlyphCacheType::CACHE_TYPE_NONE);
+    GlyphCacheNode* cacheNode = fontCacheManager->GetNodeFromCache(unicode, fontKey, GlyphCacheType::CACHE_TYPE_NONE);
     if (cacheNode != nullptr) {
         glyphNode = cacheNode->node;
         return RET_VALUE_OK;
@@ -701,7 +700,6 @@ uint8_t* UIFontVector::GetBitmap(uint32_t unicode, GlyphNode& glyphNode, uint16_
         SaveGlyphNode(unicode, fontKey, f);
         return bitmap + sizeof(Metric);
     }
-
     FaceInfo faceInfo;
     int8_t ret = GetFaceInfo(fontId, fontSize, faceInfo);
     if (ret != RET_VALUE_OK) {
@@ -752,7 +750,9 @@ void UIFontVector::SetItaly(FT_GlyphSlot slot)
     FT_Outline outline = slot->outline;
     FT_Outline_Transform(&outline, &matrix);
 }
+#endif
 
+#if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
 void UIFontVector::SetBold(uint16_t fontId)
 {
     int32_t error;
@@ -1002,7 +1002,7 @@ uint16_t UIFontVector::GetLineMaxHeight(const char* text,
                                         uint16_t fontId,
                                         uint8_t fontSize,
                                         uint16_t& letterIndex,
-                                        SizeSpan* sizeSpans)
+                                        SpannableString* spannableString)
 {
     if (!freeTypeInited_) {
         return INVALID_RET_VALUE;
@@ -1016,15 +1016,11 @@ uint16_t UIFontVector::GetLineMaxHeight(const char* text,
         uint32_t unicode = TypedText::GetUTF8Next(text, i, i);
         TypedText::IsColourWord(unicode, fontId, fontSize) ? emojiNum++ : textNum++;
         loopNum++;
-        if (sizeSpans != nullptr && sizeSpans[letterIndex].isSizeSpan) {
-            uint16_t spannableHeight = 0;
-            if (sizeSpans[letterIndex].height == 0) {
-                spannableHeight = GetHeight(sizeSpans[letterIndex].fontId, sizeSpans[letterIndex].size);
-                sizeSpans[letterIndex].height = spannableHeight;
-            } else {
-                spannableHeight = sizeSpans[letterIndex].height;
-            }
-            maxHeight = spannableHeight > maxHeight ? spannableHeight : maxHeight;
+        if (spannableString != nullptr && spannableString->GetSpannable(letterIndex)) {
+            int16_t spannableHeight = 0;
+            spannableString->GetFontHeight(letterIndex, spannableHeight, fontId, fontSize);
+            uint16_t tempHeight = static_cast<uint16_t>(spannableHeight);
+            maxHeight = tempHeight > maxHeight ? tempHeight : maxHeight;
         }
         letterIndex++;
         if (i > 0 && ((text[i - 1] == '\r') || (text[i - 1] == '\n'))) {

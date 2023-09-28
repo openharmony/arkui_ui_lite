@@ -46,7 +46,6 @@ private:
     static constexpr uint32_t FONT_BITMAP_CACHE_SIZE = 0x64000;
     UIFontCacheManager();
     ~UIFontCacheManager();
-
     UIFontCache* bitmapCache_;
     GlyphsCache glyphsCache_;
     uint32_t bitmapCacheSize_ = FONT_BITMAP_CACHE_SIZE;

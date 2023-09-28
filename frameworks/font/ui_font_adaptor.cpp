@@ -28,7 +28,7 @@ uint32_t UIFontAdaptor::GetNextLineAndWidth(const char* txt,
                                             int16_t& maxWidth,
                                             int16_t& maxHeight,
                                             uint16_t& letterIndex,
-                                            SizeSpan* sizeSpans,
+                                            SpannableString* spannableString,
                                             bool allBreak,
                                             uint16_t len,
                                             bool eliminateTrailingSpaces)
@@ -36,7 +36,7 @@ uint32_t UIFontAdaptor::GetNextLineAndWidth(const char* txt,
 #if ENABLE_ICU
     return UILineBreakEngine::GetInstance().GetNextLineAndWidth(txt, fontId, fontSize, letterSpace, allBreak, maxWidth,
                                                                 maxHeight, letterIndex,
-                                                                sizeSpans, len, eliminateTrailingSpaces);
+                                                                spannableString, len, eliminateTrailingSpaces);
 #else
     uint32_t index = TypedText::GetNextLine(txt, fontId, fontSize, letterSpace, maxWidth);
     maxWidth = TypedText::GetTextWidth(txt, fontId, fontSize, index, letterSpace);

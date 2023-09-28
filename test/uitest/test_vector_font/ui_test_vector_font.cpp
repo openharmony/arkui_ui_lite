@@ -340,6 +340,7 @@ void UITestVectorFont::FontFontEngineMultiLanguageTestROLang001()
     }
 }
 #endif
+
 #if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
 void UITestVectorFont::TestDrawTextITALYBOLD()
 {
@@ -352,12 +353,14 @@ void UITestVectorFont::TestDrawTextITALYBOLD()
         label->Resize(LABEL_WIDTH * TWO, LABEL_HEIGHT);
         label->SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_DEFAULT_SIZE);
         label->SetText("图形子系统展示正常粗体斜体粗斜体");
-        SpannableString spannableString(label->GetText());
-        spannableString.SetTextStyle(TextStyle::TEXT_STYLE_ITALIC, ELEVEN, THIRTEEN);
-        spannableString.SetTextStyle(TEXT_STYLE_BOLD, NINE, ELEVEN);
-        spannableString.SetTextStyle(TEXT_STYLE_BOLD_ITALIC, THIRTEEN, SIXTEEN);
-        label->SetText(&spannableString);
+        SpannableString* spannableString = new SpannableString();
+        spannableString->SetTextStyle(TextStyle::TEXT_STYLE_ITALIC, ELEVEN, THIRTEEN);
+        spannableString->SetTextStyle(TEXT_STYLE_BOLD, NINE, ELEVEN);
+        spannableString->SetTextStyle(TEXT_STYLE_BOLD_ITALIC, THIRTEEN, SIXTEEN);
+        label->SetText(spannableString);
         container_->Add(label);
+        delete spannableString;
+        spannableString = nullptr;
         positionY_ += LABEL_HEIGHT + GAP;
     }
 }

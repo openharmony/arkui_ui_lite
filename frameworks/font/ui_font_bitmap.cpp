@@ -351,27 +351,22 @@ uint16_t UIFontBitmap::GetLineMaxHeight(const char* text,
                                         uint16_t fontId,
                                         uint8_t fontSize,
                                         uint16_t& letterIndex,
-                                        SizeSpan* sizeSpans)
+                                        SpannableString* spannableString)
 {
     uint16_t maxHeight = GetHeight(fontId, fontSize);
-    if (sizeSpans == nullptr) {
+    if (spannableString == nullptr) {
         return maxHeight;
     }
 
     uint32_t i = 0;
     while (i < lineLength) {
         TypedText::GetUTF8Next(text, i, i);
-        if (sizeSpans != nullptr && sizeSpans[letterIndex].isSizeSpan) {
-            uint16_t spannableHeight = 0;
-            if (sizeSpans[letterIndex].height == 0) {
-                spannableHeight = GetHeight(sizeSpans[letterIndex].fontId, sizeSpans[letterIndex].size);
-                sizeSpans[letterIndex].height = spannableHeight;
-            } else {
-                spannableHeight = sizeSpans[letterIndex].height;
-            }
-            maxHeight = spannableHeight > maxHeight ? spannableHeight : maxHeight;
+        if (spannableString != nullptr && spannableString->GetSpannable(letterIndex)) {
+            int16_t spannableHeight = 0;
+            spannableString->GetFontHeight(letterIndex, spannableHeight, fontId, fontSize);
+            uint16_t tempHeight = static_cast<uint16_t>(spannableHeight);
+            maxHeight = tempHeight > maxHeight ? tempHeight : maxHeight;
         }
-
         letterIndex++;
         if (i > 0 && ((text[i - 1] == '\r') || (text[i - 1] == '\n'))) {
             break;

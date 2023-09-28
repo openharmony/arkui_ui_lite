@@ -64,7 +64,6 @@ struct LabelLineInfo {
     uint8_t shapingId;
     uint8_t opaScale;
     const Style& style;
-
     const char* text;
     uint16_t length;
     uint16_t start;
@@ -80,7 +79,7 @@ struct LabelLineInfo {
     List<BackgroundColor>*  backgroundColor;
     List<ForegroundColor>*  foregroundColor;
     List<LineBackgroundColor>*  linebackgroundColor;
-    SizeSpan* sizeSpans;
+    SpannableString* spannableString;
     uint16_t ellipsisOssetY;
 };
 

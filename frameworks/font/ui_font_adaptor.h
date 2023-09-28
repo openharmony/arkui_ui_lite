@@ -29,7 +29,7 @@ public:
                                         int16_t& maxWidth,
                                         int16_t& maxHeight,
                                         uint16_t& letterIndex,
-                                        SizeSpan* sizeSpans,
+                                        SpannableString* spannableString,
                                         bool allBreak = false,
                                         uint16_t len = 0xFFFF,
                                         bool eliminateTrailingSpaces = false);
