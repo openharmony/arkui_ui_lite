@@ -527,8 +527,11 @@ void UIImageView::SetSrc(const char* src)
         return;
     }
     needRefresh_ = true;
-    if (autoEnable_) {
+    if (autoEnable_ || (imageResizeMode_ != ImageResizeMode::NONE)) {
         UIImageView::ReMeasure();
+    }
+    if (imageResizeMode_ != ImageResizeMode::NONE) {
+        UpdateDrawTransMap(true);
     }
     Invalidate();
 }
@@ -567,8 +570,11 @@ void UIImageView::SetSrc(const ImageInfo* src)
         return;
     }
     needRefresh_ = true;
-    if (autoEnable_) {
+    if (autoEnable_ || (imageResizeMode_ != ImageResizeMode::NONE)) {
         UIImageView::ReMeasure();
+    }
+    if (imageResizeMode_ != ImageResizeMode::NONE) {
+        UpdateDrawTransMap(true);
     }
     Invalidate();
 }
