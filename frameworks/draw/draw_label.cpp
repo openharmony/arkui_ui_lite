@@ -287,6 +287,10 @@ void DrawLabel::DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
     uint8_t* buffer = nullptr;
     bool inRange = DrawLabel::CalculatedTransformDataInfo(buffer, letterTranDataInfo, letterInfo);
     if (inRange == false) {
+        if (buffer != nullptr) {
+            UIFree(buffer);
+            buffer = nullptr;
+        }
         return;
     }
 
@@ -294,6 +298,7 @@ void DrawLabel::DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
         letterInfo.opaScale, transMap, letterTranDataInfo);
     if (buffer != nullptr) {
         UIFree(buffer);
+        buffer = nullptr;
     }
 }
 
