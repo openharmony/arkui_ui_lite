@@ -39,7 +39,6 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
     uint16_t offsetPosY = 0;
     uint8_t maxLetterSize = GetLineMaxLetterSize(labelLine.text, labelLine.lineLength, labelLine.fontId,
                                                  labelLine.fontSize, letterIndex, labelLine.spannableString);
-    DrawLineBackgroundColor(gfxDstBuffer, letterIndex, labelLine);
     GlyphNode glyphNode;
     while (i < labelLine.lineLength) {
         uint32_t letter = TypedText::GetUTF8Next(labelLine.text, i, i);
@@ -51,19 +50,23 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
             textStyle = labelLine.textStyles[letterIndex];
         }
 #endif
+        bool haveLineBackgroundColor = false;
+        ColorType lineBackgroundColor;
+        bool havebackgroundColor = false;
+        ColorType backgroundColor;
+        ColorType foregroundColor = labelLine.style.textColor_;
+
         if (labelLine.spannableString != nullptr && labelLine.spannableString->GetSpannable(letterIndex)) {
             labelLine.spannableString->GetFontId(letterIndex, fontId);
             labelLine.spannableString->GetFontSize(letterIndex, fontSize);
+            havebackgroundColor = labelLine.spannableString->GetBackgroundColor(letterIndex, backgroundColor);
+            labelLine.spannableString->GetForegroundColor(letterIndex, foregroundColor);
 #if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
             labelLine.spannableString->GetTextStyle(letterIndex, textStyle);
 #endif
+            haveLineBackgroundColor =
+                labelLine.spannableString->GetLineBackgroundColor(letterIndex, lineBackgroundColor);
         }
-        bool havebackgroundColor = false;
-        ColorType backgroundColor;
-        GetBackgroundColor(letterIndex, labelLine.backgroundColor, havebackgroundColor, backgroundColor);
-
-        ColorType foregroundColor = labelLine.style.textColor_;
-        GetForegroundColor(letterIndex, labelLine.foregroundColor, foregroundColor);
         LabelLetterInfo letterInfo{labelLine.pos,
                                    labelLine.mask,
                                    foregroundColor,
@@ -82,7 +85,10 @@ uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInf
                                    labelLine.style.letterSpace_,
                                    labelLine.style.lineSpace_,
                                    havebackgroundColor,
-                                   backgroundColor};
+                                   backgroundColor,
+                                   haveLineBackgroundColor,
+                                   lineBackgroundColor
+                                   };
 #if defined(ENABLE_TEXT_STYLE) && ENABLE_TEXT_STYLE
         glyphNode.textStyle = letterInfo.textStyle;
 #endif
@@ -531,14 +537,21 @@ void DrawLabel::DrawLineBackgroundColor(BufferInfo& gfxDstBuffer, uint16_t lette
         TypedText::GetUTF8Next(labelLine.text, i, i);
         bool havelinebackground = false;
         ColorType linebackgroundColor;
-        GetLineBackgroundColor(letterIndex, labelLine.linebackgroundColor, havelinebackground, linebackgroundColor);
+        if (labelLine.spannableString != nullptr &&
+            labelLine.spannableString->GetSpannable(letterIndex)) {
+            havelinebackground =
+                labelLine.spannableString->GetLineBackgroundColor(
+                    letterIndex, linebackgroundColor);
+        }
         if (havelinebackground) {
-                Style style;
-                style.bgColor_ = linebackgroundColor;
-                Rect linebackground(labelLine.mask.GetLeft(), labelLine.pos.y,
-                                    labelLine.mask.GetRight(), labelLine.pos.y + labelLine.lineHeight);
-                BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, labelLine.mask,
-                                                       linebackground, style, linebackgroundColor.alpha);
+            Style style;
+            style.bgColor_ = linebackgroundColor;
+            Rect linebackground(labelLine.mask.GetLeft(), labelLine.pos.y,
+                                labelLine.mask.GetRight(),
+                                labelLine.pos.y + labelLine.lineHeight);
+            BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, labelLine.mask,
+                                                   linebackground, style,
+                                                   linebackgroundColor.alpha);
         }
         letterIndex++;
     }

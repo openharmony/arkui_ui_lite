@@ -252,6 +252,15 @@ void DrawUtils::DrawNormalLetter(BufferInfo& gfxDstBuffer,
         posX = letterInfo.pos.x + node.left + letterInfo.offsetX;
     }
     BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
+    if (letterInfo.haveLineBackgroundColor) {
+        Rect lineBackgroundRect(posX - node.left, letterInfo.mask.GetTop(),
+            posX + node.advance + letterInfo.letterSpace_ - node.left,
+            letterInfo.mask.GetBottom() - letterInfo.lineSpace_);
+        Style lineStyle;
+        lineStyle.bgColor_ = letterInfo.lineBackgroundColor;
+        baseGfxEngine->DrawRect(gfxDstBuffer, lineBackgroundRect,
+                                lineBackgroundRect, lineStyle, lineStyle.bgColor_.alpha);
+    }
     if (letterInfo.havebackgroundColor) {
         Rect backgroundRect(posX, letterInfo.mask.GetTop(), posX + letterW + letterInfo.letterSpace_ - 1,
                             letterInfo.mask.GetBottom() - letterInfo.lineSpace_);

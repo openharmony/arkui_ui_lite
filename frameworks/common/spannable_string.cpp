@@ -104,6 +104,25 @@ void SpannableString::SetSpannableString(const SpannableString* input)
         SetTextStyle(node_span->data_->textStyle_, node_span->data_->start_, node_span->data_->end_);
         node_span = node_span->next_;
     }
+    ListNode<BackgroundColorSpan>* node_backColor = input->backgroundColorList_.Begin();
+    while (node_backColor != input->backgroundColorList_.End()) {
+        SetBackgroundColor(node_backColor->data_.backgroundColor,
+                           node_backColor->data_.start,
+                           node_backColor->data_.end);
+        node_backColor = node_backColor->next_;
+    }
+    ListNode<ForegroundColorSpan>* node_foreColor = input->foregroundColorList_.Begin();
+    while (node_foreColor != input->foregroundColorList_.End()) {
+        SetForegroundColor(node_foreColor->data_.fontColor, node_foreColor->data_.start, node_foreColor->data_.end);
+        node_foreColor = node_foreColor->next_;
+    }
+    ListNode<LineBackgroundColorSpan>* node_lineBackColor = input->lineBackgroundColorList_.Begin();
+    while (node_lineBackColor != input->lineBackgroundColorList_.End()) {
+        SetLineBackgroundColor(node_lineBackColor->data_.linebackgroundColor,
+                               node_lineBackColor->data_.start,
+                               node_lineBackColor->data_.end);
+        node_lineBackColor = node_lineBackColor->next_;
+    }
 }
 
 bool SpannableString::ExpandSpannableLen(uint16_t index)
@@ -351,6 +370,194 @@ bool SpannableString::GetFontHeight(uint16_t index,
         UIFont* uifont = UIFont::GetInstance();
         outputHeight = uifont->GetHeight(defaultFontId, defaultFontSize);
         SetFontHeight(outputHeight, index, index + 1);
+    }
+    return hasFind;
+}
+
+void SpannableString::SetBackgroundColor(ColorType inputBackgroundColor, uint16_t startIndex, uint16_t endIndex)
+{
+    if (backgroundColorList_.IsEmpty()) {
+        BackgroundColorSpan inputSpan;
+        inputSpan.start = startIndex;
+        inputSpan.end =  endIndex;
+        inputSpan.backgroundColor.full = inputBackgroundColor.full;
+        backgroundColorList_.PushFront(inputSpan);
+        SetSpannable(true, startIndex, endIndex);
+        return;
+    } else {
+        ListNode<BackgroundColorSpan>* tempSpan = backgroundColorList_.Begin();
+        for (; tempSpan != backgroundColorList_.End(); tempSpan = tempSpan->next_) {
+            bool needAddNode = true;
+            uint16_t tempStart = tempSpan->data_.start;
+            uint16_t tempEnd = tempSpan->data_.end;
+            ColorType tempSize;
+            tempSize.full = tempSpan->data_.backgroundColor.full;
+            if (inputBackgroundColor.full == tempSize.full) {
+                needAddNode = EqualInsert<BackgroundColorSpan>(
+                    startIndex, endIndex, tempStart, tempEnd, &tempSpan,
+                    backgroundColorList_);
+            } else {
+                BackgroundColorSpan tempLeft;
+                tempLeft.start = tempStart;
+                tempLeft.end = startIndex;
+                tempLeft.backgroundColor.full = tempSize.full;
+                BackgroundColorSpan tempRight;
+                tempRight.start = endIndex;
+                tempRight.end = tempEnd;
+                tempRight.backgroundColor.full = tempSize.full;
+                needAddNode = UnequalInsert<BackgroundColorSpan>(
+                    startIndex, endIndex, tempStart, tempEnd, &tempSpan,
+                    backgroundColorList_, tempLeft, tempRight);
+            }
+            if (needAddNode) {
+                BackgroundColorSpan inputSpan;
+                inputSpan.start = startIndex;
+                inputSpan.end = endIndex;
+                inputSpan.backgroundColor.full = inputBackgroundColor.full;
+                backgroundColorList_.PushBack(inputSpan);
+                SetSpannable(true, startIndex, endIndex);
+            }
+        }
+    }
+}
+
+bool SpannableString::GetBackgroundColor(uint16_t index, ColorType& outputBackgroundColor)
+{
+    bool hasFind = false;
+    ListNode<BackgroundColorSpan>* tempSpan = backgroundColorList_.Begin();
+    for (; tempSpan != backgroundColorList_.End(); tempSpan = tempSpan->next_) {
+        uint16_t tempStart = tempSpan->data_.start;
+        uint16_t tempEnd = tempSpan->data_.end;
+        if ((tempStart <= index) && (index < tempEnd)) {
+            outputBackgroundColor.full = tempSpan->data_.backgroundColor.full;
+            hasFind = true;
+            break;
+        }
+    }
+    return hasFind;
+}
+
+void SpannableString::SetForegroundColor(ColorType inputForegroundColor, uint16_t startIndex, uint16_t endIndex)
+{
+    if (foregroundColorList_.IsEmpty()) {
+        ForegroundColorSpan inputSpan;
+        inputSpan.start = startIndex;
+        inputSpan.end =  endIndex;
+        inputSpan.fontColor.full = inputForegroundColor.full;
+        foregroundColorList_.PushFront(inputSpan);
+        SetSpannable(true, startIndex, endIndex);
+        return;
+    } else {
+        ListNode<ForegroundColorSpan>* tempSpan = foregroundColorList_.Begin();
+        for (; tempSpan != foregroundColorList_.End(); tempSpan = tempSpan->next_) {
+            bool needAddNode = true;
+            uint16_t tempStart = tempSpan->data_.start;
+            uint16_t tempEnd = tempSpan->data_.end;
+            ColorType tempSize;
+            tempSize.full= tempSpan->data_.fontColor.full;
+            if (inputForegroundColor.full == tempSize.full) {
+                needAddNode = EqualInsert<ForegroundColorSpan>(
+                    startIndex, endIndex, tempStart, tempEnd, &tempSpan,
+                    foregroundColorList_);
+            } else {
+                ForegroundColorSpan tempLeft;
+                tempLeft.start = tempStart;
+                tempLeft.end = startIndex;
+                tempLeft.fontColor.full = tempSize.full;
+                ForegroundColorSpan tempRight;
+                tempRight.start = endIndex;
+                tempRight.end = tempEnd;
+                tempRight.fontColor.full = tempSize.full;
+                needAddNode = UnequalInsert<ForegroundColorSpan>(startIndex, endIndex, tempStart, tempEnd, &tempSpan,
+                                                          foregroundColorList_, tempLeft, tempRight);
+            }
+            if (needAddNode) {
+                ForegroundColorSpan inputSpan;
+                inputSpan.start = startIndex;
+                inputSpan.end = endIndex;
+                inputSpan.fontColor.full = inputForegroundColor.full;
+                foregroundColorList_.PushBack(inputSpan);
+                SetSpannable(true, startIndex, endIndex);
+            }
+        }
+    }
+}
+
+bool SpannableString::GetForegroundColor(uint16_t index, ColorType& outputForegroundColor)
+{
+    bool hasFind = false;
+    ListNode<ForegroundColorSpan>* tempSpan = foregroundColorList_.Begin();
+    for (; tempSpan != foregroundColorList_.End(); tempSpan = tempSpan->next_) {
+        uint16_t tempStart = tempSpan->data_.start;
+        uint16_t tempEnd = tempSpan->data_.end;
+        if ((tempStart <= index) && (index < tempEnd)) {
+            outputForegroundColor.full = tempSpan->data_.fontColor.full;
+            hasFind = true;
+            break;
+        }
+    }
+    return hasFind;
+}
+
+void SpannableString::SetLineBackgroundColor(ColorType inputLineBackgroundColor, uint16_t startIndex, uint16_t endIndex)
+{
+    if (lineBackgroundColorList_.IsEmpty()) {
+        LineBackgroundColorSpan inputSpan;
+        inputSpan.start = startIndex;
+        inputSpan.end =  endIndex;
+        inputSpan.linebackgroundColor.full = inputLineBackgroundColor.full;
+        lineBackgroundColorList_.PushFront(inputSpan);
+        SetSpannable(true, startIndex, endIndex);
+        return;
+    } else {
+        ListNode<LineBackgroundColorSpan>* tempSpan = lineBackgroundColorList_.Begin();
+        for (; tempSpan != lineBackgroundColorList_.End(); tempSpan = tempSpan->next_) {
+            bool needAddNode = true;
+            uint16_t tempStart = tempSpan->data_.start;
+            uint16_t tempEnd = tempSpan->data_.end;
+            ColorType tempSize;
+            tempSize.full = tempSpan->data_.linebackgroundColor.full;
+            if (inputLineBackgroundColor.full == tempSize.full) {
+                needAddNode = EqualInsert<LineBackgroundColorSpan>(
+                    startIndex, endIndex, tempStart, tempEnd, &tempSpan,
+                    lineBackgroundColorList_);
+            } else {
+                LineBackgroundColorSpan tempLeft;
+                tempLeft.start = tempStart;
+                tempLeft.end = startIndex;
+                tempLeft.linebackgroundColor.full = tempSize.full;
+                LineBackgroundColorSpan tempRight;
+                tempRight.start = endIndex;
+                tempRight.end = tempEnd;
+                tempRight.linebackgroundColor.full = tempSize.full;
+                needAddNode = UnequalInsert<LineBackgroundColorSpan>(
+                    startIndex, endIndex, tempStart, tempEnd, &tempSpan,
+                    lineBackgroundColorList_, tempLeft, tempRight);
+            }
+            if (needAddNode) {
+                LineBackgroundColorSpan inputSpan;
+                inputSpan.start = startIndex;
+                inputSpan.end = endIndex;
+                inputSpan.linebackgroundColor.full = inputLineBackgroundColor.full;
+                lineBackgroundColorList_.PushBack(inputSpan);
+                SetSpannable(true, startIndex, endIndex);
+            }
+        }
+    }
+}
+
+bool SpannableString::GetLineBackgroundColor(uint16_t index, ColorType& outputLineBackgroundColor)
+{
+    bool hasFind = false;
+    ListNode<LineBackgroundColorSpan>* tempSpan = lineBackgroundColorList_.Begin();
+    for (; tempSpan != lineBackgroundColorList_.End(); tempSpan = tempSpan->next_) {
+        uint16_t tempStart = tempSpan->data_.start;
+        uint16_t tempEnd = tempSpan->data_.end;
+        if ((tempStart <= index) && (index < tempEnd)) {
+            outputLineBackgroundColor.full = tempSpan->data_.linebackgroundColor.full;
+            hasFind = true;
+            break;
+        }
     }
     return hasFind;
 }

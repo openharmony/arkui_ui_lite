@@ -145,7 +145,7 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
             continue;
         }
         isEliminateSpace = eliminateTrailingSpaces && unicode == ' ';
-        
+
         if (isAllCanBreak || IsBreakPos(unicode, fontId, fontSize, state) || isEliminateSpace) {
             state = LINE_BREAK_STATE_START;
             // Accumulates the status value from the current character.
@@ -175,7 +175,7 @@ uint32_t UILineBreakEngine::GetNextLineAndWidth(const char* text,
                 return lastIndex;
             }
         }
-        
+
         if (unicode != ' ' && eliminateTrailingSpaces) {
             preWidth = nextWidth;
         }
@@ -199,6 +199,7 @@ int16_t UILineBreakEngine::GetLetterWidth(uint32_t unicode,
 {
     UIFont* fontEngine = UIFont::GetInstance();
     if (spannableString != nullptr && spannableString->GetSpannable(letterIndex)) {
+        spannableString->GetFontSize(letterIndex, fontSize);
         spannableString->GetFontHeight(letterIndex, height, fontId, fontSize);
         int16_t width = fontEngine->GetWidth(unicode, fontId, fontSize, 0);
         return width;

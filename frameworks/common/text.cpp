@@ -114,10 +114,6 @@ void Text::SetText(const char* text)
         textStyles_ = nullptr;
     }
 #endif
-    if (spannableString_ != nullptr) {
-        UIFree(spannableString_);
-        spannableString_ =  nullptr;
-    }
     needRefresh_ = true;
 }
 
@@ -291,18 +287,28 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
         if (pos.y > mask.GetBottom()) {
             return;
         }
-        int16_t nextLine = pos.y + curLineHeight;
-        if (lineHeight != style.lineHeight_) {
-            nextLine -= style.lineSpace_;
-        }
         int16_t tempLetterIndex = letterIndex;
         uint16_t lineBytes = textLine_[i].lineBytes;
 #if defined(ENABLE_ICU) && ENABLE_ICU
         SetLineBytes(lineBytes, lineBegin);
 #endif
+        if ((style.lineHeight_ == 0) && (spannableString_ != nullptr)) {
+            curLineHeight = font->GetLineMaxHeight(
+                &text_[lineBegin], textLine_[i].lineBytes, fontId_, fontSize_,
+                tempLetterIndex, spannableString_);
+            curLineHeight += style.lineSpace_;
+        } else {
+            curLineHeight = lineHeight;
+        }
+        int16_t nextLine = pos.y + curLineHeight;
+        if (lineHeight != style.lineHeight_) {
+            nextLine -= style.lineSpace_;
+        }
+        Rect currentMask(mask.GetLeft(), pos.y, mask.GetRight(), pos.y + curLineHeight);
+        currentMask.Intersect(currentMask, mask);
         if (nextLine >= mask.GetTop()) {
             pos.x = LineStartPos(coords, textLine_[i].linePixelWidth);
-            LabelLineInfo labelLine {pos, offset, mask, curLineHeight, lineBytes,
+            LabelLineInfo labelLine {pos, offset, currentMask, curLineHeight, lineBytes,
                                      0, opa, style, &text_[lineBegin], lineBytes,
                                      lineBegin, fontId_, fontSize_, 0, static_cast<UITextLanguageDirect>(direct_),
                                      nullptr, baseLine_,
@@ -318,12 +324,11 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
         } else {
             letterIndex = TypedText::GetUTF8CharacterSize(text_, lineBegin + lineBytes);
         }
-        lineMaxHeight = font->GetLineMaxHeight(&text_[lineBegin], textLine_[i].lineBytes, fontId_,
-                                               fontSize_, tempLetterIndex, spannableString_);
         SetNextLineBegin(style, lineMaxHeight, curLineHeight, pos,
                          tempLetterIndex, lineHeight, lineBegin, i);
     }
 }
+
 
 void Text::CalculatedCurLineHeight(int16_t& lineHeight, int16_t& curLineHeight,
                                    uint16_t fontHeight, const Style& style, uint16_t lineMaxHeight)
@@ -367,12 +372,6 @@ void Text::SetLineBytes(uint16_t& lineBytes, uint16_t lineBegin)
 void Text::SetNextLineBegin(const Style& style, uint16_t lineMaxHeight, int16_t& curLineHeight, Point& pos,
                             int16_t& tempLetterIndex, int16_t& lineHeight, uint16_t& lineBegin, uint16_t letterIndex)
 {
-    if ((style.lineSpace_ == 0) && (spannableString_ != nullptr)) {
-        curLineHeight = lineMaxHeight;
-        curLineHeight += style.lineSpace_;
-    } else {
-        curLineHeight = lineHeight;
-    }
     lineBegin += textLine_[letterIndex].lineBytes;
     pos.y += curLineHeight;
 }
