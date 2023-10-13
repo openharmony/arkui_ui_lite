@@ -168,7 +168,6 @@ bool SpannableString::GetSpannable(uint16_t index)
  */
 void SpannableString::SetFontSize(uint8_t inputFontSize, uint16_t startIndex, uint16_t endIndex)
 {
-    bool needAddNode = true;
     if (sizeList_.IsEmpty()) {
         FontSizeSpan inputSpan;
         inputSpan.start = startIndex;
@@ -180,7 +179,7 @@ void SpannableString::SetFontSize(uint8_t inputFontSize, uint16_t startIndex, ui
     } else {
         ListNode<FontSizeSpan>* tempSpan = sizeList_.Begin();
         for (; tempSpan != sizeList_.End(); tempSpan = tempSpan->next_) {
-            needAddNode = true;
+            bool needAddNode = true;
             uint16_t tempStart = tempSpan->data_.start;
             uint16_t tempEnd = tempSpan->data_.end;
             uint8_t tempSize = tempSpan->data_.fontSize;
@@ -228,7 +227,6 @@ bool SpannableString::GetFontSize(uint16_t index, uint8_t& outputSize)
 
 void SpannableString::SetFontId(uint16_t inputFontId, uint16_t startIndex, uint16_t endIndex)
 {
-    bool needAddNode = true;
     if (fontIdList_.IsEmpty()) {
         FontIdSpan inputSpan;
         inputSpan.start = startIndex;
@@ -240,7 +238,7 @@ void SpannableString::SetFontId(uint16_t inputFontId, uint16_t startIndex, uint1
     }
     ListNode<FontIdSpan>* tempSpan = fontIdList_.Begin();
     for (; tempSpan != fontIdList_.End(); tempSpan = tempSpan->next_) {
-        needAddNode = true;
+        bool needAddNode = true;
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         uint16_t tempId = tempSpan->data_.fontId;
@@ -287,7 +285,6 @@ bool SpannableString::GetFontId(uint16_t index, uint16_t& outputFontId)
 
 void SpannableString::SetFontHeight(int16_t inputHeight, uint16_t startIndex, uint16_t endIndex)
 {
-    bool needAddNode = true;
     if (heightList_.IsEmpty()) {
         LetterHeightSpan inputSpan;
         inputSpan.start = startIndex;
@@ -299,7 +296,7 @@ void SpannableString::SetFontHeight(int16_t inputHeight, uint16_t startIndex, ui
     }
     ListNode<LetterHeightSpan>* tempSpan = heightList_.Begin();
     for (; tempSpan != heightList_.End(); tempSpan = tempSpan->next_) {
-        needAddNode = true;
+        bool needAddNode = true;
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         int16_t tempHeight = tempSpan->data_.height;
