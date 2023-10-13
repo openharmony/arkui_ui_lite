@@ -285,7 +285,7 @@ void DrawLabel::DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
                                             BlurLevel::LEVEL0, TransformAlgorithm::BILINEAR};
 
     uint8_t* buffer = nullptr;
-    bool inRange = DrawLabel::CalculatedTransformDataInfo(buffer, letterTranDataInfo, letterInfo);
+    bool inRange = DrawLabel::CalculatedTransformDataInfo(&buffer, letterTranDataInfo, letterInfo);
     if (inRange == false) {
         if (buffer != nullptr) {
             UIFree(buffer);
@@ -428,7 +428,7 @@ void DrawLabel::CalculatedBeginAndCopySize(const ArcLetterInfo& letterInfo, cons
     }
 }
 
-bool DrawLabel::CalculatedTransformDataInfo(uint8_t* buffer, TransformDataInfo& letterTranDataInfo,
+bool DrawLabel::CalculatedTransformDataInfo(uint8_t** buffer, TransformDataInfo& letterTranDataInfo,
     const ArcLetterInfo& letterInfo)
 {
     float angle = 0.0f;
@@ -456,25 +456,25 @@ bool DrawLabel::CalculatedTransformDataInfo(uint8_t* buffer, TransformDataInfo& 
     const uint8_t* fontMap = letterTranDataInfo.data;
 
     uint32_t size = cols * rows * sizePerPx;
-    buffer = static_cast<uint8_t*>(UIMalloc(size));
-    if (buffer == nullptr) {
+    *buffer = static_cast<uint8_t*>(UIMalloc(size));
+    if (*buffer == nullptr) {
         return false;
     }
 
-    if (memset_s(buffer, size, 0, size) != EOK) {
-        UIFree(buffer);
+    if (memset_s(*buffer, size, 0, size) != EOK) {
+        UIFree(*buffer);
         return false;
     }
 
     for (uint16_t i = 0; i < rows; i++) {
         uint16_t beginSize = i * cols * sizePerPx + begin;
         uint16_t copySize = copyCols * sizePerPx;
-        if (memcpy_s(buffer + beginSize, copySize, fontMap + beginSize, copySize) != EOK) {
-            UIFree(buffer);
+        if (memcpy_s(*buffer + beginSize, copySize, fontMap + beginSize, copySize) != EOK) {
+            UIFree(*buffer);
             return false;
         }
     }
-    letterTranDataInfo.data = buffer;
+    letterTranDataInfo.data = *buffer;
     return true;
 }
 
