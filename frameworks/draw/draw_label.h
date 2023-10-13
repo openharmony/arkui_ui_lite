@@ -63,7 +63,7 @@ public:
                                         const LabelLineInfo& labelLine);
 
 private:
-    static bool CalculatedTransformDataInfo(uint8_t* buffer, TransformDataInfo& letterTranDataInfo,
+    static bool CalculatedTransformDataInfo(uint8_t** buffer, TransformDataInfo& letterTranDataInfo,
         const ArcLetterInfo& letterInfo);
 
     static bool CalculatedClipAngle(const ArcLetterInfo& letterInfo, float& angle);
