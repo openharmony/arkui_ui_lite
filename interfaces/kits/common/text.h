@@ -479,11 +479,10 @@ public:
 
     void SetBackgroundColorSpan(ColorType backgroundColor, int16_t start, int16_t end)
     {
-        BackgroundColor bgcolor;
-        bgcolor.start = start;
-        bgcolor.end = end;
-        bgcolor.backgroundColor= backgroundColor;
-        backgroundColor_.PushBack(bgcolor);
+        if (spannableString_ == nullptr) {
+            spannableString_ = new SpannableString();
+        }
+        spannableString_->SetBackgroundColor(backgroundColor, (uint16_t)start, (uint16_t)end);
     }
 
     List<BackgroundColor> GetBackgroundColorSpan()
@@ -493,11 +492,10 @@ public:
 
     void SetForegroundColorSpan(ColorType fontColor, int16_t start, int16_t end)
     {
-        ForegroundColor fColor;
-        fColor.start = start;
-        fColor.end = end;
-        fColor.fontColor= fontColor;
-        foregroundColor_.PushBack(fColor);
+        if (spannableString_ == nullptr) {
+            spannableString_ = new SpannableString();
+        }
+        spannableString_->SetForegroundColor(fontColor, (uint16_t)start, (uint16_t)end);
     }
 
     List<ForegroundColor> GetForegroundColorSpan()
@@ -507,11 +505,10 @@ public:
 
     void SetLineBackgroundSpan(ColorType linebackgroundColor, int16_t start, int16_t end)
     {
-        LineBackgroundColor lineBackground;
-        lineBackground.start = start;
-        lineBackground.end = end;
-        lineBackground.linebackgroundColor= linebackgroundColor;
-        linebackgroundColor_.PushBack(lineBackground);
+        if (spannableString_ == nullptr) {
+            spannableString_ = new SpannableString();
+        }
+        spannableString_->SetLineBackgroundColor(linebackgroundColor, (uint16_t)start, (uint16_t)end);
     }
 
     List<LineBackgroundColor> GetLineBackgroundSpan()

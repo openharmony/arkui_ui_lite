@@ -17,6 +17,7 @@
 #include "font/ui_font_header.h"
 #include "gfx_utils/color.h"
 #include "gfx_utils/list.h"
+#include "gfx_utils/graphic_types.h"
 namespace OHOS {
 struct FontSizeSpan : HeapBase {
     uint16_t start;
@@ -37,6 +38,24 @@ struct FontIdSpan : HeapBase {
     uint16_t start;
     uint16_t end;
     uint16_t fontId;
+};
+
+struct BackgroundColorSpan : public HeapBase {
+    int16_t start;
+    int16_t end;
+    ColorType backgroundColor;
+};
+
+struct ForegroundColorSpan : public HeapBase {
+    int16_t start;
+    int16_t end;
+    ColorType fontColor;
+};
+
+struct LineBackgroundColorSpan : public HeapBase {
+    int16_t start;
+    int16_t end;
+    ColorType linebackgroundColor;
 };
 
 class StyleSpan : public HeapBase {
@@ -66,7 +85,14 @@ public:
     void SetFontId(uint16_t inputFontId, uint16_t startIndex, uint16_t endIndex);
     bool GetFontId(uint16_t index, uint16_t& outputFontId);
     bool GetFontHeight(uint16_t index, int16_t& outputHeight, uint16_t& defaultFontId, uint8_t defaultFontSize);
-    
+
+    void SetBackgroundColor(ColorType inputBackgroundColor, uint16_t startIndex, uint16_t endIndex);
+    bool GetBackgroundColor(uint16_t index, ColorType& outputBackgroundColor);
+    void SetForegroundColor(ColorType inputForegroundColor, uint16_t startIndex, uint16_t endIndex);
+    bool GetForegroundColor(uint16_t index, ColorType& outputForegroundColor);
+    void SetLineBackgroundColor(ColorType inputLineBackgroundColor, uint16_t startIndex, uint16_t endIndex);
+    bool GetLineBackgroundColor(uint16_t index, ColorType& outputLineBackgroundColor);
+
     void Reset();
     void SetSpannableString(const SpannableString* input);
 
@@ -79,6 +105,10 @@ private:
     List<FontSizeSpan> sizeList_;
     List<FontIdSpan> fontIdList_;
     List<LetterHeightSpan> heightList_;
+
+    List<BackgroundColorSpan> backgroundColorList_;
+    List<ForegroundColorSpan> foregroundColorList_;
+    List<LineBackgroundColorSpan> lineBackgroundColorList_;
 
     /* If endIndex larger than isSpannableLen_, the array isSpannable_ will re-malloc endIndex length memory. */
     bool SetSpannable(bool value, uint16_t startIndex, uint16_t endIndex);
