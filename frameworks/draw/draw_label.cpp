@@ -180,7 +180,7 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
     float posX;
     float posY;
     float rotateAngle;
-    while (i < strlen(text)) {
+    while (i < arcTextInfo.lineEnd) {
         uint32_t tmp = i;
         uint32_t letter = TypedText::GetUTF8Next(text, tmp, i);
         if (letter == 0) {
@@ -200,7 +200,8 @@ void DrawLabel::DrawArcText(BufferInfo& gfxDstBuffer,
         ArcLetterInfo letterInfo;
         letterInfo.InitData(fontId, fontSize, letter, { MATH_ROUND(posX), MATH_ROUND(posY) },
             static_cast<int16_t>(rotateAngle), style.textColor_, opaScale, arcTextInfo.startAngle,
-            arcTextInfo.endAngle, angle, arcTextInfo.radius, compatibilityMode, directFlag, orientationFlag);
+            arcTextInfo.endAngle, angle, arcTextInfo.radius, compatibilityMode,
+            directFlag, orientationFlag, arcTextInfo.hasAnimator);
 
         DrawLetterWithRotate(gfxDstBuffer, mask, letterInfo, posX, posY);
     }
@@ -291,13 +292,15 @@ void DrawLabel::DrawLetterWithRotate(BufferInfo& gfxDstBuffer,
                                             BlurLevel::LEVEL0, TransformAlgorithm::BILINEAR};
 
     uint8_t* buffer = nullptr;
-    bool inRange = DrawLabel::CalculatedTransformDataInfo(&buffer, letterTranDataInfo, letterInfo);
-    if (inRange == false) {
-        if (buffer != nullptr) {
-            UIFree(buffer);
-            buffer = nullptr;
+    if (letterInfo.hasAnimator) {
+        bool inRange = DrawLabel::CalculatedTransformDataInfo(&buffer, letterTranDataInfo, letterInfo);
+        if (inRange == false) {
+            if (buffer != nullptr) {
+                UIFree(buffer);
+                buffer = nullptr;
+            }
+            return;
         }
-        return;
     }
 
     BaseGfxEngine::GetInstance()->DrawTransform(gfxDstBuffer, mask, Point { 0, 0 }, letterInfo.color,

@@ -258,7 +258,7 @@ void UIArcLabel::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 void UIArcLabel::DrawArcText(BufferInfo& gfxDstBuffer,
                              const Rect& mask,
                              OpacityType opaScale,
-                             const ArcTextInfo arcTextInfo,
+                             ArcTextInfo arcTextInfo,
                              TextOrientation orientation)
 {
     Point center;
@@ -271,6 +271,7 @@ void UIArcLabel::DrawArcText(BufferInfo& gfxDstBuffer,
         temp.SetWidth(radius_ * 2); // 2 mean diameter
         temp.SetHeight(radius_ * 2);
     }
+    arcTextInfo.hasAnimator = hasAnimator_;
 
     DrawLabel::DrawArcText(gfxDstBuffer, temp, arcLabelText_->GetText(), center, arcLabelText_->GetFontId(),
                            arcLabelText_->GetFontSize(), arcTextInfo, offsetAngle_,
@@ -378,8 +379,8 @@ void UIArcLabel::OnMeasureArcTextInfo(const uint16_t arcAngle, const uint16_t le
     arcLabelText_->ReMeasureTextSize(rect, *style_);
 
     arcTextInfo_.lineEnd = GetLineEnd(static_cast<int16_t>(maxLength));
-    arcTextInfo_.startAngle = startAngle_;
-    arcTextInfo_.endAngle = endAngle_;
+    arcTextInfo_.startAngle = startAngle_ > CIRCLE_IN_DEGREE ? startAngle_ % CIRCLE_IN_DEGREE : startAngle_;
+    arcTextInfo_.endAngle = endAngle_ > CIRCLE_IN_DEGREE ? endAngle_ % CIRCLE_IN_DEGREE : endAngle_;
     int16_t actLength =
         TypedText::GetTextWidth(&text[arcTextInfo_.lineStart], arcLabelText_->GetFontId(), arcLabelText_->GetFontSize(),
                                 arcTextInfo_.lineEnd - arcTextInfo_.lineStart, style_->letterSpace_);
