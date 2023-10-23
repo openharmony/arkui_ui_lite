@@ -94,6 +94,7 @@ struct ArcTextInfo {
     uint32_t lineStart;
     uint32_t lineEnd;
     UITextLanguageDirect direct;
+    bool hasAnimator;
     uint32_t* codePoints;
     uint16_t codePointsNum;
     uint8_t shapingFontId;
@@ -106,7 +107,7 @@ struct ArcLetterInfo {
     void InitData(uint16_t inFontId, uint8_t inFontSize, uint32_t inLetter, Point inPos,
         int16_t inRotateAngle, ColorType inColor, OpacityType inOpaScale,
         float inStartAngle, float inEndAngle, float inCurrentAngle, uint16_t inRadius,
-        bool inCompatibilityMode, bool inDirectFlag, bool inOrientationFlag)
+        bool inCompatibilityMode, bool inDirectFlag, bool inOrientationFlag, bool inHasAnimator)
     {
         fontId = inFontId;
         fontSize = inFontSize;
@@ -122,6 +123,7 @@ struct ArcLetterInfo {
         compatibilityMode = inCompatibilityMode;
         directFlag = inDirectFlag;
         orientationFlag = inOrientationFlag;
+        hasAnimator = inHasAnimator;
     }
     uint16_t fontId;
     uint8_t fontSize;
@@ -137,6 +139,7 @@ struct ArcLetterInfo {
     bool compatibilityMode;
     bool directFlag;
     bool orientationFlag;
+    bool hasAnimator;
 };
 
 /**

@@ -276,8 +276,8 @@ public:
     void SetArcTextAngle(int16_t startAngle, int16_t endAngle)
     {
         if ((startAngle_ != startAngle) || (endAngle_ != endAngle)) {
-            startAngle_ = startAngle > CIRCLE_IN_DEGREE ? startAngle % CIRCLE_IN_DEGREE : startAngle;
-            endAngle_ = endAngle > CIRCLE_IN_DEGREE ? endAngle % CIRCLE_IN_DEGREE : endAngle;
+            startAngle_ = startAngle;
+            endAngle_ = endAngle;
             RefreshArcLabel();
         }
     }
@@ -418,7 +418,7 @@ protected:
     virtual void DrawArcText(BufferInfo& gfxDstBuffer,
                              const Rect& mask,
                              OpacityType opaScale,
-                             const ArcTextInfo arcTextInfo,
+                             ArcTextInfo arcTextInfo,
                              TextOrientation orientation);
 
     virtual Rect GetArcTextRect(const char* text,
