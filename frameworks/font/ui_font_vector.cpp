@@ -1070,6 +1070,7 @@ void UIFontVector::SetPsramMemory(uintptr_t psramAddr, uint32_t psramLen)
 
 int8_t UIFontVector::SetCurrentLangId(uint8_t langId)
 {
+    GRAPHIC_LOGE("UIFontVector::SetCurrentLangId start");
     FontRamAllocator::GetInstance().ClearRam();
 #if defined(ENABLE_SHAPING) && ENABLE_SHAPING
     UITextShaping::GetInstance()->ClearTtfHeader();
