@@ -402,6 +402,7 @@ protected:
     float offsetAngle_;
     ArcTextInfo arcTextInfo_;
     bool needRefresh_;
+    bool hasAnimator_;
 
     virtual void InitArcLabelText()
     {
@@ -441,7 +442,6 @@ private:
     int16_t endAngle_;
     Point arcCenter_;
     TextOrientation orientation_;
-    bool hasAnimator_;
     struct {
         Animator* animator;
         ArcLabelScrollListener* scrollListener;
