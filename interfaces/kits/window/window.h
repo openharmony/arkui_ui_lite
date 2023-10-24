@@ -106,6 +106,22 @@ struct WindowConfig {
 class Window {
 public:
     /**
+     * @brief A constructor used to create a <b>Window</b> instance.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    Window() = default;
+
+    /**
+     * @brief A destructor used to delete the <b>Window</b> instance.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    virtual ~Window() = default;
+
+    /**
      * @brief Creates a <b>Window</b> instance.
      *
      * @param config Indicates the window configuration. For details, see {@link WindowConfig}.
