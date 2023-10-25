@@ -470,7 +470,7 @@ void UITestFont::UIKitFontMultiLanguage001()
     UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(ROBOTO_CONDENSED_REGULAR),
                                                          findPath, sizeof(findPath));
 #else
-    uint8_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
+    uint16_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_ROBOTOCONDENSED_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     InnerTestTitle(" Display multilingual display");
@@ -499,7 +499,7 @@ void UITestFont::UIKitFontMultiLanguage002()
     UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(ROBOTO_CONDENSED_REGULAR),
                                                          findPath, sizeof(findPath));
 #else
-    uint8_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
+    uint16_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_ROBOTOCONDENSED_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     InnerTestTitle(" Display multilingual display");
@@ -650,7 +650,7 @@ void UITestFont::UIKitFontTestDisplayEmoji001()
     label->Resize(LABEL_WIDTH, LABEL_HEIGHT * 2);
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
+    uint16_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_SOURCEHANSANSSC_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     label->SetText("\xEF\x80\x80\xEF\x80\x81\xEF\x80\x82\xEF\x80\x83\xEF\x80\x84\xEF\x80\x85\xEF\x80\x86\xEF\x80\x87"
@@ -686,7 +686,7 @@ void UITestFont::UIKitFontTestDisplayEmoji002()
     label->Resize(LABEL_WIDTH, LABEL_HEIGHT * 3); // 3 : triple
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
+    uint16_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_SOURCEHANSANSSC_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     label->SetText("轻量图形子系统\xEF\x80\x80\xEF\x80\x81\xEF\x80\x82\xEF\x80\x83\xEF\x80\x84鴻蒙");
@@ -716,7 +716,7 @@ void UITestFont::UIKitFontTestDisplayEmoji003()
     label->Resize(380, LABEL_HEIGHT * 3); // 3 : triple
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
+    uint16_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_SOURCEHANSANSSC_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     label->SetText("轻量图形子系统鴻蒙操作系統\xEF\x80\x80\xEF\x80\x80"); // EF8080
