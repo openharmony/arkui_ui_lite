@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -77,6 +77,7 @@
 #ifndef VERSION_LITE
 #include "test_video/ui_test_video.h"
 #endif
+#include "test_spannable_string/ui_test_spannable_string.h"
 
 namespace OHOS {
 List<TestCaseInfo> UITestGroup::testCaseList_;
@@ -88,91 +89,92 @@ void UITestGroup::AddTestCase(TestCaseInfo testCaseInfo)
 
 void UITestGroup::SetUpTestCase()
 {
-    testCaseList_.PushBack(TestCaseInfo{"View zIndex", new UITestViewZIndex()});
-    testCaseList_.PushBack(TestCaseInfo{"EditText", new UITestEditText()});
-    testCaseList_.PushBack(TestCaseInfo{"Clip", new UITestClip()});
+    testCaseList_.PushBack(TestCaseInfo { "SpannableString", new UITestSpannableString() });
+    testCaseList_.PushBack(TestCaseInfo { "View zIndex", new UITestViewZIndex() });
+    testCaseList_.PushBack(TestCaseInfo { "EditText", new UITestEditText() });
+    testCaseList_.PushBack(TestCaseInfo { "Clip", new UITestClip() });
 #if defined(ENABLE_ROTATE_INPUT) && ENABLE_ROTATE_INPUT
-    testCaseList_.PushBack(TestCaseInfo{"Rotate_Input", new UITestRotateInput()});
+    testCaseList_.PushBack(TestCaseInfo { "Rotate_Input", new UITestRotateInput() });
 #endif
-    testCaseList_.PushBack(TestCaseInfo{"View_Scale_Rotate", new UITestViewScaleRotate()});
+    testCaseList_.PushBack(TestCaseInfo { "View_Scale_Rotate", new UITestViewScaleRotate() });
 #if defined(ENABLE_VECTOR_FONT) && ENABLE_VECTOR_FONT
     if (UIFont::GetInstance()->IsVectorFont()) {
-        testCaseList_.PushBack(TestCaseInfo{"Vector_Font", new UITestVectorFont()});
+        testCaseList_.PushBack(TestCaseInfo { "Vector_Font", new UITestVectorFont() });
     }
 #endif
-    testCaseList_.PushBack(TestCaseInfo{"Input_Event", new UITestInputEvent()});
-    testCaseList_.PushBack(TestCaseInfo{"Button", new UITestBUTTON()});
-    testCaseList_.PushBack(TestCaseInfo{"UILabel", new UITestLabel()});
-    testCaseList_.PushBack(TestCaseInfo{"Image", new UITestImage()});
-    testCaseList_.PushBack(TestCaseInfo{"Basic_Layout", new UITestBasicLayout()});
-    testCaseList_.PushBack(TestCaseInfo{"Advanced_Layout", new UITestAdvancedLayout()});
-    testCaseList_.PushBack(TestCaseInfo{"ListLayout", new UITestListLayout()});
-    testCaseList_.PushBack(TestCaseInfo{"UIScrollView", new UITestUIScrollView()});
-    testCaseList_.PushBack(TestCaseInfo{"Box_Progress", new UITestBoxProgress()});
-    testCaseList_.PushBack(TestCaseInfo{"Circle_Progress", new UITestCircleProgress()});
-    testCaseList_.PushBack(TestCaseInfo{"Slider", new UITestSlider()});
-    testCaseList_.PushBack(TestCaseInfo{"Animator", new UITestAnimator()});
-    testCaseList_.PushBack(TestCaseInfo{"Canvas", new UITestCanvas()});
-    testCaseList_.PushBack(TestCaseInfo{"Draw_Rect", new UITestDrawRect()});
-    testCaseList_.PushBack(TestCaseInfo{"Draw_Line", new UITestDrawLine()});
-    testCaseList_.PushBack(TestCaseInfo{UI_TEST_RENDER_ID, new UITestRender()});
-    testCaseList_.PushBack(TestCaseInfo{"Anti_Aliasing", new UITestAntiAliasing()});
-    testCaseList_.PushBack(TestCaseInfo{"UIList", new UITestUIList()});
-    testCaseList_.PushBack(TestCaseInfo{"UISwipeView", new UITestUISwipeView()});
-    testCaseList_.PushBack(TestCaseInfo{"Image_Animator", new UITestImageAnimator()});
-    testCaseList_.PushBack(TestCaseInfo{"UIPicker", new UITestUIPicker()});
-    testCaseList_.PushBack(TestCaseInfo{"Font", new UITestFont()});
-    testCaseList_.PushBack(TestCaseInfo{"Arc_Label", new UITestArcLabel()});
+    testCaseList_.PushBack(TestCaseInfo { "Input_Event", new UITestInputEvent() });
+    testCaseList_.PushBack(TestCaseInfo { "Button", new UITestBUTTON() });
+    testCaseList_.PushBack(TestCaseInfo { "UILabel", new UITestLabel() });
+    testCaseList_.PushBack(TestCaseInfo { "Image", new UITestImage() });
+    testCaseList_.PushBack(TestCaseInfo { "Basic_Layout", new UITestBasicLayout() });
+    testCaseList_.PushBack(TestCaseInfo { "Advanced_Layout", new UITestAdvancedLayout() });
+    testCaseList_.PushBack(TestCaseInfo { "ListLayout", new UITestListLayout() });
+    testCaseList_.PushBack(TestCaseInfo { "UIScrollView", new UITestUIScrollView() });
+    testCaseList_.PushBack(TestCaseInfo { "Box_Progress", new UITestBoxProgress() });
+    testCaseList_.PushBack(TestCaseInfo { "Circle_Progress", new UITestCircleProgress() });
+    testCaseList_.PushBack(TestCaseInfo { "Slider", new UITestSlider() });
+    testCaseList_.PushBack(TestCaseInfo { "Animator", new UITestAnimator() });
+    testCaseList_.PushBack(TestCaseInfo { "Canvas", new UITestCanvas() });
+    testCaseList_.PushBack(TestCaseInfo { "Draw_Rect", new UITestDrawRect() });
+    testCaseList_.PushBack(TestCaseInfo { "Draw_Line", new UITestDrawLine() });
+    testCaseList_.PushBack(TestCaseInfo { UI_TEST_RENDER_ID, new UITestRender() });
+    testCaseList_.PushBack(TestCaseInfo { "Anti_Aliasing", new UITestAntiAliasing() });
+    testCaseList_.PushBack(TestCaseInfo { "UIList", new UITestUIList() });
+    testCaseList_.PushBack(TestCaseInfo { "UISwipeView", new UITestUISwipeView() });
+    testCaseList_.PushBack(TestCaseInfo { "Image_Animator", new UITestImageAnimator() });
+    testCaseList_.PushBack(TestCaseInfo { "UIPicker", new UITestUIPicker() });
+    testCaseList_.PushBack(TestCaseInfo { "Font", new UITestFont() });
+    testCaseList_.PushBack(TestCaseInfo { "Arc_Label", new UITestArcLabel() });
     SetUpTestCase001();
 }
 
 void UITestGroup::SetUpTestCase001()
 {
 #if defined(ENABLE_DEBUG) && ENABLE_DEBUG
-    testCaseList_.PushBack(TestCaseInfo{"Event_Injector", new UITestEventInjector()});
-    testCaseList_.PushBack(TestCaseInfo{"Dump_Dom", new UITestDumpDomTree()});
-    testCaseList_.PushBack(TestCaseInfo{"View Bounds", new UITestViewBounds()});
+    testCaseList_.PushBack(TestCaseInfo { "Event_Injector", new UITestEventInjector() });
+    testCaseList_.PushBack(TestCaseInfo { "Dump_Dom", new UITestDumpDomTree() });
+    testCaseList_.PushBack(TestCaseInfo { "View Bounds", new UITestViewBounds() });
 #ifdef VERSION_STANDARD
-    testCaseList_.PushBack(TestCaseInfo{"Screenshot", new UITestScreenshot()});
+    testCaseList_.PushBack(TestCaseInfo { "Screenshot", new UITestScreenshot() });
 #endif
 #endif // ENABLE_DEBUG
-    testCaseList_.PushBack(TestCaseInfo{"View_Percent", new UITestViewPercent()});
-    testCaseList_.PushBack(TestCaseInfo{"Texture_Mapper", new UITestTextureMapper()});
-    testCaseList_.PushBack(TestCaseInfo{"Chart_Polyline", new UITestChartPolyline()});
-    testCaseList_.PushBack(TestCaseInfo{"Chart_Pillar", new UITestChartPillar()});
+    testCaseList_.PushBack(TestCaseInfo { "View_Percent", new UITestViewPercent() });
+    testCaseList_.PushBack(TestCaseInfo { "Texture_Mapper", new UITestTextureMapper() });
+    testCaseList_.PushBack(TestCaseInfo { "Chart_Polyline", new UITestChartPolyline() });
+    testCaseList_.PushBack(TestCaseInfo { "Chart_Pillar", new UITestChartPillar() });
 #if defined(ENABLE_WINDOW) && ENABLE_WINDOW
-    testCaseList_.PushBack(TestCaseInfo{"Dialog", new UITestDialog()});
+    testCaseList_.PushBack(TestCaseInfo { "Dialog", new UITestDialog() });
 #endif
-    testCaseList_.PushBack(TestCaseInfo{"Analog_Clock", new UITestAnalogClock()});
-    testCaseList_.PushBack(TestCaseInfo{"Digital_Clock", new UITestDigitalClock()});
-    testCaseList_.PushBack(TestCaseInfo{"Transform", new UITestTransform()});
-    testCaseList_.PushBack(TestCaseInfo{"Opacity", new UITestOpacity()});
-    testCaseList_.PushBack(TestCaseInfo{"UIQrcode", new UITestQrcode()});
-    testCaseList_.PushBack(TestCaseInfo{"UIViewGroup", new UITestViewGroup()});
-    testCaseList_.PushBack(TestCaseInfo{"View Bitmap", new UITestViewBitmap()});
+    testCaseList_.PushBack(TestCaseInfo { "Analog_Clock", new UITestAnalogClock() });
+    testCaseList_.PushBack(TestCaseInfo { "Digital_Clock", new UITestDigitalClock() });
+    testCaseList_.PushBack(TestCaseInfo { "Transform", new UITestTransform() });
+    testCaseList_.PushBack(TestCaseInfo { "Opacity", new UITestOpacity() });
+    testCaseList_.PushBack(TestCaseInfo { "UIQrcode", new UITestQrcode() });
+    testCaseList_.PushBack(TestCaseInfo { "UIViewGroup", new UITestViewGroup() });
+    testCaseList_.PushBack(TestCaseInfo { "View Bitmap", new UITestViewBitmap() });
 #ifndef VERSION_LITE
 #if defined(ENABLE_VIDEO_COMPONENT) && ENABLE_VIDEO_COMPONENT
-    testCaseList_.PushBack(TestCaseInfo{"Video", new UITestVideo()});
+    testCaseList_.PushBack(TestCaseInfo { "Video", new UITestVideo() });
 #endif
 #endif
 #if defined(ENABLE_FOCUS_MANAGER) && ENABLE_FOCUS_MANAGER
-    testCaseList_.PushBack(TestCaseInfo{"FocusManager", new UITestFocusManager()});
+    testCaseList_.PushBack(TestCaseInfo { "FocusManager", new UITestFocusManager() });
 #endif
-    testCaseList_.PushBack(TestCaseInfo{"Border_Margin_Padding", new UITestBorderMarginPadding()});
-    testCaseList_.PushBack(TestCaseInfo{"ScrollBar", new UITestScrollBar()});
+    testCaseList_.PushBack(TestCaseInfo { "Border_Margin_Padding", new UITestBorderMarginPadding() });
+    testCaseList_.PushBack(TestCaseInfo { "ScrollBar", new UITestScrollBar() });
 }
 
-List<TestCaseInfo>& UITestGroup::GetTestCase()
+List<TestCaseInfo> &UITestGroup::GetTestCase()
 {
     return testCaseList_;
 }
 
-UITest* UITestGroup::GetTestCase(const char* id)
+UITest *UITestGroup::GetTestCase(const char *id)
 {
     if (id == nullptr) {
         return nullptr;
     }
-    ListNode<TestCaseInfo>* node = testCaseList_.Begin();
+    ListNode<TestCaseInfo> *node = testCaseList_.Begin();
     while (node != testCaseList_.End()) {
         if (!strcmp(id, node->data_.sliceId)) {
             return node->data_.testObj;
@@ -183,7 +185,7 @@ UITest* UITestGroup::GetTestCase(const char* id)
 }
 void UITestGroup::TearDownTestCase()
 {
-    ListNode<TestCaseInfo>* node = testCaseList_.Begin();
+    ListNode<TestCaseInfo> *node = testCaseList_.Begin();
     while (node != testCaseList_.End()) {
         delete node->data_.testObj;
         node->data_.testObj = nullptr;
