@@ -431,6 +431,8 @@ protected:
                                 const ArcTextInfo& arcTextInfo);
 
     virtual uint32_t GetLineEnd(int16_t maxLength);
+
+    virtual uint16_t GetArcLength();
 private:
     friend class ArcLabelAnimator;
     void MeasureArcTextInfo();

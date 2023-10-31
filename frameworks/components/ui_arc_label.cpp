@@ -381,9 +381,8 @@ void UIArcLabel::OnMeasureArcTextInfo(const uint16_t arcAngle, const uint16_t le
     arcTextInfo_.lineEnd = GetLineEnd(static_cast<int16_t>(maxLength));
     arcTextInfo_.startAngle = startAngle_ > CIRCLE_IN_DEGREE ? startAngle_ % CIRCLE_IN_DEGREE : startAngle_;
     arcTextInfo_.endAngle = endAngle_ > CIRCLE_IN_DEGREE ? endAngle_ % CIRCLE_IN_DEGREE : endAngle_;
-    int16_t actLength =
-        TypedText::GetTextWidth(&text[arcTextInfo_.lineStart], arcLabelText_->GetFontId(), arcLabelText_->GetFontSize(),
-                                arcTextInfo_.lineEnd - arcTextInfo_.lineStart, style_->letterSpace_);
+
+    int16_t actLength = GetArcLength();
     if ((arcLabelText_->GetHorAlign() != TEXT_ALIGNMENT_LEFT) && (actLength < maxLength)) {
         float gapLength = maxLength - actLength;
         if (arcLabelText_->GetHorAlign() == TEXT_ALIGNMENT_CENTER) {
@@ -409,6 +408,18 @@ void UIArcLabel::OnMeasureArcTextInfo(const uint16_t arcAngle, const uint16_t le
     } else if (arcLabelText_->GetDirect() == TEXT_DIRECT_RTL) {
         animator_.secondLapOffsetAngle_ = maxTextAngle;
     }
+}
+
+uint16_t UIArcLabel::GetArcLength()
+{
+    const char* text = arcLabelText_->GetText();
+    if (text == nullptr) {
+        return 0;
+    }
+
+    return TypedText::GetTextWidth(&text[arcTextInfo_.lineStart], arcLabelText_->GetFontId(),
+                                   arcLabelText_->GetFontSize(), (arcTextInfo_.lineEnd - arcTextInfo_.lineStart),
+                                   style_->letterSpace_);
 }
 
 void UIArcLabel::Start()
