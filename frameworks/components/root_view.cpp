@@ -19,13 +19,13 @@
 #include "core/render_manager.h"
 #include "draw/draw_utils.h"
 #include "gfx_utils/graphic_log.h"
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
 #include "window/window_impl.h"
 #endif
 #include "securec.h"
 namespace OHOS {
 namespace {
-#if LOCAL_RENDER
+#if defined(LOCAL_RENDER) && LOCAL_RENDER
 const constexpr uint8_t MAX_SPLIT_NUM = 32; // split at most 32 parts
 // view along with its parents and siblings are at most 128
 const constexpr uint8_t VIEW_STACK_DEPTH = COMPONENT_NESTING_DEPTH * 2;
@@ -57,7 +57,7 @@ RootView::~RootView()
     pthread_mutex_destroy(&lock_);
 #endif
 }
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
 Window* RootView::GetBoundWindow() const
 {
     return boundWindow_;
@@ -66,7 +66,7 @@ Window* RootView::GetBoundWindow() const
 
 Rect RootView::GetScreenRect()
 {
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
     Rect screenRect = GetRect();
 #else
     Rect screenRect(0, 0, Screen::GetInstance().GetWidth() - 1, Screen::GetInstance().GetHeight() - 1);
@@ -74,7 +74,7 @@ Rect RootView::GetScreenRect()
     return screenRect;
 }
 
-#if LOCAL_RENDER
+#if defined(LOCAL_RENDER) && LOCAL_RENDER
 using namespace Graphic;
 static void DivideInvalidateRect(const Rect& originRect, Rect& leftoverRect, Vector<Rect>& splitRects)
 {
@@ -450,7 +450,7 @@ void RootView::AddInvalidateRect(Rect& rect, UIView* view)
 {
     Rect commonRect;
     if (commonRect.Intersect(rect, GetScreenRect())) {
-#if LOCAL_RENDER
+#if defined(LOCAL_RENDER) && LOCAL_RENDER
         Vector<Rect>& invalidRects = invalidateMap_[view];
         if (invalidRects.IsEmpty()) {
             invalidRects.PushBack(commonRect);
@@ -478,7 +478,7 @@ void RootView::AddInvalidateRectWithLock(Rect& rect, UIView* view)
 
 void RootView::Measure()
 {
-#if LOCAL_RENDER
+#if defined(LOCAL_RENDER) && LOCAL_RENDER
     if (!invalidateMap_.empty()) {
         MeasureView(GetChildrenRenderHead());
     }
@@ -521,7 +521,7 @@ void RootView::Render()
 #endif
 
     Rect flushRect(GetScreenRect());
-#if LOCAL_RENDER
+#if defined(LOCAL_RENDER) && LOCAL_RENDER
     if (!invalidateMap_.empty()) {
         RenderManager::RenderRect(flushRect, this);
         invalidateMap_.clear();
@@ -548,7 +548,7 @@ void RootView::Render()
         pthread_mutex_unlock(&lock_);
 #endif
 
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
         if (boundWindow_) {
             boundWindow_->Flush();
             boundWindow_->Update();
@@ -645,7 +645,7 @@ void RootView::DrawTop(UIView* view, const Rect& rect)
     TransformMap curTransMap;
     bool updateMapBufferInfo = false;
 
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
     WindowImpl* boundWin = static_cast<WindowImpl*>(GetBoundWindow());
     BufferInfo* gfxDstBuffer = boundWin->GetBufferInfo();
     UpdateBufferInfo(gfxDstBuffer);
