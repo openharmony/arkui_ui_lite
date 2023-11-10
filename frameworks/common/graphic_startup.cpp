@@ -21,10 +21,10 @@
 #include "core/render_manager.h"
 #include "dfx/performance_task.h"
 #include "font/ui_font.h"
-#if ENABLE_ICU
+#if defined(ENABLE_ICU) && ENABLE_ICU
 #include "font/ui_line_break.h"
 #endif
-#if ENABLE_SHAPING
+#if defined(ENABLE_SHAPING) && ENABLE_SHAPING
 #include "font/ui_text_shaping.h"
 #endif
 #include "gfx_utils/file.h"
@@ -33,10 +33,10 @@
 #ifdef VERSION_STANDARD
 #include "dock/ohos/ohos_input_device.h"
 #endif
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
 #include "iwindows_manager.h"
 #endif
-#if ENABLE_GFX_ENGINES
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
 #include "hals/gfx_engines.h"
 #endif
 #include "securec.h"
@@ -72,7 +72,7 @@ void GraphicStartUp::InitFontEngine(uintptr_t cacheMemAddr,
 void GraphicStartUp::InitLineBreakEngine(uintptr_t cacheMemAddr, uint32_t cacheMemLen, const char* path,
                                          const char* fileName)
 {
-#if ENABLE_ICU
+#if defined(ENABLE_ICU) && ENABLE_ICU
     if ((path == nullptr) || (fileName == nullptr) || cacheMemLen < OHOS::SHAPING_WORD_DICT_LENGTH) {
         return;
     }
@@ -145,10 +145,10 @@ void GraphicStartUp::Init()
     InputDeviceManager::GetInstance()->Add(input);
 #endif
 
-#if ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
     IWindowsManager::GetInstance()->Init();
 #endif
-#if ENABLE_GFX_ENGINES
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
     GfxEngines::GetInstance()->InitDriver();
 #endif
 }

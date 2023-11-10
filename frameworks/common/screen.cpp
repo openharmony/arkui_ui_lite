@@ -39,7 +39,7 @@ uint16_t Screen::GetHeight()
 
 bool Screen::GetCurrentScreenBitmap(ImageInfo& info)
 {
-#if defined ENABLE_WINDOW && ENABLE_WINDOW
+#if defined(ENABLE_WINDOW) && ENABLE_WINDOW
     return false;
 #else
     BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();

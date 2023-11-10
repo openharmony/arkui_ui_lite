@@ -19,7 +19,7 @@
 #include "gfx_utils/file.h"
 #include "gfx_utils/graphic_log.h"
 #include "imgdecode/cache_manager.h"
-#if ENABLE_JPEG_AND_PNG
+#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
 #include "jpeglib.h"
 #include "png.h"
 #endif
@@ -52,7 +52,7 @@ void Image::GetHeader(ImageHeader& header) const
     }
 }
 
-#if ENABLE_JPEG_AND_PNG
+#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
 OHOS::Image::ImageType Image::CheckImgType(const char* src)
 {
     char buf[IMG_BYTES_TO_CHECK] = {0};
@@ -95,7 +95,7 @@ bool Image::SetStandardSrc(const char* src)
         return false;
     }
 
-#if ENABLE_JPEG_AND_PNG
+#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
     ImageType imageType = CheckImgType(src);
     if (imageType == IMG_PNG) {
         return SetPNGSrc(src);
@@ -267,7 +267,7 @@ void Image::DrawImage(BufferInfo& gfxDstBuffer,
     }
 }
 
-#if ENABLE_JPEG_AND_PNG
+#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
 
 static inline void FreePngBytep(png_bytep** rowPointer, uint16_t size)
 {
