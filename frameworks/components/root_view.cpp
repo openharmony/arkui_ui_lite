@@ -803,6 +803,9 @@ bool RootView::FindSubView(const UIView& parentView, const UIView* subView)
     const UIView* parent = root;
     int8_t deep = 1;
     while (deep > 0) {
+        if (parent == nullptr) {
+            return false;
+        }
         if (currentView == subView) {
             return true;
         }
