@@ -31,6 +31,12 @@ public:
     void SetUp() override;
     void TearDown() override;
     const UIView* GetTestView() override;
+    void UIKitCanvasTestDraw();
+    void DrawLineSegment(UICanvas *canvas, const int16_t line1,
+                         const int16_t line2, const int16_t line3, const int16_t line4);
+    void DrawRectangle(UICanvas *canvas, const int16_t line1,
+                       const int16_t line2, const int16_t line3, const int16_t line4);
+    void DrawRotate001(UICanvas *canvas, Paint paint, const int16_t line1, const int16_t line2);
     void UIKitCanvasTestDrawLine001();
     void UIKitCanvasTestDrawLine002();
     void UIKitCanvasTestDrawCurve001();

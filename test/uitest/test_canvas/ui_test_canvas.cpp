@@ -76,6 +76,12 @@ const UIView* UITestCanvas::GetTestView()
     RM012GlobalCompositeOperationCopy();
     RM012GlobalCompositeOperationXOR();
 #endif
+    UIKitCanvasTestDraw();
+    return container_;
+}
+
+void UITestCanvas::UIKitCanvasTestDraw()
+{
     UIKitCanvasTestDrawLine001();
     UIKitCanvasTestDrawLine002();
     UIKitCanvasTestDrawCurve001();
@@ -125,7 +131,6 @@ const UIView* UITestCanvas::GetTestView()
     UIKitCanvasTestDrawPath032();
     UIKitCanvasTestDrawPath033();
     UIKitCanvasTestDrawPath034();
-    return container_;
 }
 
 void UITestCanvas::CreateTitleLabel(const char* title)
@@ -1010,6 +1015,16 @@ void UITestCanvas::UIKitCanvasTestDrawPath034()
     canvas->DrawPath(paint);
 }
 
+void UITestCanvas::DrawLineSegment(UICanvas *canvas, const int16_t line1,
+                                   const int16_t line2, const int16_t line3, const int16_t line4)
+{
+    Paint paint;
+    canvas->BeginPath();
+    canvas->MoveTo({line1, line2});
+    canvas->LineTo({line3, line4});
+    canvas->DrawPath(paint);
+}
+
 void UITestCanvas::RM009LineCapDrawPath()
 {
     if (container_ == nullptr) {
@@ -1024,51 +1039,25 @@ void UITestCanvas::RM009LineCapDrawPath()
 #if defined(GRAPHIC_ENABLE_LINECAP_FLAG) && GRAPHIC_ENABLE_LINECAP_FLAG
     paint.SetLineCap(LineCap::BUTT_CAP);
 #endif
-    canvas->BeginPath();
-    canvas->MoveTo({LINE11_X, LINE13_Y}); /* 竖线 */
-    canvas->LineTo({LINE11_X, LINE11_Y});
-    canvas->DrawPath(paint);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE11_X, LINE1_Y}); /* 横线 */
-    canvas->LineTo({LINE17_X, LINE1_Y});
-    canvas->DrawPath(paint);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE26_Y, LINE25_Y}); /* 斜线 */
-    canvas->LineTo({LINE18_X, LINE1_Y});
-    canvas->DrawPath(paint);
+    DrawLineSegment(canvas, LINE11_X, LINE13_Y, LINE11_X, LINE11_Y); /* 竖线 */
+    DrawLineSegment(canvas, LINE11_X, LINE1_Y, LINE17_X, LINE1_Y); /* 横线 */
+    DrawLineSegment(canvas, LINE26_Y, LINE25_Y, LINE18_X, LINE1_Y); /* 斜线 */
     paint.SetStrokeColor(Color::Red());
 #if defined(GRAPHIC_ENABLE_LINECAP_FLAG) && GRAPHIC_ENABLE_LINECAP_FLAG
     paint.SetLineCap(LineCap::SQUARE_CAP);
 #endif
-    canvas->BeginPath();
-    canvas->MoveTo({LINE1_X, LINE13_Y}); /* 竖线 */
-    canvas->LineTo({LINE19_X, LINE11_Y});
-    canvas->DrawPath(paint);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE11_X, LINE26_X}); /* 横线 */
-    canvas->LineTo({LINE17_X, LINE2_Y});
-    canvas->DrawPath(paint);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE28_X, LINE25_Y}); /* 斜线 */
-    canvas->LineTo({LINE21_X, LINE1_Y});
-    canvas->DrawPath(paint);
+    DrawLineSegment(canvas, LINE1_X, LINE13_Y, LINE19_X, LINE11_Y); /* 竖线 */
+    DrawLineSegment(canvas, LINE11_X, LINE26_X, LINE17_X, LINE2_Y); /* 横线 */
+    DrawLineSegment(canvas, LINE28_X, LINE25_Y, LINE21_X, LINE1_Y); /* 斜线 */
     paint.SetStrokeColor(Color::Blue());
 #if defined(GRAPHIC_ENABLE_LINECAP_FLAG) && GRAPHIC_ENABLE_LINECAP_FLAG
     paint.SetLineCap(LineCap::ROUND_CAP);
 #endif
-    canvas->BeginPath();
-    canvas->MoveTo({LINE22_X, LINE13_Y}); /* 竖线 */
-    canvas->LineTo({LINE22_X, LINE11_Y});
-    canvas->DrawPath(paint);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE11_X, LINE23_Y}); /* 横线 */
-    canvas->LineTo({LINE17_X, LINE23_Y});
-    canvas->DrawPath(paint);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE18_X, LINE25_Y}); /* 斜线 */
-    canvas->LineTo({LINE24_X, LINE1_Y});
-    canvas->DrawPath(paint);
+    DrawLineSegment(canvas, LINE22_X, LINE13_Y, LINE22_X, LINE11_Y); /* 竖线 */
+    DrawLineSegment(canvas, LINE11_X, LINE23_Y, LINE17_X, LINE23_Y); /* 横线 */
+    DrawLineSegment(canvas, LINE18_X, LINE25_Y, LINE24_X, LINE1_Y); /* 斜线 */
 }
+
 void UITestCanvas::RM009LineJoinDrawPath()
 {
     if (container_ == nullptr) {
@@ -1435,6 +1424,17 @@ void UITestCanvas::RM008UIKitCanvasTest007()
     canvas->FillPath(paint);
 }
 
+void DrawRectangle(UICanvas *canvas, const int16_t line1,
+                   const int16_t line2, const int16_t line3, const int16_t line4)
+{
+    canvas->BeginPath();
+    canvas->MoveTo({line1, line3});
+    canvas->LineTo({line1, line4});
+    canvas->LineTo({line2, line4});
+    canvas->LineTo({line2, line3});
+    canvas->ClosePath();
+}
+
 void UITestCanvas::RM008UIKitCanvasShadowTest008()
 {
 #if defined(GRAPHIC_ENABLE_SHADOW_EFFECT_FLAG) && GRAPHIC_ENABLE_SHADOW_EFFECT_FLAG
@@ -1448,63 +1448,33 @@ void UITestCanvas::RM008UIKitCanvasShadowTest008()
     paint.SetStrokeWidth(STROKEWIDTH8);
     paint.SetShadowBlur(LINEARGRADIENT5);
     paint.SetShadowColor(Color::Black());
-    canvas->BeginPath();
-    canvas->MoveTo({LINE11_X, LINE13_Y});
-    canvas->LineTo({LINE11_X, LINE10_Y});
-    canvas->LineTo({LINE2_X, LINE10_Y});
-    canvas->LineTo({LINE2_X, LINE13_Y});
-    canvas->ClosePath();
+    DrawRectangle(canvas, LINE11_X, LINE2_X, LINE13_Y, LINE10_Y);
     canvas->FillPath(paint);
     paint.SetShadowOffsetX(OFFSETX20);
     paint.SetShadowOffsetY(OFFSETX10);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE26_X, LINE13_Y});
-    canvas->LineTo({LINE26_X, LINE10_Y});
-    canvas->LineTo({LINE28_X, LINE10_Y});
-    canvas->LineTo({LINE28_X, LINE13_Y});
-    canvas->ClosePath();
+    DrawRectangle(canvas, LINE26_X, LINE28_X, LINE13_Y, LINE10_Y);
     canvas->FillPath(paint);
     paint.SetStrokeStyle(Color::Orange());
     paint.SetShadowOffsetX(0);
     paint.SetShadowOffsetY(0);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE11_X, LINE11_Y});
-    canvas->LineTo({LINE11_X, LINE2_Y});
-    canvas->LineTo({LINE2_X, LINE2_Y});
-    canvas->LineTo({LINE2_X, LINE11_Y});
-    canvas->ClosePath();
+    DrawRectangle(canvas, LINE11_X, LINE2_X, LINE11_Y, LINE2_Y);
     canvas->DrawPath(paint);
     paint.SetShadowOffsetX(OFFSETX20);
     paint.SetShadowOffsetY(OFFSETX10);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE26_X, LINE11_Y});
-    canvas->LineTo({LINE26_X, LINE2_Y});
-    canvas->LineTo({LINE28_X, LINE2_Y});
-    canvas->LineTo({LINE28_X, LINE11_Y});
-    canvas->ClosePath();
+    DrawRectangle(canvas, LINE26_X, LINE28_X, LINE11_Y, LINE2_Y);
     canvas->DrawPath(paint);
     paint.SetFillStyle(Color::Orange());
     paint.SetShadowBlur(SHADOWBLUR15);
     paint.SetShadowOffsetX(OFFSETX20);
     paint.SetShadowOffsetY(OFFSETX10);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE34_X, LINE13_Y});
-    canvas->LineTo({LINE34_X, LINE10_Y});
-    canvas->LineTo({LINE31_X, LINE10_Y});
-    canvas->LineTo({LINE31_X, LINE13_Y});
-    canvas->ClosePath();
+    DrawRectangle(canvas, LINE34_X, LINE31_X, LINE13_Y, LINE10_Y);
     canvas->FillPath(paint);
     paint.SetStrokeStyle(Color::Orange());
     paint.SetShadowBlur(SHADOWBLUR5);
     paint.SetShadowColor(Color::Blue());
     paint.SetShadowOffsetX(OFFSETX20);
     paint.SetShadowOffsetY(OFFSETX10);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE34_X, LINE11_Y});
-    canvas->LineTo({LINE34_X, LINE26_X});
-    canvas->LineTo({LINE31_X, LINE26_X});
-    canvas->LineTo({LINE31_X, LINE11_Y});
-    canvas->ClosePath();
+    DrawRectangle(canvas, LINE34_X, LINE31_X, LINE11_Y, LINE26_X);
     canvas->DrawPath(paint);
 #endif
 }
@@ -1579,6 +1549,17 @@ void UITestCanvas::RM011CanvasScale001()
     canvas->DrawPath(paint);
 }
 
+void UITestCanvas::DrawRotate001(UICanvas *canvas, Paint paint, const int16_t line1, const int16_t line2)
+{
+    canvas->BeginPath();
+    canvas->MoveTo({LINE8_X, line1});
+    canvas->LineTo({LINE6_X, LINE6_Y});
+    canvas->LineTo({LINE6_X, LINE7_Y});
+    canvas->LineTo({LINE8_X, line2});
+    canvas->ClosePath();
+    canvas->DrawPath(paint);
+}
+
 void UITestCanvas::RM011CanvasRotate001()
 {
     if (container_ == nullptr) {
@@ -1589,49 +1570,19 @@ void UITestCanvas::RM011CanvasRotate001()
     Paint paint;
     paint.SetStrokeStyle(Color::Red());
     paint.SetStrokeWidth(STROKE3_WIDTH);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE8_X, LINE8_X});
-    canvas->LineTo({LINE6_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE7_Y});
-    canvas->LineTo({LINE8_X, LINE8_Y});
-    canvas->ClosePath();
-    canvas->DrawPath(paint);
+    DrawRotate001(canvas, paint, LINE8_X, LINE8_Y);
     paint.SetStrokeStyle(Color::Green());
     paint.Rotate(ROTATE_ANGLE);
-    canvas->BeginPath();
-    canvas->MoveTo({LINE8_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE7_Y});
-    canvas->LineTo({LINE8_X, LINE7_Y});
-    canvas->ClosePath();
-    canvas->DrawPath(paint);
+    DrawRotate001(canvas, paint, LINE6_Y, LINE7_Y);
     paint.Translate(TRANSLATE_X, TRANSLATE_Y);
     paint.SetStrokeStyle(Color::Blue());
-    canvas->BeginPath();
-    canvas->MoveTo({LINE8_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE7_Y});
-    canvas->LineTo({LINE8_X, LINE8_Y});
-    canvas->ClosePath();
-    canvas->DrawPath(paint);
+    DrawRotate001(canvas, paint, LINE6_Y, LINE8_Y);
     paint.Transform(SCALE1_X, SHEAR_X, SHEAR_Y, SCALE2_Y, TRANSLATE1_X, TRANSLATE1_Y);
     paint.SetStrokeStyle(Color::Yellow());
-    canvas->BeginPath();
-    canvas->MoveTo({LINE8_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE7_Y});
-    canvas->LineTo({LINE8_X, LINE8_Y});
-    canvas->ClosePath();
-    canvas->DrawPath(paint);
+    DrawRotate001(canvas, paint, LINE6_Y, LINE8_Y);
     paint.SetTransform(SCALE1_X, SHEAR1_X, SHEAR1_Y, SCALE2_Y, TRANSLATE1_X, TRANSLATE1_Y);
     paint.SetStrokeStyle(Color::Orange());
-    canvas->BeginPath();
-    canvas->MoveTo({LINE8_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE6_Y});
-    canvas->LineTo({LINE6_X, LINE7_Y});
-    canvas->LineTo({LINE8_X, LINE8_Y});
-    canvas->ClosePath();
-    canvas->DrawPath(paint);
+    DrawRotate001(canvas, paint, LINE6_Y, LINE8_Y);
 }
 
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
