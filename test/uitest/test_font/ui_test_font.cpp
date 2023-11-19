@@ -102,6 +102,8 @@ const UIView* UITestFont::GetTestView()
     UIKitFontTestLineBackgroundSpan();
     UIKitFontTestAbsoluteSizeSpan();
     UIKitFontTestRelativeSizeSpan();
+    UIKitFontTestDisplayNegativeLineSpace001();
+    UIKitFontTestDisplayNegativeLineSpace002();
     UIKitFontTestDisplayEmoji001();
     UIKitFontTestDisplayEmoji002();
     UIKitFontTestDisplayEmoji003();
@@ -723,5 +725,51 @@ void UITestFont::UIKitFontTestDisplayEmoji003()
     container_->Add(label);
     positionY_ += LABEL_HEIGHT * 3 + GAP; // 3 : triple
 #endif
+}
+
+void UITestFont::UIKitFontTestDisplayNegativeLineSpace001()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+    InnerTestTitle(" Negative linespace with one line not enabled ");
+    UILabel* label = new UILabel();
+    label->SetPosition(positionX_, positionY_);
+    label->Resize(LABEL_WIDTH * 2, LABEL_HEIGHT *2); // 2 : double
+#if ENABLE_VECTOR_FONT
+    UIFont::GetInstance()->RegisterFontInfo(SOURCE_HAN_SANS_SC_REGULAR);
+    label->SetFont(SOURCE_HAN_SANS_SC_REGULAR, FONT_SIZE);
+#else
+    label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
+#endif
+    label->SetStyle(STYLE_LINE_HEIGHT, FONT_SIZE);
+    label->SetStyle(STYLE_LINE_SPACE, -20); // -20 : lineSpace_
+    label->SetText("lineSpace_ = -20, with one line.");
+
+    container_->Add(label);
+    positionY_ += LABEL_HEIGHT * 2 + GAP; // 2 : double
+}
+
+void UITestFont::UIKitFontTestDisplayNegativeLineSpace002()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+    InnerTestTitle(" Negative linespace with two line is enabled. It is more clear when bounds can be seen. ");
+    UILabel* label = new UILabel();
+    label->SetPosition(positionX_, positionY_);
+    label->Resize(LABEL_WIDTH * 2, LABEL_HEIGHT *2); // 2 : double
+#if ENABLE_VECTOR_FONT
+    UIFont::GetInstance()->RegisterFontInfo(SOURCE_HAN_SANS_SC_REGULAR);
+    label->SetFont(SOURCE_HAN_SANS_SC_REGULAR, FONT_SIZE);
+#else
+    label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
+#endif
+    label->SetStyle(STYLE_LINE_SPACE, -20); // -20 : lineSpace_
+
+    label->SetText("lineSpace_ = -20, \n with two line.");
+
+    container_->Add(label);
+    positionY_ += LABEL_HEIGHT * 2 + GAP; // 2 : double
 }
 } // namespace OHOS
