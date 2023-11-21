@@ -32,7 +32,6 @@ Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize
     Point size{0, 0};
 
     if (text == nullptr) {
-        GRAPHIC_LOGE("TypedText::GetTextSize invalid parameter");
         return size;
     }
 
@@ -309,7 +308,6 @@ uint32_t TypedText::GetUTF8Next(const char* text, uint32_t i, uint32_t& j)
 {
     uint32_t unicode = 0;
     if (text == nullptr) {
-        GRAPHIC_LOGE("text invalid parameter");
         return 0;
     }
 
@@ -464,7 +462,6 @@ uint16_t TypedText::Utf16ToUtf32(const uint16_t* utf16Str, uint32_t* utf32Str, u
 uint32_t TypedText::GetUtf16Cnt(const char* utf8Str, uint32_t maxLength)
 {
     if (utf8Str == nullptr) {
-        GRAPHIC_LOGE("text invalid parameter");
         return 0;
     }
     uint32_t len = 0;
