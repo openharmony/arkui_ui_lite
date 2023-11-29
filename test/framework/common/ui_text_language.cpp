@@ -17,15 +17,19 @@
 #include "font/ui_font_header.h"
 
 namespace OHOS {
-const UITextLanguageFontParam g_uiTextLangFontsTable[LANGUAGE_FONT_ID_MAX] = {
+static const UITextLanguageFontParam g_uiTextLangFontsTable[LANGUAGE_FONT_ID_MAX] = {
     {14, 4, 0, 0, "RobotoCondensed-Regular"},
     {18, 4, 0, 0, "RobotoCondensed-Regular"},
     {20, 4, 0, 0, "RobotoCondensed-Regular"},
+    {23, 4, 0, 0, "RobotoCondensed-Regular"},
     {24, 4, 0, 0, "RobotoCondensed-Regular"},
     {26, 4, 0, 0, "RobotoCondensed-Regular"},
+    {28, 4, 0, 0, "RobotoCondensed-Regular"},
     {30, 4, 0, 0, "RobotoCondensed-Regular"},
     {38, 4, 0, 0, "RobotoCondensed-Regular"},
+    {48, 4, 0, 0, "RobotoCondensed-Regular"},
     {14, 4, 0, 1, "SourceHanSansSC-Regular"},
+    {16, 4, 0, 1, "SourceHanSansSC-Regular"},
     {18, 4, 0, 1, "SourceHanSansSC-Regular"},
     {20, 4, 0, 1, "SourceHanSansSC-Regular"},
     {24, 4, 0, 1, "SourceHanSansSC-Regular"},
@@ -34,7 +38,7 @@ const UITextLanguageFontParam g_uiTextLangFontsTable[LANGUAGE_FONT_ID_MAX] = {
     {38, 4, 0, 1, "SourceHanSansSC-Regular"},
 }; // g_uiTextLangFontsTable
 
-const LangTextParam g_langTextDefaultParamTable[LANGUAGE_MAX] = {
+static const LangTextParam g_langTextDefaultParamTable[LANGUAGE_MAX] = {
     {0, 30, "SourceHanSansSC-Regular", "zh"},
     {0, 30, "RobotoCondensed-Regular", "en"},
     {0, 30, "RobotoCondensed-Regular", "en"},
