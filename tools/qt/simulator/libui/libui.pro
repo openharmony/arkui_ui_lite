@@ -366,7 +366,8 @@ INCLUDEPATH += \
     ../../../../../ui_lite/interfaces/innerkits \
     ../../../../../ui_lite/interfaces/kits \
     ../../../../../../../third_party/bounds_checking_function/include \
-    ../../../../../../../third_party/harfbuzz/src \
+    ../../../../../../../third_party/harfbuzz \
+    ../../../../../../../third_party/harfbuzz/harfbuzz-2.8.2 \
     ../../../../../../../third_party/icu/icu4c/source/common \
     ../../../../../../../third_party/freetype/include \
     ../../../../../../../third_party/cJSON \
