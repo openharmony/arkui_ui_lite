@@ -68,8 +68,12 @@ if (os_level != "standard") {
       ]
     } else if (ohos_kernel_type == "liteos_m") {
       include_dirs += [ "//third_party/freetype/include" ]
+      if (enable_canvas_extend) {
+        defines += [ "ENABLE_CANVAS_EXTEND=1" ]
+      } else {
+        defines += [ "ENABLE_CANVAS_EXTEND=0" ]
+      }
       defines += [
-        "ENABLE_CANVAS_EXTEND=0",
         "GRAPHIC_ENABLE_DASH_GENERATE_FLAG=1",
         "GRAPHIC_ENABLE_BLUR_EFFECT_FLAG=1",
         "GRAPHIC_ENABLE_PATTERN_FILL_FLAG=1",

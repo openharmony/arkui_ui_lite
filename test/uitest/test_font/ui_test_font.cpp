@@ -102,6 +102,8 @@ const UIView* UITestFont::GetTestView()
     UIKitFontTestLineBackgroundSpan();
     UIKitFontTestAbsoluteSizeSpan();
     UIKitFontTestRelativeSizeSpan();
+    UIKitFontTestDisplayNegativeLineSpace001();
+    UIKitFontTestDisplayNegativeLineSpace002();
     UIKitFontTestDisplayEmoji001();
     UIKitFontTestDisplayEmoji002();
     UIKitFontTestDisplayEmoji003();
@@ -470,7 +472,7 @@ void UITestFont::UIKitFontMultiLanguage001()
     UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(ROBOTO_CONDENSED_REGULAR),
                                                          findPath, sizeof(findPath));
 #else
-    uint8_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
+    uint16_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_ROBOTOCONDENSED_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     InnerTestTitle(" Display multilingual display");
@@ -499,7 +501,7 @@ void UITestFont::UIKitFontMultiLanguage002()
     UIMultiFontManager::GetInstance()->SetSearchFontList(UIFont::GetInstance()->GetFontId(ROBOTO_CONDENSED_REGULAR),
                                                          findPath, sizeof(findPath));
 #else
-    uint8_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
+    uint16_t findPath[] = {F_SOURCEHANSANSSC_REGULAR_30_4};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_ROBOTOCONDENSED_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     InnerTestTitle(" Display multilingual display");
@@ -650,7 +652,7 @@ void UITestFont::UIKitFontTestDisplayEmoji001()
     label->Resize(LABEL_WIDTH, LABEL_HEIGHT * 2);
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
+    uint16_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_SOURCEHANSANSSC_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     label->SetText("\xEF\x80\x80\xEF\x80\x81\xEF\x80\x82\xEF\x80\x83\xEF\x80\x84\xEF\x80\x85\xEF\x80\x86\xEF\x80\x87"
@@ -686,7 +688,7 @@ void UITestFont::UIKitFontTestDisplayEmoji002()
     label->Resize(LABEL_WIDTH, LABEL_HEIGHT * 3); // 3 : triple
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
+    uint16_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_SOURCEHANSANSSC_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     label->SetText("轻量图形子系统\xEF\x80\x80\xEF\x80\x81\xEF\x80\x82\xEF\x80\x83\xEF\x80\x84鴻蒙");
@@ -716,12 +718,58 @@ void UITestFont::UIKitFontTestDisplayEmoji003()
     label->Resize(380, LABEL_HEIGHT * 3); // 3 : triple
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #if defined(ENABLE_MULTI_FONT) && ENABLE_MULTI_FONT
-    uint8_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
+    uint16_t findPath[] = {F_HWEMOJI_REGULAR_30_32};
     UIMultiFontManager::GetInstance()->SetSearchFontList(F_SOURCEHANSANSSC_REGULAR_30_4, findPath, sizeof(findPath));
 #endif
     label->SetText("轻量图形子系统鴻蒙操作系統\xEF\x80\x80\xEF\x80\x80"); // EF8080
     container_->Add(label);
     positionY_ += LABEL_HEIGHT * 3 + GAP; // 3 : triple
 #endif
+}
+
+void UITestFont::UIKitFontTestDisplayNegativeLineSpace001()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+    InnerTestTitle(" Negative linespace with one line not enabled ");
+    UILabel* label = new UILabel();
+    label->SetPosition(positionX_, positionY_);
+    label->Resize(LABEL_WIDTH * 2, LABEL_HEIGHT *2); // 2 : double
+#if ENABLE_VECTOR_FONT
+    UIFont::GetInstance()->RegisterFontInfo(SOURCE_HAN_SANS_SC_REGULAR);
+    label->SetFont(SOURCE_HAN_SANS_SC_REGULAR, FONT_SIZE);
+#else
+    label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
+#endif
+    label->SetStyle(STYLE_LINE_HEIGHT, FONT_SIZE);
+    label->SetStyle(STYLE_LINE_SPACE, -20); // -20 : lineSpace_
+    label->SetText("lineSpace_ = -20, with one line.");
+
+    container_->Add(label);
+    positionY_ += LABEL_HEIGHT * 2 + GAP; // 2 : double
+}
+
+void UITestFont::UIKitFontTestDisplayNegativeLineSpace002()
+{
+    if (container_ == nullptr) {
+        return;
+    }
+    InnerTestTitle(" Negative linespace with two line is enabled. It is more clear when bounds can be seen. ");
+    UILabel* label = new UILabel();
+    label->SetPosition(positionX_, positionY_);
+    label->Resize(LABEL_WIDTH * 2, LABEL_HEIGHT *2); // 2 : double
+#if ENABLE_VECTOR_FONT
+    UIFont::GetInstance()->RegisterFontInfo(SOURCE_HAN_SANS_SC_REGULAR);
+    label->SetFont(SOURCE_HAN_SANS_SC_REGULAR, FONT_SIZE);
+#else
+    label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
+#endif
+    label->SetStyle(STYLE_LINE_SPACE, -20); // -20 : lineSpace_
+
+    label->SetText("lineSpace_ = -20, \n with two line.");
+
+    container_->Add(label);
+    positionY_ += LABEL_HEIGHT * 2 + GAP; // 2 : double
 }
 } // namespace OHOS

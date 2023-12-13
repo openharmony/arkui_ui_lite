@@ -296,9 +296,14 @@ void Text::Draw(BufferInfo& gfxDstBuffer,
             curLineHeight = font->GetLineMaxHeight(
                 &text_[lineBegin], textLine_[i].lineBytes, fontId_, fontSize_,
                 tempLetterIndex, spannableString_);
-            curLineHeight += style.lineSpace_;
+            if (lineCount > 1) {
+                curLineHeight += style.lineSpace_;
+            }
         } else {
             curLineHeight = lineHeight;
+            if (lineCount == 1) {
+                curLineHeight -= style.lineSpace_;
+            }
         }
         int16_t nextLine = pos.y + curLineHeight;
         if (lineHeight != style.lineHeight_) {

@@ -150,6 +150,16 @@ public:
      * @brief Test Emoji and Text line break display
      */
     void UIKitFontTestDisplayEmoji003();
+
+     /**
+     * @brief Test single line with negative lineSpace display
+     */
+    void UIKitFontTestDisplayNegativeLineSpace001();
+
+    /**
+     * @brief Test multi line with negative lineSpace display
+     */
+    void UIKitFontTestDisplayNegativeLineSpace002();
 private:
     UIScrollView* container_ = nullptr;
     void InnerTestTitle(const char* title);
