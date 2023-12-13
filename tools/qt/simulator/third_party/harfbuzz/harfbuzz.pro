@@ -18,54 +18,58 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 DESTDIR = ../../libs
 
+HARFBUZZ_PATH = ../../../../../../../../third_party/harfbuzz
+HARFBUZZ_SOURCE_PATH = ../../../../../../../../third_party/harfbuzz/harfbuzz-2.8.2
+system("tar -xf $${HARFBUZZ_PATH}\\harfbuzz-2.8.2.tar.xz -C $${HARFBUZZ_PATH}")
+
 SOURCES += \
-    ../../../../../../../../third_party/harfbuzz/src/hb-aat-layout.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-aat-map.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-blob.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-buffer-serialize.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-buffer.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-common.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-face.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-fallback-shape.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-font.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-map.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-number.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-cff1-table.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-cff2-table.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-face.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-font.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-layout.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-map.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-math.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-meta.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-metrics.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-name.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-arabic.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-default.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-hangul.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-hebrew.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-indic-table.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-indic.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-khmer.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-myanmar.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-syllabic.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-thai.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-use.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-complex-vowel-constraints.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-fallback.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape-normalize.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-shape.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-tag.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ot-var.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-set.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-shape-plan.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-shape.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-shaper.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-static.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-subset-cff2.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-subset-cff-common.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-ucd.cc \
-    ../../../../../../../../third_party/harfbuzz/src/hb-unicode.cc
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-aat-layout.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-aat-map.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-blob.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-buffer-serialize.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-buffer.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-common.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-face.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-fallback-shape.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-font.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-map.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-number.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-cff1-table.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-cff2-table.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-face.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-font.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-layout.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-map.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-math.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-meta.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-metrics.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-name.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-arabic.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-default.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-hangul.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-hebrew.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-indic-table.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-indic.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-khmer.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-myanmar.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-syllabic.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-thai.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-use.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-complex-vowel-constraints.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-fallback.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape-normalize.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-shape.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-tag.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ot-var.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-set.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-shape-plan.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-shape.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-shaper.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-static.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-subset-cff2.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-subset-cff-common.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-ucd.cc \
+    $${HARFBUZZ_SOURCE_PATH}/src/hb-unicode.cc
 
 INCLUDEPATH += \
-    ../../../../../../../../third_party/harfbuzz/src
+    ../../../../../../../../third_party/harfbuzz

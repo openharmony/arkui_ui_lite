@@ -59,7 +59,7 @@ INCLUDEPATH += \
     ../../../../../ui_lite/test/framework \
     ../../../../../../graphic/graphic_utils_lite/interfaces/innerkits \
     ../../../../../../graphic/graphic_utils_lite/interfaces/kits \
-    ../../../../../../../third_party/freetype/include \
+    ../../../../../../../third_party/freetype/freetype-2.12.1/include \
     ../../../../test/framework/include \
     ../../../../../../../third_party/bounds_checking_function/include \
     ../../../../test/autotest/include \

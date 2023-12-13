@@ -366,14 +366,16 @@ INCLUDEPATH += \
     ../../../../../ui_lite/interfaces/innerkits \
     ../../../../../ui_lite/interfaces/kits \
     ../../../../../../../third_party/bounds_checking_function/include \
-    ../../../../../../../third_party/harfbuzz/src \
+    ../../../../../../../third_party/harfbuzz \
+    ../../../../../../../third_party/harfbuzz/harfbuzz-2.8.2 \
     ../../../../../../../third_party/icu/icu4c/source/common \
     ../../../../../../../third_party/freetype/include \
     ../../../../../../../third_party/cJSON \
     ../../../../../../../third_party/libjpeg-turbo \
+    ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1 \
     ../../../../../../../third_party/libpng \
-    ../../../../../../../third_party/libpng/libpng-1.6.37 \
-    ../../../../../../../third_party/qrcodegen/cpp 
+    ../../../../../../../third_party/libpng/libpng-1.6.38 \
+    ../../../../../../../third_party/qrcodegen/cpp
 
 
 LIBS += $$OUT_PWD/../libs/libpng.dll

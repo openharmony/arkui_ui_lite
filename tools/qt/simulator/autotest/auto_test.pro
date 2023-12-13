@@ -74,7 +74,7 @@ INCLUDEPATH += \
     ../../../../test/autotest/include \
     ../../../../test/uitest \
     ../../../../../../../third_party/bounds_checking_function/include \
-    ../../../../../../../third_party/harfbuzz/src \
+    ../../../../../../../third_party/harfbuzz \
     ../../../../../../../third_party/icu/icu4c/source/common \
     ../../../../../../../third_party/freetype/include \
     ../../../../../../../third_party/cJSON \
