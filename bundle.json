@@ -13,7 +13,7 @@
     "name": "ui_lite",
     "subsystem": "arkui",
     "feature": [],
-    "adapted_system_type": [ "mini","small","standard" ],
+    "adapted_system_type": [ "mini","small" ],
     "rom": "900KB",
     "ram": "~90KB",
     "deps": {
