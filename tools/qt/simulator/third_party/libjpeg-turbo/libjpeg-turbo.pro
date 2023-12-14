@@ -17,58 +17,62 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 DESTDIR = ../../libs
-SOURCE_PATH = ../../../../../../../../third_party/libjpeg-turbo
+
+LIBJPEG_TURBO_PATH = ../../../../../../../../third_party/libjpeg-turbo
+LIBJPEG_TURBO_SOURCE_PATH = ../../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1
+system("tar -zxf $${LIBJPEG_TURBO_PATH}\\libjpeg-turbo-2.1.1.tar.gz -C $${LIBJPEG_TURBO_PATH}")
 
 SOURCES += \
-      $${SOURCE_PATH}/jcapimin.c \
-      $${SOURCE_PATH}/jcapistd.c \
-      $${SOURCE_PATH}/jccoefct.c \
-      $${SOURCE_PATH}/jccolor.c \
-      $${SOURCE_PATH}/jcdctmgr.c \
-      $${SOURCE_PATH}/jchuff.c \
-      $${SOURCE_PATH}/jcicc.c \
-      $${SOURCE_PATH}/jcinit.c \
-      $${SOURCE_PATH}/jcmainct.c \
-      $${SOURCE_PATH}/jcmarker.c \
-      $${SOURCE_PATH}/jcmaster.c \
-      $${SOURCE_PATH}/jcomapi.c \
-      $${SOURCE_PATH}/jcparam.c \
-      $${SOURCE_PATH}/jcphuff.c \
-      $${SOURCE_PATH}/jcprepct.c \
-      $${SOURCE_PATH}/jcsample.c \
-      $${SOURCE_PATH}/jctrans.c \
-      $${SOURCE_PATH}/jdapimin.c \
-      $${SOURCE_PATH}/jdapistd.c \
-      $${SOURCE_PATH}/jdatadst.c \
-      $${SOURCE_PATH}/jdatasrc.c \
-      $${SOURCE_PATH}/jdcoefct.c \
-      $${SOURCE_PATH}/jdcolor.c \
-      $${SOURCE_PATH}/jddctmgr.c \
-      $${SOURCE_PATH}/jdhuff.c \
-      $${SOURCE_PATH}/jdicc.c \
-      $${SOURCE_PATH}/jdinput.c \
-      $${SOURCE_PATH}/jdmainct.c \
-      $${SOURCE_PATH}/jdmarker.c \
-      $${SOURCE_PATH}/jdmaster.c \
-      $${SOURCE_PATH}/jdmerge.c \
-      $${SOURCE_PATH}/jdphuff.c \
-      $${SOURCE_PATH}/jdpostct.c \
-      $${SOURCE_PATH}/jdsample.c \
-      $${SOURCE_PATH}/jdtrans.c \
-      $${SOURCE_PATH}/jerror.c \
-      $${SOURCE_PATH}/jfdctflt.c \
-      $${SOURCE_PATH}/jfdctfst.c \
-      $${SOURCE_PATH}/jfdctint.c \
-      $${SOURCE_PATH}/jidctflt.c \
-      $${SOURCE_PATH}/jidctfst.c \
-      $${SOURCE_PATH}/jidctint.c \
-      $${SOURCE_PATH}/jidctred.c \
-      $${SOURCE_PATH}/jmemmgr.c \
-      $${SOURCE_PATH}/jmemnobs.c \
-      $${SOURCE_PATH}/jquant1.c \
-      $${SOURCE_PATH}/jquant2.c \
-      $${SOURCE_PATH}/jutils.c \
-      $${SOURCE_PATH}/jsimd_none.c
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcapimin.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcapistd.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jccoefct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jccolor.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcdctmgr.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jchuff.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcicc.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcinit.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcmainct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcmarker.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcmaster.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcomapi.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcparam.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcphuff.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcprepct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcsample.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jctrans.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdapimin.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdapistd.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdatadst.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdatasrc.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdcoefct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdcolor.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jddctmgr.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdhuff.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdicc.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdinput.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdmainct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdmarker.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdmaster.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdmerge.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdphuff.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdpostct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdsample.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdtrans.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jerror.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jfdctflt.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jfdctfst.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jfdctint.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jidctflt.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jidctfst.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jidctint.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jidctred.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jmemmgr.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jmemnobs.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jquant1.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jquant2.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jutils.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jsimd_none.c
 
 INCLUDEPATH += \
-    ../../../../../../../third_party/libjpeg-turbo
+    ../../../../../../../../third_party/libjpeg-turbo \
+    ../../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1/

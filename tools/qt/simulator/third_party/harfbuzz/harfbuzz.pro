@@ -20,7 +20,7 @@ DESTDIR = ../../libs
 
 HARFBUZZ_PATH = ../../../../../../../../third_party/harfbuzz
 HARFBUZZ_SOURCE_PATH = ../../../../../../../../third_party/harfbuzz/harfbuzz-2.8.2
-system("tar -xvf $${HARFBUZZ_PATH}\\harfbuzz-2.8.2.tar.xz -C $${HARFBUZZ_PATH}")
+system("tar -xf $${HARFBUZZ_PATH}\\harfbuzz-2.8.2.tar.xz -C $${HARFBUZZ_PATH}")
 
 SOURCES += \
     $${HARFBUZZ_SOURCE_PATH}/src/hb-aat-layout.cc \

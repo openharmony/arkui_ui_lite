@@ -372,9 +372,10 @@ INCLUDEPATH += \
     ../../../../../../../third_party/freetype/include \
     ../../../../../../../third_party/cJSON \
     ../../../../../../../third_party/libjpeg-turbo \
+    ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1 \
     ../../../../../../../third_party/libpng \
-    ../../../../../../../third_party/libpng/libpng-1.6.37 \
-    ../../../../../../../third_party/qrcodegen/cpp 
+    ../../../../../../../third_party/libpng/libpng-1.6.38 \
+    ../../../../../../../third_party/qrcodegen/cpp
 
 
 LIBS += $$OUT_PWD/../libs/libpng.dll

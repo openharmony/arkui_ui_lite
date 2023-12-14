@@ -22,7 +22,7 @@ DESTDIR = ../../libs
 
 LIBPNG_PATH = ../../../../../../../../third_party/freetype
 LIBPNG_SOURCE_PATH = ../../../../../../../../third_party/freetype/freetype-2.12.1
-system("tar -xvf $${LIBPNG_PATH}\\freetype-2.12.1.tar.xz -C $${LIBPNG_PATH}")
+system("tar -xf $${LIBPNG_PATH}\\freetype-2.12.1.tar.xz -C $${LIBPNG_PATH}")
 
 SOURCES += \
     $${LIBPNG_SOURCE_PATH}/src/autofit/autofit.c \
@@ -72,7 +72,8 @@ SOURCES += \
 
 INCLUDEPATH += \
     ../../../../../../../../third_party/freetype/include \
+    ../../../../../../../../third_party/freetype/freetype-2.12.1/include \
     ../../../../../../../../third_party/libpng \
-    ../../../../../../../../third_party/libpng/libpng-1.6.37
+    ../../../../../../../../third_party/libpng/libpng-1.6.38
 
 LIBS += $$OUT_PWD/../../libs/libpng.dll
