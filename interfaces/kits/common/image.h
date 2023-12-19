@@ -154,7 +154,7 @@ protected:
     char* path_;
 
 private:
-#if ENABLE_JPEG_AND_PNG
+#if ENABLE_JPEG || ENABLE_PNG
     enum ImageType {
         IMG_PNG,
         IMG_JPEG,
@@ -167,9 +167,13 @@ private:
     bool mallocFlag_;
     bool SetLiteSrc(const char* src);
     bool SetStandardSrc(const char* src);
-#if ENABLE_JPEG_AND_PNG
-    bool SetPNGSrc(const char* src);
+#if ENABLE_JPEG
     bool SetJPEGSrc(const char* src);
+#endif
+#if ENABLE_PNG
+    bool SetPNGSrc(const char* src);
+#endif
+#if ENABLE_JPEG || ENABLE_PNG
     ImageType CheckImgType(const char* src);
 #endif
     bool IsImgValid(const char* suffix)

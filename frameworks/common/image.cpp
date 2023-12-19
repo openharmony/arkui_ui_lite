@@ -19,8 +19,10 @@
 #include "gfx_utils/file.h"
 #include "gfx_utils/graphic_log.h"
 #include "imgdecode/cache_manager.h"
-#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
+#if ENABLE_JPEG
 #include "jpeglib.h"
+#endif
+#if ENABLE_PNG
 #include "png.h"
 #endif
 #include "securec.h"
@@ -52,7 +54,7 @@ void Image::GetHeader(ImageHeader& header) const
     }
 }
 
-#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
+#if ENABLE_JPEG || ENABLE_PNG
 OHOS::Image::ImageType Image::CheckImgType(const char* src)
 {
     char buf[IMG_BYTES_TO_CHECK] = {0};
@@ -70,12 +72,18 @@ OHOS::Image::ImageType Image::CheckImgType(const char* src)
         return IMG_UNKNOWN;
     }
     close(fd);
+#if ENABLE_PNG
     if (!png_sig_cmp(reinterpret_cast<png_const_bytep>(buf), 0, IMG_BYTES_TO_CHECK)) {
         return IMG_PNG;
+    }
+#endif
+#if ENABLE_JPEG
     // 0xFF 0xD8: JPEG file's header
-    } else if ((static_cast<uint8_t>(buf[0]) == 0xFF) && (static_cast<uint8_t>(buf[1]) == 0xD8)) {
+    if ((static_cast<uint8_t>(buf[0]) == 0xFF) && (static_cast<uint8_t>(buf[1]) == 0xD8)) {
         return IMG_JPEG;
-    } else if ((static_cast<uint8_t>(buf[0]) == 0x47) && (static_cast<uint8_t>(buf[1]) == 0x49) &&
+    }
+#endif
+    if ((static_cast<uint8_t>(buf[0]) == 0x47) && (static_cast<uint8_t>(buf[1]) == 0x49) &&
           (static_cast<uint8_t>(buf[2]) == 0x46)) { // 2: array index of GIF file's header
         return IMG_GIF;
     }
@@ -95,13 +103,18 @@ bool Image::SetStandardSrc(const char* src)
         return false;
     }
 
-#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
+#if ENABLE_JPEG || ENABLE_PNG
     ImageType imageType = CheckImgType(src);
+#if ENABLE_PNG
     if (imageType == IMG_PNG) {
         return SetPNGSrc(src);
-    } else if (imageType == IMG_JPEG) {
+    }
+#endif
+#if ENABLE_JPEG
+    if (imageType == IMG_JPEG) {
         return SetJPEGSrc(src);
     }
+#endif
 #endif
 
     size_t strLen = strlen(src) + 1;
@@ -236,12 +249,16 @@ bool Image::PreParse(const char *src)
     }
     path_ = path;
     bool isSucess = true;
-#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
+#if ENABLE_JPEG || ENABLE_PNG
     ImageType imageType = CheckImgType(src);
     if (imageType == IMG_PNG) {
+#if ENABLE_PNG
         isSucess = SetPNGSrc(src);
+#endif
     } else if (imageType == IMG_JPEG) {
+#if ENABLE_JPEG
         isSucess = SetJPEGSrc(src);
+#endif
     } else if (imageType == IMG_GIF) {
         isSucess = true;
     } else {
@@ -267,8 +284,7 @@ void Image::DrawImage(BufferInfo& gfxDstBuffer,
     }
 }
 
-#if defined(ENABLE_JPEG_AND_PNG) && ENABLE_JPEG_AND_PNG
-
+#if ENABLE_PNG
 static inline void FreePngBytep(png_bytep** rowPointer, uint16_t size)
 {
     png_bytep* tmpRowPointer = *rowPointer;
@@ -390,7 +406,9 @@ bool Image::SetPNGSrc(const char* src)
     srcType_ = IMG_SRC_VARIABLE;
     return true;
 }
+#endif
 
+#if ENABLE_JPEG
 bool Image::SetJPEGSrc(const char* src)
 {
     struct jpeg_decompress_struct cinfo;
