@@ -24,8 +24,8 @@ namespace {
     const int16_t MAX_VALUE = 80;
     const int16_t MEDIAN_VALUE = 50;
     const int16_t MIN_VALUE = 20;
-    const char* foreground = "D:/";
-    const char* background = "D:/";
+    const char* FOREGROUND = "D:/";
+    const char* BACKGROUND = "D:/";
 }
 class UIAbsatrctProgressTest : public testing::Test {
 public:
@@ -221,15 +221,15 @@ HWTEST_F(UIAbsatrctProgressTest, UIAbsatrctProgressSetImage_001, TestSize.Level1
     }
     const Image* backgroundImage = new Image();
     const Image* foregroundImage = new Image();
-    foreground = foregroundImage->GetPath();
-    background = backgroundImage->GetPath();
-    abstractProgress_->SetImage(foreground, background);
-    if (foreground == nullptr) {
+    FOREGROUND = foregroundImage->GetPath();
+    BACKGROUND = backgroundImage->GetPath();
+    abstractProgress_->SetImage(FOREGROUND, BACKGROUND);
+    if (FOREGROUND == nullptr) {
         EXPECT_EQ(foregroundImage->GetSrcType(), 2); // 0 : IMG_SRC_VARIABLE 1 : IMG_SRC_FILE 2 : IMG_SRC_UNKNOWN
     } else {
         EXPECT_EQ(foregroundImage->GetSrcType(), 1); // 0 : IMG_SRC_VARIABLE 1 : IMG_SRC_FILE 2 : IMG_SRC_UNKNOWN
     }
-    if (background == nullptr) {
+    if (BACKGROUND == nullptr) {
         EXPECT_EQ(backgroundImage->GetSrcType(), 2); // 0 : IMG_SRC_VARIABLE 1 : IMG_SRC_FILE 2 : IMG_SRC_UNKNOWN
     } else {
         EXPECT_EQ(backgroundImage->GetSrcType(), 1); // 0 : IMG_SRC_VARIABLE 1 : IMG_SRC_FILE 2 : IMG_SRC_UNKNOWN
