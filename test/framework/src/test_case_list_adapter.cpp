@@ -27,7 +27,7 @@ namespace {
 const uint16_t TESTCASE_BUTTON_HEIGHT = 64;
 const uint16_t STYLE_BORDER_WIDTH_VALUE = 4;
 const uint16_t STYLE_BORDER_RADIUS_VALUE = 12;
-const char* g_uiTestId = "arkui_ui_lite_test_case_id";
+const char* UI_TEST_ID = "arkui_ui_lite_test_case_id";
 } // namespace
 
 uint16_t TestCaseListAdapter::GetCount()
@@ -56,7 +56,7 @@ public:
         rootView_->Remove(testCaseLabel_);
         rootView_->Remove(&view);
 
-        UIView* tempView = rootView_->GetChildById(g_uiTestId);
+        UIView* tempView = rootView_->GetChildById(UI_TEST_ID);
         if (tempView != nullptr) {
             rootView_->Remove(tempView);
             uiTest_->TearDown();
@@ -118,7 +118,7 @@ public:
         uiTest_->SetUp();
         UIView* tempView = const_cast<UIView*>(uiTest_->GetTestView());
         if (tempView != nullptr) {
-            tempView->SetViewId(g_uiTestId);
+            tempView->SetViewId(UI_TEST_ID);
             tempView->SetPosition(tempView->GetX(), tempView->GetY() + backBtn_->GetHeight());
             rootView_->Add(tempView);
         }

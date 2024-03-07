@@ -38,11 +38,11 @@ const uint16_t FONT_EMOJI_SIZE = 100;
 const char *SOURCE_HAN_SANS_SC_REGULAR = "SourceHanSansSC-Regular.otf";
 const char *ROBOTO_CONDENSED_REGULAR = "RobotoCondensed-Regular.ttf";
 const char *DEFAULT_EMOJI_FILENAME = "NotoColorEmojiCompat.ttf";
-const char *Amiri_Regular = "../../../../../../../third_party/harfbuzz/perf/fonts/Amiri-Regular.ttf";
-const char *Roboto_Regular = "../../../../../../../third_party/harfbuzz/perf/fonts/Roboto-Regular.ttf";
-const char *Source_HWSC = "../../../../../../../foundation/window/window_window_manager_lite/test/"
+const char *AMIRI_REGULAR = "../../../../../../../third_party/harfbuzz/perf/fonts/Amiri-Regular.ttf";
+const char *ROBOTO_REGULAR = "../../../../../../../third_party/harfbuzz/perf/fonts/Roboto-Regular.ttf";
+const char *SOURCE_HWSC = "../../../../../../../foundation/window/window_window_manager_lite/test/"
     "SourceHanSansHWSC-VF.ttf";
-const char *Source_SC = "../../../../../../../foundation/window/window_window_manager_lite/test/"
+const char *SOURCE_SC = "../../../../../../../foundation/window/window_window_manager_lite/test/"
     "SourceHanSansSC-VF.ttf";
 
 // foundation\window\window_window_manager_lite\test\sample_ui.cpp
@@ -213,20 +213,20 @@ void UITestSpannableString::UIKitSpannableStringTestFontId001()
 #else
     label->SetFontId(F_SOURCEHANSANSSC_REGULAR_30_4);
 #endif
-    UIFont::GetInstance()->RegisterFontInfo(Amiri_Regular);
+    UIFont::GetInstance()->RegisterFontInfo(AMIRI_REGULAR);
     UILabel *label_2 = new UILabel();
     label_2->SetPosition(positionX_, positionY_);
     label_2->Resize(LABEL_WIDTH, LABEL_HEIGHT * 2); // 2: double
-    label_2->SetFont(Amiri_Regular, FONT_SIZE);
+    label_2->SetFont(AMIRI_REGULAR, FONT_SIZE);
     label_2->SetText("IJK4 IJK8 IJK12 注意不同字体");
     container_->Add(label_2);
     positionY_ += LABEL_HEIGHT * 1 + GAP;
 
-    UIFont::GetInstance()->RegisterFontInfo(Roboto_Regular);
+    UIFont::GetInstance()->RegisterFontInfo(ROBOTO_REGULAR);
     UILabel *label_3 = new UILabel();
     label_3->SetPosition(positionX_, positionY_);
     label_3->Resize(LABEL_WIDTH, LABEL_HEIGHT * 2); // 2: double
-    label_3->SetFont(Roboto_Regular, FONT_SIZE);
+    label_3->SetFont(ROBOTO_REGULAR, FONT_SIZE);
     label_3->SetText("IJK4 IJK8 IJK12 注意不同字体");
     container_->Add(label_3);
     positionY_ += LABEL_HEIGHT * 2 + GAP; // 2: double
@@ -249,10 +249,10 @@ void UITestSpannableString::UIKitSpannableStringTestFontId002()
 #endif
     label->SetText("字体一 字体二 注意不同字体");
     SpannableString *ss = new SpannableString();
-    UIFont::GetInstance()->RegisterFontInfo(Source_HWSC);
-    UIFont::GetInstance()->RegisterFontInfo(Source_SC);
-    const uint16_t id_hwsc = UIFont::GetInstance()->GetFontId(Source_HWSC);
-    const uint16_t id_sc = UIFont::GetInstance()->GetFontId(Source_SC);
+    UIFont::GetInstance()->RegisterFontInfo(SOURCE_HWSC);
+    UIFont::GetInstance()->RegisterFontInfo(SOURCE_SC);
+    const uint16_t id_hwsc = UIFont::GetInstance()->GetFontId(SOURCE_HWSC);
+    const uint16_t id_sc = UIFont::GetInstance()->GetFontId(SOURCE_SC);
     uint16_t findPath[] = {id_hwsc};
     UIMultiFontManager::GetInstance()->SetSearchFontList(id_sc, findPath, sizeof(findPath));
     ss->SetFontId(id_hwsc, 0, 4); // 0:left edge; 4: right edge;
