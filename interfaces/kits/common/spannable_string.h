@@ -129,6 +129,9 @@ private:
         }
         bool needAddNode = true;
         if (startIndex <= tempStart) {
+            if (*tempSpan == nullptr) {
+                return false;
+            }
             if (endIndex < tempStart) {
                 // not overlap
             } else if (endIndex <= tempEnd) {
@@ -138,6 +141,9 @@ private:
                 *tempSpan = tempList.Remove(*tempSpan)->prev_;
             }
         } else {
+            if (*tempSpan == nullptr) {
+                return false;
+            }
             if (startIndex > tempEnd) {
                 // not overlap
             } else if (endIndex <= tempEnd) {
@@ -162,6 +168,9 @@ private:
                        SpanType tempRight)
     {
         bool needAddNode = true;
+        if (*tempSpan == nullptr) {
+            return false;
+        }
         if (startIndex > tempEnd) {
             // case A, no change
         } else if (startIndex > tempStart && endIndex >= tempEnd) {
