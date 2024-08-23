@@ -327,6 +327,7 @@ bool UIFontVector::GetTtfInfoFromTtf(uint8_t* ttfBuffer,
     }
     int32_t headerLength = lseek(fpTtf, 0, SEEK_END);
     if (headerLength < 0) {
+        close(fpTtf);
         return false;
     }
     ttfHeader.len = static_cast<uint32_t>(headerLength);
