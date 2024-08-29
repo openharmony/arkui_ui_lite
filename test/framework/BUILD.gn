@@ -78,7 +78,7 @@ test_sources = [
   "src/ui_test_group.cpp",
 ]
 
-if (enable_video_component) {
+if (ui_lite_enable_video_component_config) {
   test_sources += [ "../uitest/test_video/ui_test_video.cpp" ]
 }
 
