@@ -68,7 +68,7 @@ if (os_level != "standard") {
       ]
     } else if (ohos_kernel_type == "liteos_m") {
       include_dirs += [ "//third_party/freetype/include" ]
-      if (enable_canvas_extend) {
+      if (ui_lite_enable_canvas_extend) {
         defines += [ "ENABLE_CANVAS_EXTEND=1" ]
       } else {
         defines += [ "ENABLE_CANVAS_EXTEND=0" ]
@@ -89,7 +89,7 @@ if (os_level != "standard") {
     }
   }
 
-  if (enable_graphic_font) {
+  if (ui_lite_enable_graphic_font_config) {
     copy("utils_config") {
       sources = [
         "tools/qt/simulator/font/SourceHanSansSC-Regular.otf",
@@ -258,14 +258,14 @@ if (os_level != "standard") {
         "//third_party/qrcodegen:qrcodegen",
       ]
 
-      if (enable_video_component) {
+      if (ui_lite_enable_video_component_config) {
         defines += [ "ENABLE_VIDEO_COMPONENT=1" ]
         source += [ "frameworks/components/ui_video.cpp" ]
 
         deps += [ "//foundation/multimedia/media_lite/frameworks/player_lite:player_lite" ]
       }
 
-      if (enable_graphic_font) {
+      if (ui_lite_enable_graphic_font_config) {
         deps += [ "//foundation/arkui/ui_lite:utils_config" ]
       }
 
