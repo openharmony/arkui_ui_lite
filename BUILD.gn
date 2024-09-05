@@ -68,7 +68,7 @@ if (os_level != "standard") {
       ]
     } else if (ohos_kernel_type == "liteos_m") {
       include_dirs += [ "//third_party/freetype/include" ]
-      if (ui_lite_enable_canvas_extend) {
+      if (ui_lite_enable_canvas_extend_config) {
         defines += [ "ENABLE_CANVAS_EXTEND=1" ]
       } else {
         defines += [ "ENABLE_CANVAS_EXTEND=0" ]
