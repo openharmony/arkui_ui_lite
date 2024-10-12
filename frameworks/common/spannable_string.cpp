@@ -77,6 +77,15 @@ void SpannableString::Reset()
     if (heightList_.Size() > 0) {
         heightList_.Clear();
     }
+    if (backgroundColorList_.Size() > 0) {
+        backgroundColorList_.Clear();
+    }
+    if (foregroundColorList_.Size() > 0) {
+        foregroundColorList_.Clear();
+    }
+    if (lineBackgroundColorList_.Size() > 0) {
+        lineBackgroundColorList_.Clear();
+    }
 }
 
 void SpannableString::SetSpannableString(const SpannableString* input)
