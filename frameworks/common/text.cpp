@@ -60,7 +60,7 @@ Text::~Text()
     }
 #endif
     if (spannableString_ != nullptr) {
-        UIFree(spannableString_);
+        delete spannableString_;
         spannableString_ = nullptr;
     }
     if (backgroundColor_.Size() > 0) {
