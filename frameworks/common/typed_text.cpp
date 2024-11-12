@@ -467,7 +467,7 @@ uint32_t TypedText::GetUtf16Cnt(const char* utf8Str, uint32_t maxLength)
     uint32_t len = 0;
     uint32_t i = 0;
 
-    while (utf8Str[i] != '\0' && i < maxLength) {
+    while (i < maxLength && utf8Str[i] != '\0') {
         uint32_t unicode = GetUTF8Next(utf8Str, i, i);
         if (unicode <= MAX_UINT16_LOW_SCOPE) {
             len++;
