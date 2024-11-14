@@ -55,6 +55,9 @@
               "//foundation/graphic/graphic_utils_lite/interfaces/innerkits"
             ]
           }
+        },
+        {
+          "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide"
         }
       ],
       "test": []
