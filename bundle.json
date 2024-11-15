@@ -12,7 +12,10 @@
   "component": {
     "name": "ui_lite",
     "subsystem": "arkui",
-    "feature": [],
+    "features": [
+      "ui_lite_enable_video_component_config",
+      "ui_lite_enable_graphic_font_config"
+    ],
     "adapted_system_type": [ "mini","small" ],
     "rom": "900KB",
     "ram": "~90KB",
@@ -35,7 +38,7 @@
       ]
     },
     "build": {
-      "sub_component": [ 
+      "sub_component": [
         "//foundation/arkui/ui_lite/test/unittest:arkui_ui_lite_test",
         "//foundation/arkui/ui_lite/ext/updater:libupdater_layout"
       ],
