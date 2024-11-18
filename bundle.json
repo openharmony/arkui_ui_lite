@@ -16,7 +16,7 @@
       "ui_lite_enable_video_component_config",
       "ui_lite_enable_graphic_font_config"
     ],
-    "adapted_system_type": [ "mini","small" ],
+    "adapted_system_type": [ "mini","small","standard" ],
     "rom": "900KB",
     "ram": "~90KB",
     "deps": {
@@ -55,6 +55,9 @@
               "//foundation/graphic/graphic_utils_lite/interfaces/innerkits"
             ]
           }
+        },
+        {
+          "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide"
         }
       ],
       "test": []
