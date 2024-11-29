@@ -25,7 +25,7 @@ constexpr uint8_t ONE_BIT_LEN_IN_BIT = 1;
 constexpr uint8_t TWO_BIT_LEN_IN_BIT = 2;
 constexpr uint8_t FOUR_BIT_LEN_IN_BIT = 4;
 constexpr uint8_t BYTE_LEN_IN_BIT = 8;
-
+#undef OK
 enum class RetCode {
     OK,
     FAIL,
