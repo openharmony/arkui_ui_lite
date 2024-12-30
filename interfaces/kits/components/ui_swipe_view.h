@@ -198,6 +198,11 @@ public:
         blankSize_ = size;
     }
 
+    uint16_t GetBlankSize() const
+    {
+        return blankSize_;
+    }
+
     /**
      * @fn void OnDragEvent(const DragEvent& event) override
      *
