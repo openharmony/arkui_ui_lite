@@ -219,6 +219,7 @@ bool Image::SetSrc(const ImageInfo* src)
         }
 
         if (memcpy_s(const_cast<ImageInfo*>(imageInfo_), sizeof(ImageInfo), src, sizeof(ImageInfo)) != EOK) {
+            UIFree(reinterpret_cast<void*>(const_cast<ImageInfo*>(imageInfo_)));
             return false;
         }
 

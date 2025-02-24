@@ -168,6 +168,10 @@ bool SpannableString::SetSpannable(bool value, uint16_t startIndex, uint16_t end
     if (isSpannable_ == nullptr) {
         isSpannableLen_ = DEFAULT_IS_SPANNABLE_LEN;
         isSpannable_ = static_cast<bool*>(UIMalloc(isSpannableLen_ * sizeof(bool)));
+        if (isSpannable_ == nullptr) {
+            GRAPHIC_LOGE("SpannableString::SetSpannable() isSpannable_ == nullptr");
+            return false;
+        }
         for (uint16_t i = 0; i < isSpannableLen_; i++) {
             isSpannable_[i] = false;
         }
