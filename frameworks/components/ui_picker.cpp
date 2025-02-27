@@ -213,6 +213,9 @@ bool UIPicker::RefreshValues(int16_t start, int16_t end)
     uint16_t userSelectIndex = listListener_->GetSelectIndex();
     ClearList();
     InitTextAdapter();
+    if (textAdapter_ == nullptr) {
+        return false;
+    }
     textAdapter_->SetData(start, end);
     RefreshList();
     RefreshSelected(userSelectIndex);

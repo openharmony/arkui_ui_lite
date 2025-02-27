@@ -634,9 +634,9 @@ void UIList::MoveChildByOffset(int16_t xOffset, int16_t yOffset)
     if ((onSelectedIndex_ != NULL_SELECT_INDEX) && (selectPosition_ != 0)) {
         if (yOffset != 0) {
             height = view->GetRelativeRect().GetHeight();
-            if ((view->GetY() + yOffset > selectPosition_) ||
+            if (childrenTail_ != nullptr && ((view->GetY() + yOffset > selectPosition_) ||
                 (childrenTail_->GetY() + height + childrenTail_->GetStyle(STYLE_MARGIN_BOTTOM) + yOffset <
-                 selectPosition_)) {
+                 selectPosition_))) {
                 onSelectedIndex_ = NULL_SELECT_INDEX;
                 onSelectedView_ = nullptr;
                 if (scrollListener_ != nullptr) {
@@ -646,8 +646,8 @@ void UIList::MoveChildByOffset(int16_t xOffset, int16_t yOffset)
         }
         if (xOffset != 0) {
             width = view->GetRelativeRect().GetWidth();
-            if ((view->GetX() + xOffset > selectPosition_) ||
-                (childrenTail_->GetX() + width + childrenTail_->GetStyle(STYLE_MARGIN_RIGHT) < selectPosition_)) {
+            if (childrenTail_ != nullptr && ((view->GetX() + xOffset > selectPosition_) ||
+                (childrenTail_->GetX() + width + childrenTail_->GetStyle(STYLE_MARGIN_RIGHT) < selectPosition_))) {
                 onSelectedIndex_ = NULL_SELECT_INDEX;
                 onSelectedView_ = nullptr;
                 if (scrollListener_ != nullptr) {

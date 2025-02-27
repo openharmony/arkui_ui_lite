@@ -71,17 +71,17 @@ void UISwipeView::MoveHeadOrTailChild()
 {
     if (loop_ && (childrenNum_ != 1)) {
         if (direction_ == HORIZONTAL) {
-            while (childrenHead_->GetX() >= 0) {
+            while (childrenHead_ != nullptr && childrenHead_->GetX() >= 0) {
                 MoveLastChildToFirst();
             }
-            while (childrenTail_->GetX() + childrenTail_->GetWidth() <= GetWidth()) {
+            while (childrenTail_ != nullptr && childrenTail_->GetX() + childrenTail_->GetWidth() <= GetWidth()) {
                 MoveFirstChildToLast();
             }
         } else {
-            while (childrenHead_->GetY() >= 0) {
+            while (childrenHead_ != nullptr && childrenHead_->GetY() >= 0) {
                 MoveLastChildToFirst();
             }
-            while (childrenTail_->GetY() + childrenTail_->GetHeight() <= GetHeight()) {
+            while (childrenTail_ != nullptr && childrenTail_->GetY() + childrenTail_->GetHeight() <= GetHeight()) {
                 MoveFirstChildToLast();
             }
         }
