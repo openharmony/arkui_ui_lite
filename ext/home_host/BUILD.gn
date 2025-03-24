@@ -12,12 +12,15 @@
 if (os_level == "standard") {
   import("//build/ohos.gni")
   import("//foundation/arkui/ui_lite/ui.gni")
-  import("//foundation/graphic/graphic_utils_lite/utils.gni")
 
   config("libhome_host_layout_header_files") {
     visibility = [ ":*" ]
-    include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
-    include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
+    include_dirs = arkui_ui_lite_include_dirs
+    include_dirs += [
+      "//foundation/arkui/ui_lite/frameworks",
+      "//foundation/graphic/graphic_utils_lite/interfaces/innerkits",
+      "//foundation/graphic/graphic_utils_lite/interfaces/kits",  
+    ]
   }
 
   ohos_shared_library("libhome_host_layout") {
@@ -33,9 +36,38 @@ if (os_level == "standard") {
       "ENABLE_VECTOR_FONT = 1",
     ]
 
-    sources = arkui_ui_lite_sources + graphic_utils_sources
-    include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
-    include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
+    sources = arkui_ui_lite_sources
+    sources += [
+      "//foundation/graphic/graphic_utils_lite/frameworks/color.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/common/paint.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/depiction/depict_curve.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_cells_antialias.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_scanline_antialias.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/rasterizer/rasterizer_scanline_clip.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/vertexgenerate/vertex_generate_dash.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/vertexgenerate/vertex_generate_stroke.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/vertexprimitive/geometry_arc.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/vertexprimitive/geometry_bezier_arc.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/vertexprimitive/geometry_curves.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/diagram/vertexprimitive/geometry_shorten_path.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/geometry2d.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/graphic_math.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/graphic_performance.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/hal_cpu.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/hal_tick.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/mem_api.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/pixel_format_utils.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/style.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/trans_affine.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/transform.cpp",
+      "//foundation/graphic/graphic_utils_lite/frameworks/version.cpp",
+    ]
+    include_dirs = arkui_ui_lite_include_dirs
+    include_dirs += [
+      "//foundation/arkui/ui_lite/frameworks",
+      "//foundation/graphic/graphic_utils_lite/interfaces/innerkits",
+      "//foundation/graphic/graphic_utils_lite/interfaces/kits",  
+    ]
 
     public_configs = [ ":libhome_host_layout_header_files" ]
 
