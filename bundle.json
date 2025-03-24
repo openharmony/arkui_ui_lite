@@ -40,7 +40,8 @@
     "build": {
       "sub_component": [
         "//foundation/arkui/ui_lite/test/unittest:arkui_ui_lite_test",
-        "//foundation/arkui/ui_lite/ext/updater:libupdater_layout"
+        "//foundation/arkui/ui_lite/ext/updater:libupdater_layout",
+        "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout"
       ],
       "inner_kits": [
         {
@@ -58,6 +59,19 @@
         },
         {
           "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide"
+        },
+        {
+          "name": "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout",
+          "header": {
+            "header_files": [],
+            "header_base": [
+              "//foundation/arkui/ui_lite/frameworks",
+              "//foundation/arkui/ui_lite/interfaces/kits",
+              "//foundation/arkui/ui_lite/interfaces/innerkits",
+              "//foundation/graphic/graphic_utils_lite/interfaces/kits",
+              "//foundation/graphic/graphic_utils_lite/interfaces/innerkits"
+            ]
+          }
         }
       ],
       "test": []
