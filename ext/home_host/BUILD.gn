@@ -17,7 +17,7 @@ if (os_level == "standard") {
   config("libhome_host_layout_header_files") {
     visibility = [ ":*" ]
     include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
-    include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
+    include_dirs += [ "$ARKUI_UI_LITE_PATH/frameworks" ]
   }
 
   ohos_shared_library("libhome_host_layout") {
@@ -35,7 +35,7 @@ if (os_level == "standard") {
 
     sources = arkui_ui_lite_sources + graphic_utils_sources
     include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
-    include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
+    include_dirs += [ "$ARKUI_UI_LITE_PATH/frameworks" ]
 
     public_configs = [ ":libhome_host_layout_header_files" ]
 
