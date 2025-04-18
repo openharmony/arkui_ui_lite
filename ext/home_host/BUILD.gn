@@ -1,0 +1,57 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+if (os_level == "standard") {
+  import("//build/ohos.gni")
+  import("//foundation/arkui/ui_lite/ui.gni")
+  import("//foundation/graphic/graphic_utils_lite/utils.gni")
+
+  config("libhome_host_layout_header_files") {
+    visibility = [ ":*" ]
+    include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
+    include_dirs += [ "$ARKUI_UI_LITE_PATH/frameworks" ]
+  }
+
+  ohos_shared_library("libhome_host_layout") {
+    defines = [
+      "__LITEOS_M__",
+      "ENABLE_BITMAP_FONT = 0",
+      "ENABLE_ICU = 0",
+      "ENABLE_JPEG = 1",
+      "ENABLE_PNG = 1",
+      "ENABLE_MULTI_FONT = 0",
+      "ENABLE_SHAPING = 0",
+      "ENABLE_STATIC_FONT = 0",
+      "ENABLE_VECTOR_FONT = 1",
+    ]
+
+    sources = arkui_ui_lite_sources + graphic_utils_sources
+    include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
+    include_dirs += [ "$ARKUI_UI_LITE_PATH/frameworks" ]
+
+    public_configs = [ ":libhome_host_layout_header_files" ]
+
+    deps = [
+      "//third_party/bounds_checking_function:libsec_static",
+      "//third_party/cJSON:cjson_static",
+      "//third_party/freetype:freetype_static",
+      "//third_party/libjpeg-turbo:turbojpeg_static",
+      "//third_party/libpng:libpng",
+      "//third_party/qrcodegen:qrcodegen_static",
+    ]
+
+    part_name = "ui_lite"
+    subsystem_name = "arkui"
+  }
+} else {
+  group("libhome_host_layout") {
+  }
+}
