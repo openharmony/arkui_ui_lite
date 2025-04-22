@@ -34,7 +34,13 @@
         "graphic_utils_lite",
         "surface_lite",
         "window_manager_lite",
-        "media_lite"
+        "media_lite",
+        "libjpeg-turbo",
+        "cJSON",
+        "freetype",
+        "bounds_checking_function",
+        "libpng",
+        "qrcodegen"
       ]
     },
     "build": {
