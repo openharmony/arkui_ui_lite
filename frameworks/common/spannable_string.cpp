@@ -327,7 +327,7 @@ void SpannableString::SetFontHeight(int16_t inputHeight, uint16_t startIndex, ui
         return;
     }
     ListNode<LetterHeightSpan>* tempSpan = heightList_.Begin();
-    for (; ((tempSpan != nullptr) $$ (tempSpan != heightList_.End())); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != heightList_.End())); tempSpan = tempSpan->next_) {
         bool needAddNode = true;
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
