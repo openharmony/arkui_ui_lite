@@ -42,7 +42,7 @@ bool SpannableString::GetTextStyle(uint16_t index, TextStyle& textStyle)
 {
     bool hasFind = false;
     ListNode<StyleSpan*>* tempSpan = styleList_.Begin();
-    for (; tempSpan != styleList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != styleList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_->start_;
         uint16_t tempEnd = tempSpan->data_->end_;
         if ((tempStart <= index) && (index < tempEnd)) {
@@ -210,7 +210,7 @@ void SpannableString::SetFontSize(uint8_t inputFontSize, uint16_t startIndex, ui
         return;
     } else {
         ListNode<FontSizeSpan>* tempSpan = sizeList_.Begin();
-        for (; tempSpan != sizeList_.End(); tempSpan = tempSpan->next_) {
+        for (; ((tempSpan != nullptr) && (tempSpan != sizeList_.End())); tempSpan = tempSpan->next_) {
             bool needAddNode = true;
             uint16_t tempStart = tempSpan->data_.start;
             uint16_t tempEnd = tempSpan->data_.end;
@@ -245,7 +245,7 @@ bool SpannableString::GetFontSize(uint16_t index, uint8_t& outputSize)
 {
     bool hasFind = false;
     ListNode<FontSizeSpan>* tempSpan = sizeList_.Begin();
-    for (; tempSpan != sizeList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != sizeList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
@@ -269,7 +269,7 @@ void SpannableString::SetFontId(uint16_t inputFontId, uint16_t startIndex, uint1
         return;
     }
     ListNode<FontIdSpan>* tempSpan = fontIdList_.Begin();
-    for (; tempSpan != fontIdList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != fontIdList_.End())); tempSpan = tempSpan->next_) {
         bool needAddNode = true;
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
@@ -303,7 +303,7 @@ bool SpannableString::GetFontId(uint16_t index, uint16_t& outputFontId)
 {
     bool hasFind = false;
     ListNode<FontIdSpan>* tempSpan = fontIdList_.Begin();
-    for (; tempSpan != fontIdList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != fontIdList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
@@ -327,7 +327,7 @@ void SpannableString::SetFontHeight(int16_t inputHeight, uint16_t startIndex, ui
         return;
     }
     ListNode<LetterHeightSpan>* tempSpan = heightList_.Begin();
-    for (; tempSpan != heightList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != heightList_.End())); tempSpan = tempSpan->next_) {
         bool needAddNode = true;
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
@@ -365,7 +365,7 @@ bool SpannableString::GetFontHeight(uint16_t index,
 {
     bool hasFind = false;
     ListNode<LetterHeightSpan>* tempSpan = heightList_.Begin();
-    for (; tempSpan != heightList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != heightList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
@@ -396,7 +396,7 @@ void SpannableString::SetBackgroundColor(ColorType inputBackgroundColor, uint16_
         return;
     } else {
         ListNode<BackgroundColorSpan>* tempSpan = backgroundColorList_.Begin();
-        for (; tempSpan != backgroundColorList_.End(); tempSpan = tempSpan->next_) {
+        for (; ((tempSpan != nullptr) && (tempSpan != backgroundColorList_.End())); tempSpan = tempSpan->next_) {
             bool needAddNode = true;
             uint16_t tempStart = tempSpan->data_.start;
             uint16_t tempEnd = tempSpan->data_.end;
@@ -435,7 +435,7 @@ bool SpannableString::GetBackgroundColor(uint16_t index, ColorType& outputBackgr
 {
     bool hasFind = false;
     ListNode<BackgroundColorSpan>* tempSpan = backgroundColorList_.Begin();
-    for (; tempSpan != backgroundColorList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != backgroundColorList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
@@ -459,7 +459,7 @@ void SpannableString::SetForegroundColor(ColorType inputForegroundColor, uint16_
         return;
     } else {
         ListNode<ForegroundColorSpan>* tempSpan = foregroundColorList_.Begin();
-        for (; tempSpan != foregroundColorList_.End(); tempSpan = tempSpan->next_) {
+        for (; ((tempSpan != nullptr) && (tempSpan != foregroundColorList_.End())); tempSpan = tempSpan->next_) {
             bool needAddNode = true;
             uint16_t tempStart = tempSpan->data_.start;
             uint16_t tempEnd = tempSpan->data_.end;
@@ -497,7 +497,7 @@ bool SpannableString::GetForegroundColor(uint16_t index, ColorType& outputForegr
 {
     bool hasFind = false;
     ListNode<ForegroundColorSpan>* tempSpan = foregroundColorList_.Begin();
-    for (; tempSpan != foregroundColorList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != foregroundColorList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
@@ -521,7 +521,7 @@ void SpannableString::SetLineBackgroundColor(ColorType inputLineBackgroundColor,
         return;
     } else {
         ListNode<LineBackgroundColorSpan>* tempSpan = lineBackgroundColorList_.Begin();
-        for (; tempSpan != lineBackgroundColorList_.End(); tempSpan = tempSpan->next_) {
+        for (; ((tempSpan != nullptr) && (tempSpan != lineBackgroundColorList_.End())); tempSpan = tempSpan->next_) {
             bool needAddNode = true;
             uint16_t tempStart = tempSpan->data_.start;
             uint16_t tempEnd = tempSpan->data_.end;
@@ -560,7 +560,7 @@ bool SpannableString::GetLineBackgroundColor(uint16_t index, ColorType& outputLi
 {
     bool hasFind = false;
     ListNode<LineBackgroundColorSpan>* tempSpan = lineBackgroundColorList_.Begin();
-    for (; tempSpan != lineBackgroundColorList_.End(); tempSpan = tempSpan->next_) {
+    for (; ((tempSpan != nullptr) && (tempSpan != lineBackgroundColorList_.End())); tempSpan = tempSpan->next_) {
         uint16_t tempStart = tempSpan->data_.start;
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
