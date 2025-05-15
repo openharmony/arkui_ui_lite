@@ -70,11 +70,15 @@ if (os_level == "standard") {
     public_configs = [ ":libupdater_layout_header_files" ]
 
     deps = [
-      "//third_party/bounds_checking_function:libsec_static",
-      "//third_party/freetype:freetype_static",
       "//third_party/icu/icu4c/source/common:icu_font",
-      "//third_party/libjpeg-turbo:turbojpeg_static",
-      "//third_party/libpng:libpng",
+    ]
+
+    external_deps = [
+      "bounds_checking_function:libsec_static",
+      "cJSON:cjson_static",
+      "freetype:freetype_static",
+      "libjpeg-turbo:turbojpeg",
+      "libpng:libpng",
     ]
 
     install_images = [

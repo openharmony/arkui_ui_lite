@@ -21,12 +21,6 @@
     "ram": "~90KB",
     "deps": {
       "third_party": [
-        "libjpeg-turbo",
-        "cJSON",
-        "freetype",
-        "bounds_checking_function",
-        "libpng",
-        "qrcodegen",
         "giflib",
         "icu"
       ],
