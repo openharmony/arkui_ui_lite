@@ -21,7 +21,6 @@
     "ram": "~90KB",
     "deps": {
       "third_party": [
-        "libjpeg-turbo",
         "giflib",
         "icu"
       ],
@@ -30,6 +29,7 @@
         "surface_lite",
         "window_manager_lite",
         "media_lite",
+        "libjpeg-turbo",
         "cJSON",
         "freetype",
         "bounds_checking_function",
