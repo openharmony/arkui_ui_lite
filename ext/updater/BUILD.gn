@@ -71,13 +71,13 @@ if (os_level == "standard") {
 
     deps = [
       "//third_party/icu/icu4c/source/common:icu_font",
+      "//third_party/libjpeg-turbo:turbojpeg_static",
     ]
 
     external_deps = [
       "bounds_checking_function:libsec_static",
       "cJSON:cjson_static",
       "freetype:freetype_static",
-      "libjpeg-turbo:turbojpeg_static",
       "libpng:libpng",
     ]
 
