@@ -45,7 +45,6 @@ if (os_level == "standard") {
       "bounds_checking_function:libsec_static",
       "cJSON:cjson_static",
       "freetype:freetype_static",
-      "libjpeg-turbo:turbojpeg",
       "libpng:libpng",
     ]
 
