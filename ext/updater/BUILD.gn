@@ -69,13 +69,10 @@ if (os_level == "standard") {
 
     public_configs = [ ":libupdater_layout_header_files" ]
 
-    deps = [
-      "//third_party/icu/icu4c/source/common:icu_font",
-    ]
-
     external_deps = [
       "bounds_checking_function:libsec_static",
       "cJSON:cjson_static",
+      "icu:icu_font",
       "freetype:freetype_static",
       "libjpeg-turbo:turbojpeg_static",
       "libpng:libpng",
