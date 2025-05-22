@@ -20,6 +20,10 @@ if (os_level == "standard") {
     include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
   }
 
+  config("updater_layout_link_config") {
+    ldflags = [ "-Wl,--lto-O0" ]
+  }
+
   ohos_shared_library("libupdater_layout") {
     defines = [
       "__LITEOS_M__",
@@ -67,6 +71,7 @@ if (os_level == "standard") {
     include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
     include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
 
+    configs = [ ":updater_layout_link_config" ]
     public_configs = [ ":libupdater_layout_header_files" ]
 
     external_deps = [
