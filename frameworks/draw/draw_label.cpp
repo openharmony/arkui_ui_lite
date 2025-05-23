@@ -447,13 +447,7 @@ bool DrawLabel::CalculatedTransformDataInfo(uint8_t** buffer, TransformDataInfo&
     if (angle >= -EPSINON && angle <= EPSINON) {
         return true;
     }
-	int32_t rawOffset = static_cast<int32_t>(static_cast<double>(angle * letterInfo.radius) * UI_PI / SEMICIRCLE_IN_DEGREE);
-    if (rawOffset < std::numeric_limits<int16_t>::min() ||
-		rawOffset > std::numeric_limits<int16_t>::max()) {
-        // 处理溢出错误
-        return false;
-    }
-    int16_t offsetX = static_cast<int16_t>(rawOffset);
+    int16_t offsetX = static_cast<uint16_t>(angle * letterInfo.radius * UI_PI / SEMICIRCLE_IN_DEGREE);
     uint16_t copyCols = 0;
     uint16_t begin = 0;
     uint16_t sizePerPx = letterTranDataInfo.pxSize / 8; // 8 bit
