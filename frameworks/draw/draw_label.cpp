@@ -447,6 +447,7 @@ bool DrawLabel::CalculatedTransformDataInfo(uint8_t** buffer, TransformDataInfo&
     if (angle >= -EPSINON && angle <= EPSINON) {
         return true;
     }
+
     int16_t offsetX = static_cast<uint16_t>(angle * letterInfo.radius * UI_PI / SEMICIRCLE_IN_DEGREE);
     uint16_t copyCols = 0;
     uint16_t begin = 0;
