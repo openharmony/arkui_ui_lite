@@ -20,6 +20,7 @@
 #include "font/ui_font.h"
 #include "font/ui_font_header.h"
 #include "gfx_utils/graphic_log.h"
+#include <limits>
 
 namespace OHOS {
 uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInfo& labelLine, uint16_t& letterIndex)
