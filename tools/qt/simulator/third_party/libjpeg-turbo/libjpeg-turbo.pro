@@ -19,10 +19,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DESTDIR = ../../libs
 
 LIBJPEG_TURBO_PATH = ../../../../../../../../third_party/libjpeg-turbo
-LIBJPEG_TURBO_SOURCE_PATH = ../../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1
-system("tar -zxf $${LIBJPEG_TURBO_PATH}\\libjpeg-turbo-2.1.1.tar.gz -C $${LIBJPEG_TURBO_PATH}")
+LIBJPEG_TURBO_SOURCE_PATH = ../../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-3.1.0/src
+system("tar -zxf $${LIBJPEG_TURBO_PATH}\\libjpeg-turbo-3.1.0.tar.gz -C $${LIBJPEG_TURBO_PATH}")
 
 SOURCES += \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jdlhuff.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jclossls.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jclhuff.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jcdiffct.c \
+      $${LIBJPEG_TURBO_SOURCE_PATH}/jpeg_nbits.c \
       $${LIBJPEG_TURBO_SOURCE_PATH}/jcapimin.c \
       $${LIBJPEG_TURBO_SOURCE_PATH}/jcapistd.c \
       $${LIBJPEG_TURBO_SOURCE_PATH}/jccoefct.c \
@@ -74,5 +79,4 @@ SOURCES += \
       $${LIBJPEG_TURBO_SOURCE_PATH}/jsimd_none.c
 
 INCLUDEPATH += \
-    ../../../../../../../../third_party/libjpeg-turbo \
-    ../../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1/
+    ../../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-3.1.0/src
