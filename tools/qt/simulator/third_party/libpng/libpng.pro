@@ -17,7 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DESTDIR = ../../libs
 
 LIBPNG_PATH = ../../../../../../../../third_party/libpng
-LIBPNG_SOURCE_PATH = ../../../../../../../../third_party/libpng/libpng-1.6.38
+LIBPNG_SOURCE_PATH = ../../../../../../../../third_party/libpng/libpng-1.6.44
 system("tar -zxf $${LIBPNG_PATH}\\libpng-1.6.38.tar.gz -C $${LIBPNG_PATH}")
 
 SOURCES += \
