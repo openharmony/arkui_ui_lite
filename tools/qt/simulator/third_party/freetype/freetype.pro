@@ -74,6 +74,6 @@ INCLUDEPATH += \
     ../../../../../../../../third_party/freetype/include \
     ../../../../../../../../third_party/freetype/freetype-2.12.1/include \
     ../../../../../../../../third_party/libpng \
-    ../../../../../../../../third_party/libpng/libpng-1.6.38
+    ../../../../../../../../third_party/libpng/libpng-1.6.44
 
 LIBS += $$OUT_PWD/../../libs/libpng.dll

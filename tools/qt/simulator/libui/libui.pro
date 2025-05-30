@@ -372,9 +372,10 @@ INCLUDEPATH += \
     ../../../../../../../third_party/freetype/include \
     ../../../../../../../third_party/cJSON \
     ../../../../../../../third_party/libjpeg-turbo \
-    ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-2.1.1 \
+    ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-3.1.0/src \
+    ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-3.1.0 \
     ../../../../../../../third_party/libpng \
-    ../../../../../../../third_party/libpng/libpng-1.6.38 \
+    ../../../../../../../third_party/libpng/libpng-1.6.44 \
     ../../../../../../../third_party/qrcodegen/cpp
 
 
