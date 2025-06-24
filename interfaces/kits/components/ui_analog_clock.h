@@ -106,7 +106,7 @@ public:
               preAngle_(0),
               nextAngle_(0),
               position_{0, 0},
-              imageInfo_{{0, 0, 0}},
+              imageInfo_{},
               color_{{0, 0, 0}},
               width_(0),
               height_(0),

@@ -219,7 +219,7 @@ private:
     Rect curViewRect_;
     TransformMap transMap_;
     bool useAnimatorBuff_ = false;
-    ImageInfo animatorImageInfo_ = {{0}};
+    ImageInfo animatorImageInfo_ = {};
     // snapshot related
     uint8_t* viewBitmapBuffer_ = nullptr;
     uint16_t bitmapBufferWidth_ = 0;
