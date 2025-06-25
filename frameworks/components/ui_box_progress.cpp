@@ -34,7 +34,7 @@ void UIBoxProgress::DrawValidRect(BufferInfo& gfxDstBuffer,
 {
     Rect cordsTmp;
     if ((image != nullptr) && (image->GetSrcType() != IMG_SRC_UNKNOWN)) {
-        ImageHeader header = {0};
+        ImageHeader header = {};
         image->GetHeader(header);
 
         Rect area(rect);

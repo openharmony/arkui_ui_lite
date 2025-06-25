@@ -752,7 +752,7 @@ void UICanvas::DrawImage(const Point& startPoint, const char* image,
 void SetImageParamInfo(ImageParam* imageParam, const Paint& paint, PathParam* pathParam)
 {
     imageParam->image->SetSrc(paint.GetPatternImage());
-    ImageHeader header = {0};
+    ImageHeader header = {};
     imageParam->image->GetHeader(header);
     imageParam->start = {0, 0};
     imageParam->height = header.height;

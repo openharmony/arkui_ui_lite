@@ -50,7 +50,7 @@ UICheckBox::UICheckBox()
     image_[UNSELECTED].SetSrc(GetCheckBoxOffInfo());
     image_[SELECTED].SetSrc(GetCheckBoxOnInfo());
 #endif
-    ImageHeader header = {0};
+    ImageHeader header = {};
     image_[UNSELECTED].GetHeader(header);
     Resize(header.width, header.height);
 #if DEFAULT_ANIMATION
@@ -221,7 +221,7 @@ void UICheckBox::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
     Rect trunc = invalidatedArea;
     if ((image_[SELECTED].GetSrcType() != IMG_SRC_UNKNOWN) && (image_[UNSELECTED].GetSrcType() != IMG_SRC_UNKNOWN)) {
-        ImageHeader header = {0};
+        ImageHeader header = {};
         image_[state_].GetHeader(header);
         int16_t imgWidth = header.width;
         int16_t imgHeight = header.height;

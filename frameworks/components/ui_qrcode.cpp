@@ -24,7 +24,7 @@ UIQrcode::UIQrcode()
     : width_(0), needDraw_(false), backgroundColor_(Color::White()), qrColor_(Color::Black()), qrcodeVal_(nullptr)
 {
     style_ = &(StyleDefault::GetBackgroundTransparentStyle());
-    imageInfo_ = {{0}};
+    imageInfo_ = {};
 }
 
 UIQrcode::~UIQrcode()

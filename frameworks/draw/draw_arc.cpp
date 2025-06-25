@@ -36,7 +36,7 @@ void DrawArc::DrawImg(BufferInfo& gfxDstBuffer,
     if (image == nullptr) {
         return;
     }
-    ImageHeader header = {0};
+    ImageHeader header = {};
     image->GetHeader(header);
 
     Rect cordsTmp;
