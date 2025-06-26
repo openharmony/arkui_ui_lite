@@ -48,9 +48,7 @@
             "header_base": [
               "//foundation/arkui/ui_lite/frameworks",
               "//foundation/arkui/ui_lite/interfaces/kits",
-              "//foundation/arkui/ui_lite/interfaces/innerkits",
-              "//foundation/graphic/graphic_utils_lite/interfaces/kits",
-              "//foundation/graphic/graphic_utils_lite/interfaces/innerkits"
+              "//foundation/arkui/ui_lite/interfaces/innerkits"
             ]
           }
         },
@@ -64,9 +62,7 @@
             "header_base": [
               "//foundation/arkui/ui_lite/frameworks",
               "//foundation/arkui/ui_lite/interfaces/kits",
-              "//foundation/arkui/ui_lite/interfaces/innerkits",
-              "//foundation/graphic/graphic_utils_lite/interfaces/kits",
-              "//foundation/graphic/graphic_utils_lite/interfaces/innerkits"
+              "//foundation/arkui/ui_lite/interfaces/innerkits"
             ]
           }
         }
