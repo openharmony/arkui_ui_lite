@@ -46,6 +46,7 @@ if (os_level == "standard") {
       "freetype:freetype_static",
       "libjpeg-turbo:turbojpeg",
       "libpng:libpng",
+      "graphic_utils_lite:utils_lite",
     ]
 
     part_name = "ui_lite"
