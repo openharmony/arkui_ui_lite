@@ -9,11 +9,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if (os_level == "standard") {
-  import("//build/ohos.gni")
-  import("//foundation/arkui/ui_lite/ui.gni")
-  import("//foundation/graphic/graphic_utils_lite/utils.gni")
 
+import("//build/ohos.gni")
+import("//foundation/arkui/ui_lite/ui.gni")
+import("//foundation/graphic/graphic_utils_lite/utils.gni")
+if (os_level == "standard" && (ui_lite_enable_smarthomehost_config)) {
   config("libhome_host_layout_header_files") {
     visibility = [ ":*" ]
     include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
