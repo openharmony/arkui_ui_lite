@@ -127,3 +127,7 @@ arkui_ui_lite_sources = [
   "$ARKUI_UI_LITE_PATH/frameworks/themes/theme.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/themes/theme_manager.cpp",
 ]
+
+declare_args() {
+  ui_lite_enable_smarthomehost_config = false
+}

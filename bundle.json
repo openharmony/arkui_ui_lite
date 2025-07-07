@@ -14,7 +14,8 @@
     "subsystem": "arkui",
     "features": [
       "ui_lite_enable_video_component_config",
-      "ui_lite_enable_graphic_font_config"
+      "ui_lite_enable_graphic_font_config",
+      "ui_lite_enable_smarthomehost_config"
     ],
     "adapted_system_type": [ "mini","small","standard" ],
     "rom": "900KB",
