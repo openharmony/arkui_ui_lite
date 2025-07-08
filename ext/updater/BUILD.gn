@@ -12,11 +12,10 @@
 if (os_level == "standard") {
   import("//build/ohos.gni")
   import("//foundation/arkui/ui_lite/ui.gni")
-  import("//foundation/graphic/graphic_utils_lite/utils.gni")
 
   config("libupdater_layout_header_files") {
     visibility = [ ":*" ]
-    include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
+    include_dirs = arkui_ui_lite_include_dirs
     include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
   }
 
@@ -37,7 +36,7 @@ if (os_level == "standard") {
       "ENABLE_VECTOR_FONT = 1",
     ]
 
-    sources = arkui_ui_lite_sources + graphic_utils_sources
+    sources = arkui_ui_lite_sources
     sources -= [
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_abstract_clock.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/components/ui_analog_clock.cpp",
@@ -68,7 +67,7 @@ if (os_level == "standard") {
       "$ARKUI_UI_LITE_PATH/frameworks/dock/ohos/ohos_input_device.cpp",
       "$ARKUI_UI_LITE_PATH/frameworks/dock/virtual_input_device.cpp",
     ]
-    include_dirs = arkui_ui_lite_include_dirs + graphic_utils_include_dirs
+    include_dirs = arkui_ui_lite_include_dirs
     include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
 
     configs = [ ":updater_layout_link_config" ]
@@ -81,6 +80,7 @@ if (os_level == "standard") {
       "freetype:freetype_static",
       "libjpeg-turbo:turbojpeg_static",
       "libpng:libpng",
+      "graphic_utils_lite:utils_lite",
     ]
 
     install_images = [
