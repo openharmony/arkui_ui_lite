@@ -24,7 +24,6 @@
       "components": [
         "graphic_utils_lite",
         "surface_lite",
-        "window_manager_lite",
         "media_lite",
         "libjpeg-turbo",
         "icu",
