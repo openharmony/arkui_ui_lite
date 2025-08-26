@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
+#include <limits>
 #include "draw/draw_label.h"
+#include "engines/gfx/gfx_engine_manager.h"
+#include "gfx_utils/graphic_log.h"
 #include "common/typed_text.h"
 #include "draw/draw_utils.h"
-#include "engines/gfx/gfx_engine_manager.h"
 #include "font/ui_font.h"
 #include "font/ui_font_header.h"
-#include "gfx_utils/graphic_log.h"
-#include <limits>
 
 namespace OHOS {
 uint16_t DrawLabel::DrawTextOneLine(BufferInfo& gfxDstBuffer, const LabelLineInfo& labelLine, uint16_t& letterIndex)
@@ -449,7 +449,8 @@ bool DrawLabel::CalculatedTransformDataInfo(uint8_t** buffer, TransformDataInfo&
         return true;
     }
 
-    int32_t rawOffset = static_cast<int32_t>(static_cast<double>(angle * letterInfo.radius) * UI_PI / SEMICIRCLE_IN_DEGREE);
+    int32_t rawOffset = static_cast<int32_t>(static_cast<double>(angle * letterInfo.radius) *
+        UI_PI / SEMICIRCLE_IN_DEGREE);
     if (rawOffset < std::numeric_limits<int16_t>::min() || rawOffset > std::numeric_limits<int16_t>::max()) {
         // 处理溢出错误
         return false;
