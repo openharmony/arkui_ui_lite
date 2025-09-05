@@ -12,65 +12,80 @@
 import("//build/lite/config/subsystem/graphic/config.gni")
 import("//build/ohos.gni")
 import("//foundation/arkui/ui_lite/ui.gni")
-import("//foundation/graphic/graphic_utils_lite/utils.gni")
+if (os_level != "standard" || build_ohos_sdk == true) {
+    import("//foundation/graphic/graphic_utils_lite/utils.gni")
+    config("graphic_public_config_ide") {
+      include_dirs = arkui_ui_lite_include_dirs
+      include_dirs += [
+        "$ARKUI_UI_LITE_PATH/frameworks",
+        "$ARKUI_UI_LITE_PATH/frameworks/dock",
+        "$ARKUI_UI_LITE_PATH/interfaces/innerkits/common",
+        "$ARKUI_UI_LITE_PATH/interfaces/innerkits/dock",
+        "$ARKUI_UI_LITE_PATH/interfaces/innerkits/font",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/animator",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/common",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/components",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/dfx",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/events",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/font",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/layout",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/themes",
+        "$ARKUI_UI_LITE_PATH/interfaces/kits/window",
+      ]
+      defines = [
+        "ENABLE_VECTOR_FONT=1",
+        "ENABLE_BITMAP_FONT=1",
+        "ENABLE_STATIC_FONT=1",
+        "ENABLE_SHAPING=0",
+        "ENABLE_ICU=1",
+        "ENABLE_MULTI_FONT=1",
+      ]
+    }
 
-config("graphic_public_config_ide") {
-  include_dirs = arkui_ui_lite_include_dirs
-  include_dirs += [
-    "$ARKUI_UI_LITE_PATH/frameworks",
-    "$ARKUI_UI_LITE_PATH/frameworks/dock",
-    "$ARKUI_UI_LITE_PATH/interfaces/innerkits/common",
-    "$ARKUI_UI_LITE_PATH/interfaces/innerkits/dock",
-    "$ARKUI_UI_LITE_PATH/interfaces/innerkits/font",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/animator",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/common",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/components",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/dfx",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/events",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/font",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/layout",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/themes",
-    "$ARKUI_UI_LITE_PATH/interfaces/kits/window",
-  ]
-  defines = [
-    "ENABLE_VECTOR_FONT=1",
-    "ENABLE_BITMAP_FONT=1",
-    "ENABLE_STATIC_FONT=1",
-    "ENABLE_SHAPING=0",
-    "ENABLE_ICU=1",
-    "ENABLE_MULTI_FONT=1",
-  ]
+    config("graphic_config_ide") {
+      cflags = [
+        "-Wno-deprecated-declarations",
+        "-Wno-sign-compare",
+        "-Wno-missing-braces",
+        "-Wno-mismatched-tags",
+        "-Wno-unknown-pragmas",
+      ]
+      cflags_cc = cflags
+    }
+
+    ohos_static_library("ui_ide") {
+      sources = arkui_ui_lite_sources
+      include_dirs = [ "//foundation/graphic/surface_lite/interfaces/kits" ]
+      deps = [
+        "//third_party/bounds_checking_function:libsec_static",
+        "//third_party/cJSON:cjson_static",
+        "//third_party/freetype:freetype_static",
+        "//third_party/harfbuzz:harfbuzz_static",
+        "//third_party/icu/icu4c/source/common:icu_font",
+        "//third_party/libjpeg-turbo:turbojpeg_static",
+        "//third_party/libpng:libpng_static",
+        "//third_party/qrcodegen:qrcodegen_static",
+      ]
+      public_deps = [ ":graphic_utils_static_ide" ]
+      public_configs = [ ":graphic_public_config_ide" ]
+      configs = [ ":graphic_config_ide" ]
+    }
+
+    config("graphic_utils_public_config_ide") {
+      include_dirs = graphic_utils_include_dirs
+    }
+
+    ohos_static_library("graphic_utils_static_ide") {
+      sources = graphic_utils_sources
+      include_dirs = [ "$GRAPHIC_GRAPHIC_UTILS_LITE_PATH/frameworks" ]
+      public_configs = [ ":graphic_utils_public_config_ide" ]
+      deps = [ "//third_party/bounds_checking_function:libsec_static" ]
+      configs = [ ":graphic_config_ide" ]
+  }
+} else {
+    group("ui_ide"){
+    }
 }
-
-config("graphic_config_ide") {
-  cflags = [
-    "-Wno-deprecated-declarations",
-    "-Wno-sign-compare",
-    "-Wno-missing-braces",
-    "-Wno-mismatched-tags",
-    "-Wno-unknown-pragmas",
-  ]
-  cflags_cc = cflags
-}
-
-ohos_static_library("ui_ide") {
-  sources = arkui_ui_lite_sources
-  include_dirs = [ "//foundation/graphic/surface_lite/interfaces/kits" ]
-  deps = [
-    "//third_party/bounds_checking_function:libsec_static",
-    "//third_party/cJSON:cjson_static",
-    "//third_party/freetype:freetype_static",
-    "//third_party/harfbuzz:harfbuzz_static",
-    "//third_party/icu/icu4c/source/common:icu_font",
-    "//third_party/libjpeg-turbo:turbojpeg_static",
-    "//third_party/libpng:libpng_static",
-    "//third_party/qrcodegen:qrcodegen_static",
-  ]
-  public_deps = [ ":graphic_utils_static_ide" ]
-  public_configs = [ ":graphic_public_config_ide" ]
-  configs = [ ":graphic_config_ide" ]
-}
-
 # copy liteWearable config dir
 ohos_copy("copy_previewer_fonts_lite_full") {
   sources = [
@@ -81,16 +96,4 @@ ohos_copy("copy_previewer_fonts_lite_full") {
               "/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/previewer/liteWearable/config/"
   module_install_name = ""
-}
-
-config("graphic_utils_public_config_ide") {
-  include_dirs = graphic_utils_include_dirs
-}
-
-ohos_static_library("graphic_utils_static_ide") {
-  sources = graphic_utils_sources
-  include_dirs = [ "$GRAPHIC_GRAPHIC_UTILS_LITE_PATH/frameworks" ]
-  public_configs = [ ":graphic_utils_public_config_ide" ]
-  deps = [ "//third_party/bounds_checking_function:libsec_static" ]
-  configs = [ ":graphic_config_ide" ]
 }
