@@ -55,19 +55,17 @@ if (os_level != "standard" || build_ohos_sdk == true) {
 
     ohos_static_library("ui_ide") {
       sources = arkui_ui_lite_sources
-      include_dirs = []
-      external_deps = [
-        "surface_lite:surface_lite",
-        "bounds_checking_function:libsec_static",
-        "cJSON:cjson_static",
-        "freetype:freetype_static",
-        "harfbuzz:harfbuzz_static",
-        "icu:icu_font",
-        "libjpeg-turbo:turbojpeg_static",
-        "libpng:libpng_static",
-        "qrcodegen:qrcodegen_static",
+      include_dirs = [ "//foundation/graphic/surface_lite/interfaces/kits" ]
+      deps = [
+        "//third_party/bounds_checking_function:libsec_static",
+        "//third_party/cJSON:cjson_static",
+        "//third_party/freetype:freetype_static",
+        "//third_party/harfbuzz:harfbuzz_static",
+        "//third_party/icu/icu4c/source/common:icu_font",
+        "//third_party/libjpeg-turbo:turbojpeg_static",
+        "//third_party/libpng:libpng_static",
+        "//third_party/qrcodegen:qrcodegen_static",
       ]
-
       public_deps = [ ":graphic_utils_static_ide" ]
       public_configs = [ ":graphic_public_config_ide" ]
       configs = [ ":graphic_config_ide" ]
