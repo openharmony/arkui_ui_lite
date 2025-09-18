@@ -56,19 +56,20 @@ if (os_level != "standard" || build_ohos_sdk == true) {
     ohos_static_library("ui_ide") {
       sources = arkui_ui_lite_sources
       include_dirs = [ "//foundation/graphic/surface_lite/interfaces/kits" ]
-      deps = [
-        "//third_party/bounds_checking_function:libsec_static",
-        "//third_party/cJSON:cjson_static",
-        "//third_party/freetype:freetype_static",
-        "//third_party/harfbuzz:harfbuzz_static",
-        "//third_party/icu/icu4c/source/common:icu_font",
-        "//third_party/libjpeg-turbo:turbojpeg_static",
-        "//third_party/libpng:libpng_static",
-        "//third_party/qrcodegen:qrcodegen_static",
+      external_deps = [
+        "bounds_checking_function:libsec_static",
+        "cJSON:cjson_static",
+        "freetype:freetype_static",
+        "icu:icu_font",
+        "libjpeg-turbo:turbojpeg_static",
+        "libpng:libpng",
+        "qrcodegen:qrcodegen_static",
       ]
       public_deps = [ ":graphic_utils_static_ide" ]
       public_configs = [ ":graphic_public_config_ide" ]
       configs = [ ":graphic_config_ide" ]
+      part_name = "ui_lite"
+      subsystem_name = "arkui"
     }
 
     config("graphic_utils_public_config_ide") {
@@ -79,8 +80,10 @@ if (os_level != "standard" || build_ohos_sdk == true) {
       sources = graphic_utils_sources
       include_dirs = [ "$GRAPHIC_GRAPHIC_UTILS_LITE_PATH/frameworks" ]
       public_configs = [ ":graphic_utils_public_config_ide" ]
-      deps = [ "//third_party/bounds_checking_function:libsec_static" ]
+      external_deps = [ "bounds_checking_function:libsec_static" ]
       configs = [ ":graphic_config_ide" ]
+      part_name = "ui_lite"
+      subsystem_name = "arkui"
   }
 } else {
     group("ui_ide"){
