@@ -67,7 +67,7 @@ if (os_level != "standard" || build_ohos_sdk == true) {
         "qrcodegen:qrcodegen_static",
       ]
       if (build_ohos_sdk == false) {
-        external_deps += [ "surface_lite:surface_lite" ]		
+        external_deps += [ "surface_lite:surface_lite" ]
       }
       public_deps = [ ":graphic_utils_static_ide" ]
       public_configs = [ ":graphic_public_config_ide" ]
