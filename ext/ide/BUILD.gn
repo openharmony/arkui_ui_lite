@@ -65,8 +65,10 @@ if (os_level != "standard" || build_ohos_sdk == true) {
         "libjpeg-turbo:turbojpeg_static",
         "libpng:libpng",
         "qrcodegen:qrcodegen_static",
-        "surface_lite:surface_lite",
       ]
+      if(build_ohos_sdk == flase) {
+​	      external_deps += [ "surface_lite:surface_lite", ]		
+      }
       public_deps = [ ":graphic_utils_static_ide" ]
       public_configs = [ ":graphic_public_config_ide" ]
       configs = [ ":graphic_config_ide" ]
