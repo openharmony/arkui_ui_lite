@@ -40,7 +40,7 @@
       "sub_component": [
         "//foundation/arkui/ui_lite/test/unittest:arkui_ui_lite_test",
         "//foundation/arkui/ui_lite/ext/updater:libupdater_layout",
-        "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout",
+        "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout"
       ],
       "inner_kits": [
         {
