@@ -55,10 +55,7 @@
           }
         },
         {
-          "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide",
-          "header": {
-            "header_files": [ "common/screen.h" ],
-            "header_base": "foundation/arkui/ui_lite/interfaces/kits"
+          "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide"
           }
         },
         {
