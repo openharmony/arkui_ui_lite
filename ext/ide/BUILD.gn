@@ -14,6 +14,7 @@ import("//build/ohos.gni")
 import("//foundation/arkui/ui_lite/ui.gni")
 if (os_level != "standard" || build_ohos_sdk == true) {
   import("//foundation/graphic/graphic_utils_lite/utils.gni")
+
   config("graphic_public_config_ide") {
     include_dirs = arkui_ui_lite_include_dirs
     include_dirs += [
@@ -41,6 +42,7 @@ if (os_level != "standard" || build_ohos_sdk == true) {
       "ENABLE_MULTI_FONT=1",
     ]
   }
+
   config("graphic_config_ide") {
     cflags = [
       "-Wno-deprecated-declarations",
@@ -51,6 +53,7 @@ if (os_level != "standard" || build_ohos_sdk == true) {
     ]
     cflags_cc = cflags
   }
+
   ohos_static_library("ui_ide") {
     sources = arkui_ui_lite_sources
     include_dirs = [ "//foundation/graphic/surface_lite/interfaces/kits" ]
@@ -70,9 +73,11 @@ if (os_level != "standard" || build_ohos_sdk == true) {
     part_name = "ui_lite"
     subsystem_name = "arkui"
   }
+
   config("graphic_utils_public_config_ide") {
     include_dirs = graphic_utils_include_dirs
   }
+
   ohos_static_library("graphic_utils_static_ide") {
     sources = graphic_utils_sources
     include_dirs = [ "$GRAPHIC_GRAPHIC_UTILS_LITE_PATH/frameworks" ]
@@ -86,6 +91,7 @@ if (os_level != "standard" || build_ohos_sdk == true) {
     group("ui_ide"){
     }
 }
+
 # copy liteWearable config dir
 ohos_copy("copy_previewer_fonts_lite_full") {
   sources = [
