@@ -56,7 +56,6 @@
         },
         {
           "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide"
-          }
         },
         {
           "name": "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout",
