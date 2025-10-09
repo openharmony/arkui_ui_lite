@@ -32,7 +32,8 @@
         "freetype",
         "bounds_checking_function",
         "libpng",
-        "qrcodegen"
+        "qrcodegen",
+        "harfbuzz"
       ]
     },
     "build": {
