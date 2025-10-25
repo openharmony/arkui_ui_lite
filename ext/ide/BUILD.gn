@@ -64,7 +64,7 @@ if (os_level != "standard" || build_ohos_sdk == true) {
       "harfbuzz:harfbuzz_static",
       "icu:icu_font",
       "libjpeg-turbo:turbojpeg_static",
-      "libpng:libpng",
+      "libpng:libpng_static",
       "qrcodegen:qrcodegen_static",
     ]
     public_deps = [ ":graphic_utils_static_ide" ]
