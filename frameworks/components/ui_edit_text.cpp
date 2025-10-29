@@ -750,7 +750,7 @@ void UIEditText::CheckValueChange(std::string text)
 
 uint16_t UIEditText::GetTextLength()
 {
-    if (inputText_ == nullptr) {
+    if ((inputText_ == nullptr) || (inputText_->GetText() == nullptr)) {
         return 0;
     }
     return TypedText::GetUTF8CharacterSize(inputText_->GetText(),
