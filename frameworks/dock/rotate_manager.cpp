@@ -30,7 +30,6 @@ void RotateManager::Add(RotateEventListener* listener)
         return;
     }
 
-    // 遍历链表，避免重复添加
     ListNode<RotateEventListener*>* it = rotateList_.Begin();
     while (it != rotateList_.End()) {
         if (it->data_ == listener) {
