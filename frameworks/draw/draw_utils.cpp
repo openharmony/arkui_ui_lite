@@ -1650,7 +1650,7 @@ void DrawUtils::DrawTriangleTransformPart(BufferInfo& gfxDstBuffer, const Triang
     line.SetBottom(FO_TO_INTEGER(part.edge1.curY));
     // parameters above are Q15 fixed-point number
 #else
-    if ((std::fabs(part.edge1.dv) <= (1e - 6f)) || (std::fabs(part.edge1.dv) <= (1e - 6f))) return;
+    if ((std::fabs(part.edge1.dv) <= (1e - 6f)) || (std::fabs(part.edge2.dv) <= (1e - 6f))) return;
     part.edge1.curX += part.edge1.du * (part.yMin - part.edge1.curY) / part.edge1.dv;
     part.edge1.curY = part.yMin;
     part.edge2.curX += part.edge2.du * (part.yMin - part.edge2.curY) / part.edge2.dv;
