@@ -692,20 +692,25 @@ void DrawUtils::GetTransformInitState(const TransformMap& transMap,
 #endif
 }
 
+#if ENABLE_FIXED_POINT
 inline void DrawUtils::StepToNextLine(TriangleEdge& edge1, TriangleEdge& edge2)
 {
-#if ENABLE_FIXED_POINT
+    if ((edge1.dv == 0) || (edge2.dv == 0)) return;
     edge1.curY += FIXED_NUM_1;
     edge2.curY += FIXED_NUM_1;
     edge1.curX += FO_DIV(edge1.du, edge1.dv);
     edge2.curX += FO_DIV(edge2.du, edge2.dv);
+}
 #else
+inline void DrawUtils::StepToNextLine(TriangleEdge& edge1, TriangleEdge& edge2)
+{
+    if ((std::fabs(edge1.dv) <= 1e - 6f) || (std::fabs(edge2.dv) <= 1e - 6f)) return;
     edge1.curY++;
     edge2.curY++;
     edge1.curX += edge1.du / edge1.dv;
     edge2.curX += edge2.du / edge2.dv;
-#endif
 }
+#endif
 
 void DrawUtils::DrawTriangleAlphaBilinear(const TriangleScanInfo& in, const ColorMode bufferMode)
 {
@@ -1631,6 +1636,7 @@ void DrawUtils::DrawTriangleTrueColorNearest(const TriangleScanInfo& in, const C
 void DrawUtils::DrawTriangleTransformPart(BufferInfo& gfxDstBuffer, const TrianglePartInfo& part)
 {
 #if ENABLE_FIXED_POINT
+    if ((part.edge1.dv == 0) || (part.edge2.dv == 0)) return;
     // parameters below are Q15 fixed-point number
     int64_t yMin = FO_TRANS_INTEGER_TO_FIXED(part.yMin);
     part.edge1.curX += (static_cast<int64_t>(part.edge1.du) * (yMin - part.edge1.curY) / part.edge1.dv);
@@ -1644,6 +1650,7 @@ void DrawUtils::DrawTriangleTransformPart(BufferInfo& gfxDstBuffer, const Triang
     line.SetBottom(FO_TO_INTEGER(part.edge1.curY));
     // parameters above are Q15 fixed-point number
 #else
+    if ((std::fabs(part.edge1.dv) <= 1e - 6f) || (std::fabs(part.edge1.dv) <= 1e - 6f)) return;
     part.edge1.curX += part.edge1.du * (part.yMin - part.edge1.curY) / part.edge1.dv;
     part.edge1.curY = part.yMin;
     part.edge2.curX += part.edge2.du * (part.yMin - part.edge2.curY) / part.edge2.dv;
