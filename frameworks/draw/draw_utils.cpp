@@ -704,7 +704,7 @@ inline void DrawUtils::StepToNextLine(TriangleEdge& edge1, TriangleEdge& edge2)
 #else
 inline void DrawUtils::StepToNextLine(TriangleEdge& edge1, TriangleEdge& edge2)
 {
-    if ((std::fabs(edge1.dv) <= 1e - 6f) || (std::fabs(edge2.dv) <= 1e - 6f)) return;
+    if ((std::fabs(edge1.dv) <= (1e - 6f)) || (std::fabs(edge2.dv) <= (1e - 6f))) return;
     edge1.curY++;
     edge2.curY++;
     edge1.curX += edge1.du / edge1.dv;
