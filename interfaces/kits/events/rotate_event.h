@@ -58,7 +58,7 @@ public:
      * @version 3.0
      */
     RotateEvent(int16_t rotate) : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)),
-    rotateDegree_(1.0f * rotate) {} // Rotation direction
+        rotateDegree_(1.0f * rotate) {} // Rotation direction
 
     ~RotateEvent() {}
 
@@ -83,6 +83,9 @@ public:
      */
     bool SetRotateDegree(int16_t unitsPerRotation)
     {
+        if (unitsPerRotation == 0) {
+            return false;
+        }
         rotateDegree_ = rotate_ * 360.0f / unitsPerRotation;
         return true;
     }
