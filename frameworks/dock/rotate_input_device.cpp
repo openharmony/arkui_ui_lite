@@ -134,7 +134,7 @@ bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
         parent = parent->GetParent();
     }
     if (parent->GetViewType() == UI_ROOT_VIEW) {
-        return trur;
+        return true;
     } else {
         GRAPHIC_LOGW("RotateInputDevice failed to dispatch event without target view attached!\n");
         return false;
