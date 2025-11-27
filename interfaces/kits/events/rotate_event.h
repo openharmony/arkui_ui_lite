@@ -57,7 +57,8 @@ public:
      * @since 5.0
      * @version 3.0
      */
-    RotateEvent(int16_t rotate) : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)) {} // Rotation direction
+    RotateEvent(int16_t rotate) : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)),
+    rotateDegree_(1.0f * rotate) {} // Rotation direction
 
     ~RotateEvent() {}
 
@@ -73,8 +74,30 @@ public:
         return rotate_;
     }
 
+    /**
+     * @brief Sets the actual rotation angle in degrees.
+     * @param unitsPerRotation The number of units per full rotation (e.g., 521).
+     * @return Always true.
+     *
+     * @note This function is NOT const because it modifies member state.
+     */
+    bool SetRotateDegree(int16_t unitsPerRotation)
+    {
+        rotateDegree_ = rotate_ * 360.0f / unitsPerRotation;
+        return true;
+    }
+
+    /**
+     * @brief Gets the current rotation angle in degrees.
+     * @return The rotation angle in degrees.
+     */
+    float GetRotateDegree() const
+    {
+        return rotateDegree_;
+    }
 private:
     int16_t rotate_;
+    float rotateDegree_; /* Actual angle of crown rotation (unit: degrees), Default equals rotate_*/
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_ROTATE_EVENT_H
