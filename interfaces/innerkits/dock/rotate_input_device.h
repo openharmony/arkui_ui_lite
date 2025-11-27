@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 
 #include "dock/input_device.h"
 #include "components/ui_view.h"
+#include "dock/rotate_manager.h"
 
 #if ENABLE_ROTATE_INPUT
 namespace OHOS {
@@ -36,7 +38,15 @@ public:
 
 protected:
     void DispatchEvent(const DeviceData& data) override;
+    void RotateStop(const DeviceData& data, UIView* view, RotateManager& manager);
+    void DispatchToGlobal(const DeviceData& data, RotateManager& manager);
+    void DispatchToFocusedView(const DeviceData& data, UIView* view);
+    bool IsViewValidAndVisible(UIView* view);
+    bool IsGlobalListener(RotateManager& manager);
+
     bool rotateStart_;
+    bool globalRotateEventStatus_ = false;
+    bool focusEventStatus_ = false;
     int16_t threshold_;
     int16_t cachedRotation_;
     uint8_t zeroCount_;
