@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,98 +13,113 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef GRAPHIC_LITE_FOCUS_MANAGER_H
-#define GRAPHIC_LITE_FOCUS_MANAGER_H
-
-#include "graphic_config.h"
-#if ENABLE_FOCUS_MANAGER
-#include "components/ui_view_group.h"
+ 
+#ifndef ROTATE_MANAGER_H
+#define ROTATE_MANAGER_H
+ 
+#include "gfx_utils/list.h"
+#include "rotate_event_listener.h"
+#include "events/rotate_event.h"
+ 
 namespace OHOS {
-/**
- * @brief Enumerates focus directions.
- *
- * @since 5.0
- * @version 3.0
- */
-enum : uint8_t {
-    FOCUS_DIRECTION_RIGHT,
-    FOCUS_DIRECTION_LEFT,
-    FOCUS_DIRECTION_UP,
-    FOCUS_DIRECTION_DOWN,
-};
-
-class FocusManager {
+class RotateManager : public HeapBase {
 public:
     /**
-     * @brief Get the FocusManager's singleton.
+     * @brief Get the singleton instance of RotateManager.
      *
-     * @return FocusManager's singleton.
-     * @since 5.0
-     * @version 3.0
+     * This function returns the global unique instance of RotateManager.
+     * It is thread-safe and should be used to access the rotation event manager.
+     *
+     * @return RotateManager& Reference to the singleton instance.
      */
-    static FocusManager* GetInstance();
+    static RotateManager& GetInstance(void);
 
     /**
-     * @brief Clear the focus.
+     * @brief Register a listener for rotation events.
      *
-     * @return Returns <b>true</b> if the operation is successful; returns <b>false</b> otherwise.
-     * @since 5.0
-     * @version 3.0
+     * Registering a global crown event
+     * Only the last registered listener will be retained.
+     * previous ones will be overwritten.
+     *
+     * @param listener Pointer to the RotateEventListener to register.
+     * @return bool True if the listener was successfully added, false otherwise.
+     * @note The listener must remain valid for the duration of registration.
      */
-    bool ClearFocus();
+    bool Add(RotateEventListener* listener);
 
     /**
-     * @brief Get the focused view.
+     * @brief Remove a listener from rotation event notifications.
      *
-     * @return the focused view.
-     * @since 5.0
-     * @version 3.0
+     * Removes the specified listener from the list of active listeners.
+     * After this call, the listener will no longer receive rotation events.
+     *
+     * @param listener Pointer to the RotateEventListener to remove.
+     * @return bool True if the listener was successfully removed, false otherwise.
+     * @note The listener must have been previously added.
      */
-    UIView* GetFocusedView()
-    {
-        return focusView_;
-    }
+    bool Remove(RotateEventListener* listener);
 
     /**
-     * @brief Request the focus.
+     * @brief Remove all registered listeners.
      *
-     * @param view the focus.
-     * @return Returns <b>true</b> if the operation is successful; returns <b>false</b> otherwise.
-     * @since 5.0
-     * @version 3.0
+     * Clears the list of registered listeners, stopping all listeners
+     * from receiving rotation events.
+     *
+     * @return bool True if the operation was successful, false otherwise.
      */
-    bool RequestFocus(UIView* view);
+    bool Clear();
 
     /**
-     * @brief Request focus by direction.
+     * @brief Get the list of currently registered listeners.
      *
-     * @param direction focus direction.
-     * @return Returns <b>true</b> if the operation is successful; returns <b>false</b> otherwise.
-     * @since 5.0
-     * @version 3.0
+     * Returns a const reference to the internal list of registered listeners.
+     * The returned list is read-only and should not be modified directly.
+     *
+     * @return const List<RotateEventListener*>& Reference to the list of listeners.
      */
-    bool RequestFocusByDirection(uint8_t direction);
+    const List<RotateEventListener*>& GetRegisteredListeners() const;
+
+    /**
+     * @brief Notify all registered listeners that a rotation has started.
+     *
+     * This method triggers the OnRotateStart callback on all registered listeners.
+     * If any listener returns false, the event will continue to be propagated to
+     * other listeners.
+     *
+     * @param event The rotation event data.
+     * @return bool True if the event was handled by at least one listener, false otherwise.
+     */
+    bool OnRotateStart(const RotateEvent& event);
+
+    /**
+     * @brief Notify all registered listeners of a rotation update.
+     *
+     * This method triggers the OnRotate callback on all registered listeners.
+     * If any listener returns false, the event will continue to be propagated to
+     * other listeners.
+     *
+     * @param event The rotation event data.
+     * @return bool True if the event was handled by at least one listener, false otherwise.
+     */
+    bool OnRotate(const RotateEvent& event);
+
+    /**
+     * @brief Notify all registered listeners that a rotation has ended.
+     *
+     * This method triggers the OnRotateEnd callback on all registered listeners.
+     * If any listener returns false, the event will continue to be propagated to
+     * other listeners.
+     *
+     * @param event The rotation event data.
+     * @return bool True if the event was handled by at least one listener, false otherwise.
+     */
+    bool OnRotateEnd(const RotateEvent& event);
 
 private:
-    FocusManager() : focusView_(nullptr), lastFocusView_(nullptr) {}
-    ~FocusManager() {}
-
-    bool GetNextFocus(UIView* focusedView, UIView*& candidate, uint8_t direction);
-    bool GetNextFocus(UIView* focusedView, UIView*& candidate, UIView* view, uint8_t direction);
-    bool GetNextFocus(UIView* focusedView, UIView*& candidate, UIViewGroup* viewGroup, uint8_t direction);
-    bool IsAtSameCol(const Rect& rect1, const Rect& rect2);
-    bool IsAtSameRow(const Rect& rect1, const Rect& rect2);
-    bool CompareCandidates(UIView* focusedView, UIView*& candidate, UIView* current, uint8_t direction);
-    bool CompareCandidatesByUp(UIView* focusedView, UIView*& candidate, UIView* current);
-    bool CompareCandidatesByDown(UIView* focusedView, UIView*& candidate, UIView* current);
-    bool CompareCandidatesByLeft(UIView* focusedView, UIView*& candidate, UIView* current);
-    bool CompareCandidatesByRight(UIView* focusedView, UIView*& candidate, UIView* current);
-    bool CompareCandidatesDistance(const Rect& focused, const Rect& candidate, const Rect& current);
-
-    UIView* focusView_;
-    UIView* lastFocusView_;
+    List<RotateEventListener*> rotateList_;
+    RotateManager() = default;
+    RotateManager(const RotateManager&) = delete;
+    RotateManager& operator=(const RotateManager&) = delete;
 };
-} // namespace OHOS
-#endif
-#endif // GRAPHIC_LITE_FOCUS_MANAGER_H
+}
+#endif // ROTATE_MANAGER_H
