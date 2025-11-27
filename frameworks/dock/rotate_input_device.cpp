@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,33 +52,65 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     }
 
     UIView* view = FocusManager::GetInstance()->GetFocusedView();
-    if (view == nullptr) {
-        GRAPHIC_LOGE("RotateInputDevice Failed to dispatch event without focused view!\n");
-        return;
-    }
+    RotateManager& manager = RotateManager::GetInstance();
 
-    UIView* par = view;
-    while (par->GetParent() != nullptr) {
-        if (!par->IsVisible()) {
-            return;
-        }
-        par = par->GetParent();
-    }
-    if (par->GetViewType() != UI_ROOT_VIEW) {
-        GRAPHIC_LOGW("RotateInputDevice failed to dispatch event without target view attached!\n");
+    if (!(IsViewValidAndVisible(view)) && !IsGlobalListener(manager)) {
+        GRAPHIC_LOGW("No focus view and no global table crown registered, unable to schedule events!\n");
         return;
     }
 
     if (data.rotate == 0 && rotateStart_) {
-        zeroCount_++;
-        if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
-            view->OnRotateEndEvent(0);
-            zeroCount_ = 0;
-            rotateStart_ = false;
-            GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
-        }
+        RotateStop(data, view, manager);
         return;
     }
+
+    if (IsGlobalListener(manager)) {
+        DispatchToGlobal(data, manager);
+    }
+    if (IsViewValidAndVisible(view)) {
+        DispatchToFocusedView(data, view);
+    }
+}
+void RotateInputDevice::RotateStop(const DeviceData& data, UIView* view, RotateManager& manager)
+{
+    zeroCount_++;
+    if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
+        if (globalRotateEventStatus_ && IsGlobalListener(manager)) {
+            manager.OnRotateEnd(data.rotate);
+        } else if (focusEventStatus_ && (IsViewValidAndVisible(view))) {
+            view->OnRotateEndEvent(data.rotate);
+        }
+        zeroCount_ = 0;
+        rotateStart_ = false;
+        focusEventStatus_ = false;
+        globalRotateEventStatus_ = false;
+        GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
+    }
+}
+
+void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
+{
+    if (focusEventStatus_) {
+        /* Focus View is distributing events */
+        return;
+    }
+    globalRotateEventStatus_ = true;
+    if (!rotateStart_) {
+        manager.OnRotateStart(data.rotate);
+    }
+    manager.OnRotate(data.rotate);
+    rotateStart_ = true;
+    GRAPHIC_LOGI("RotateInputDevice dispatched rotate event, targetView Type = %{public}d,\
+        rotate value = %{public}d\n!", static_cast<uint8_t>(view->GetViewType()), data.rotate);
+}
+
+void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
+{
+    if (globalRotateEventStatus_) {
+        /* Global events are being distributed. */
+        return;
+    }
+    focusEventStatus_ = true;
     if (!rotateStart_) {
         view->OnRotateStartEvent(data.rotate);
     }
@@ -85,6 +118,31 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     rotateStart_ = true;
     GRAPHIC_LOGI("RotateInputDevice dispatched rotate event, targetView Type = %{public}d,\
         rotate value = %{public}d\n!", static_cast<uint8_t>(view->GetViewType()), data.rotate);
+}
+
+bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
+{
+    if (view == nullptr) {
+        return false;
+    }
+    UIView* parent = view;
+    while (parent != nullptr && parent->GetParent() != nullptr) {
+        if (!parent->IsVisible()) {
+            return false;
+        }
+        parent = parent->GetParent();
+    }
+    if (parent->GetViewType() == UI_ROOT_VIEW) {
+        return trur;
+    } else {
+        GRAPHIC_LOGW("RotateInputDevice failed to dispatch event without target view attached!\n");
+        return false;
+    }
+}
+
+bool RotateInputDevice::IsGlobalListener(RotateManager& manager)
+{
+    return !manager.GetRegisteredListeners().IsEmpty();
 }
 } // namespace OHOS
 #endif
