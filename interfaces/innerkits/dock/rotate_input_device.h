@@ -18,7 +18,6 @@
 
 #include "dock/input_device.h"
 #include "components/ui_view.h"
-#include "dock/rotate_manager.h"
 
 #if ENABLE_ROTATE_INPUT
 namespace OHOS {
