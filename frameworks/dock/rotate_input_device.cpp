@@ -99,8 +99,6 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
     }
     manager.OnRotate(data.rotate);
     rotateStart_ = true;
-    GRAPHIC_LOGI("RotateInputDevice dispatched rotate event, targetView Type = %{public}d,\
-        rotate value = %{public}d\n!", static_cast<uint8_t>(view->GetViewType()), data.rotate);
 }
 
 void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
