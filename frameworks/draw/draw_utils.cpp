@@ -692,7 +692,7 @@ void DrawUtils::GetTransformInitState(const TransformMap& transMap,
 #endif
 }
 
-#if ENABLE_FIXED_POINT
+#if defined(ENABLE_FIXED_POINT) && ENABLE_FIXED_POINT
 inline void DrawUtils::StepToNextLine(TriangleEdge& edge1, TriangleEdge& edge2)
 {
     if ((edge1.dv == 0) || (edge2.dv == 0)) return;
