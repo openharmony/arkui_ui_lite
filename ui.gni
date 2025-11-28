@@ -80,6 +80,7 @@ arkui_ui_lite_sources = [
   "$ARKUI_UI_LITE_PATH/frameworks/dfx/ui_dump_dom_tree.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/dfx/ui_view_bounds.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/dock/focus_manager.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/dock/rotate_manager.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/dock/input_device.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/dock/key_input_device.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/dock/ohos/ohos_input_device.cpp",
