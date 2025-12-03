@@ -58,39 +58,25 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
         return;
     }
 
-    if (data.rotate == 0 && rotateStart_) {
-        RotateStop(data, view, manager);
-        return;
-    }
-
-    if (IsGlobalListener(manager)) {
+    if (IsDispatchGlobalEvent(manager)) {
         DispatchToGlobal(data, manager);
     }
-    if (IsViewValidAndVisible(view)) {
+    if (IsDispatchFocusedEvent(view)) {
         DispatchToFocusedView(data, view);
-    }
-}
-void RotateInputDevice::RotateStop(const DeviceData& data, UIView* view, RotateManager& manager)
-{
-    zeroCount_++;
-    if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
-        if (globalRotateEventStatus_ && IsGlobalListener(manager)) {
-            manager.OnRotateEnd(data.rotate);
-        } else if (focusEventStatus_ && (IsViewValidAndVisible(view))) {
-            view->OnRotateEndEvent(data.rotate);
-        }
-        zeroCount_ = 0;
-        rotateStart_ = false;
-        focusEventStatus_ = false;
-        globalRotateEventStatus_ = false;
-        GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
     }
 }
 
 void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
 {
-    if (focusEventStatus_) {
-        /* Focus View is distributing events */
+    if (data.rotate == 0 && rotateStart_) {
+        zeroCount_++;
+        if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
+            manager.OnRotateEnd(data.rotate);
+        }
+        zeroCount_ = 0;
+        rotateStart_ = false;
+        globalRotateEventStatus_ = false;
+        GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         return;
     }
     globalRotateEventStatus_ = true;
@@ -103,8 +89,15 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
 
 void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
 {
-    if (globalRotateEventStatus_) {
-        /* Global events are being distributed. */
+    if (data.rotate == 0 && rotateStart_) {
+        zeroCount_++;
+        if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
+            view->OnRotateEnd(data.rotate);
+        }
+        zeroCount_ = 0;
+        rotateStart_ = false;
+        focusEventStatus_ = false;
+        GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         return;
     }
     focusEventStatus_ = true;
@@ -137,8 +130,34 @@ bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
     }
 }
 
-bool RotateInputDevice::IsGlobalListener(RotateManager& manager)
+bool WearRotateInputDevice::IsDispatchFocusedEvent(UIView* view)
 {
+    /* Global events are being distributed. */
+    if (globalRotateEventStatus_) {
+        return false;
+    }
+
+    /* The focus view is deregistered during the rotation of the focus view. */
+    if ((!IsViewValidAndVisible(view))  && focusEventStatus_) {
+        focusEventStatus_ = false;
+        rotateStart_ = false;
+        return false;
+    }
+    return true;
+}
+
+bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
+{
+    /* focues events are being distributed. */
+    if (focusEventStatus_) {
+        return false;
+    }
+    /* Global is deregistered during global rotation. */
+    if (manager.GetRegisteredListeners().IsEmpty() && globalRotateEventStatus_)) {
+        globalRotateEventStatus_ = false;
+        rotateStart_ = false;
+        return false;
+    }
     return !manager.GetRegisteredListeners().IsEmpty();
 }
 } // namespace OHOS
