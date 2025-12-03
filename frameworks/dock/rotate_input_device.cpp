@@ -139,6 +139,7 @@ bool WearRotateInputDevice::IsDispatchFocusedEvent(UIView* view)
 
     /* The focus view is deregistered during the rotation of the focus view. */
     if ((!IsViewValidAndVisible(view))  && focusEventStatus_) {
+        zeroCount_ = 0;
         focusEventStatus_ = false;
         rotateStart_ = false;
         return false;
@@ -154,6 +155,7 @@ bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
     }
     /* Global is deregistered during global rotation. */
     if (manager.GetRegisteredListeners().IsEmpty() && globalRotateEventStatus_)) {
+        zeroCount_ = 0;
         globalRotateEventStatus_ = false;
         rotateStart_ = false;
         return false;
