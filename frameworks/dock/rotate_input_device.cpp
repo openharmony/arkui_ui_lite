@@ -87,7 +87,7 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
-            view->OnRotateEnd(data.rotate);
+            view->OnRotateEndEvent(data.rotate);
             zeroCount_ = 0;
             rotateStart_ = false;
             focusEventStatus_ = false;
@@ -125,7 +125,7 @@ bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
     return true;
 }
 
-bool WearRotateInputDevice::IsDispatchFocusedEvent(UIView* view)
+bool RotateInputDevice::IsDispatchFocusedEvent(UIView* view)
 {
     /* Global events are being distributed. */
     if (globalRotateEventStatus_) {
