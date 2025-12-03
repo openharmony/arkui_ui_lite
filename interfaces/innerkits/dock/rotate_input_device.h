@@ -41,7 +41,7 @@ protected:
     void DispatchToFocusedView(const DeviceData& data, UIView* view);
     bool IsViewValidAndVisible(UIView* view);
     bool IsDispatchFocusedEvent(UIView* view);
-    bool IsGlobIsDispatchGlobalEventalListener(RotateManager& manager);
+    bool IsDispatchGlobalEvent(RotateManager& manager);
 
     bool rotateStart_;
     bool globalRotateEventStatus_ = false;
