@@ -53,11 +53,6 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     UIView* view = FocusManager::GetInstance()->GetFocusedView();
     RotateManager& manager = RotateManager::GetInstance();
 
-    if (!(IsViewValidAndVisible(view)) && !IsGlobalListener(manager)) {
-        GRAPHIC_LOGW("No focus view and no global table crown registered, unable to schedule events!\n");
-        return;
-    }
-
     if (IsDispatchGlobalEvent(manager)) {
         DispatchToGlobal(data, manager);
     }
@@ -113,6 +108,7 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
 bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
 {
     if (view == nullptr) {
+        GRAPHIC_LOGE("RotateInputDevice Failed to dispatch event without focused view!\n");
         return false;
     }
     UIView* parent = view;
@@ -122,12 +118,11 @@ bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
         }
         parent = parent->GetParent();
     }
-    if (parent->GetViewType() == UI_ROOT_VIEW) {
-        return true;
-    } else {
+    if (parent->GetViewType() != UI_ROOT_VIEW) {
         GRAPHIC_LOGW("RotateInputDevice failed to dispatch event without target view attached!\n");
         return false;
     }
+    return true;
 }
 
 bool WearRotateInputDevice::IsDispatchFocusedEvent(UIView* view)
@@ -160,7 +155,10 @@ bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
         rotateStart_ = false;
         return false;
     }
-    return !manager.GetRegisteredListeners().IsEmpty();
+    if (manager.GetRegisteredListeners().IsEmpty()) {
+        return false;
+    }
+    return true;
 }
 } // namespace OHOS
 #endif
