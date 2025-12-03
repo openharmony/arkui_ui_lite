@@ -37,11 +37,11 @@ public:
 
 protected:
     void DispatchEvent(const DeviceData& data) override;
-    void RotateStop(const DeviceData& data, UIView* view, RotateManager& manager);
     void DispatchToGlobal(const DeviceData& data, RotateManager& manager);
     void DispatchToFocusedView(const DeviceData& data, UIView* view);
     bool IsViewValidAndVisible(UIView* view);
-    bool IsGlobalListener(RotateManager& manager);
+    bool IsDispatchFocusedEvent(UIView* view);
+    bool IsGlobIsDispatchGlobalEventalListener(RotateManager& manager);
 
     bool rotateStart_;
     bool globalRotateEventStatus_ = false;
