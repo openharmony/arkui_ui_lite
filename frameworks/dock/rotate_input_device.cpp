@@ -72,11 +72,11 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
             manager.OnRotateEnd(data.rotate);
+            zeroCount_ = 0;
+            rotateStart_ = false;
+            globalRotateEventStatus_ = false;
+            GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         }
-        zeroCount_ = 0;
-        rotateStart_ = false;
-        globalRotateEventStatus_ = false;
-        GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         return;
     }
     globalRotateEventStatus_ = true;
@@ -93,11 +93,11 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
             view->OnRotateEnd(data.rotate);
+            zeroCount_ = 0;
+            rotateStart_ = false;
+            focusEventStatus_ = false;
+            GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         }
-        zeroCount_ = 0;
-        rotateStart_ = false;
-        focusEventStatus_ = false;
-        GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         return;
     }
     focusEventStatus_ = true;
