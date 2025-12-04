@@ -166,6 +166,7 @@ if (os_level != "standard") {
       "frameworks/dfx/ui_screenshot.cpp",
       "frameworks/dfx/ui_view_bounds.cpp",
       "frameworks/dock/focus_manager.cpp",
+      "frameworks/dock/rotate_manager.cpp",
       "frameworks/dock/input_device.cpp",
       "frameworks/dock/key_input_device.cpp",
       "frameworks/dock/ohos/ohos_input_device.cpp",

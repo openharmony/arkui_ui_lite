@@ -23,50 +23,41 @@ RotateManager& RotateManager::GetInstance(void)
     return instance;
 }
 
-void RotateManager::Add(RotateEventListener* listener)
+bool RotateManager::Add(RotateEventListener* listener)
 {
     if (listener == nullptr) {
         GRAPHIC_LOGE("RotateManager::Add invalid param\n");
-        return;
+        return false;
     }
-
-    ListNode<RotateEventListener*>* it = rotateList_.Begin();
-    while (it != rotateList_.End()) {
-        if (it->data_ == listener) {
-            GRAPHIC_LOGW("RotateManager::Add listener already registered\n");
-            return;
-        }
-        it = it->next_;
+    if (!rotateList_.IsEmpty()) {
+        rotateList_.Clear();
     }
-
-    rotateList_.PushBack(listener);
+    rotateList_.PushFront(listener);
+    return true;
 }
 
-void RotateManager::Remove(RotateEventListener* listener)
+bool RotateManager::Remove(RotateEventListener* listener)
 {
     if (listener == nullptr) {
-        return;
+        return false;
     }
 
-    bool found = false;
     ListNode<RotateEventListener*>* it = rotateList_.Begin();
     while (it != rotateList_.End()) {
         if (it->data_ == listener) {
             rotateList_.Remove(it);
-            found = true;
-            break;
+            return true;
         }
         it = it->next_;
     }
-
-    if (!found) {
-        GRAPHIC_LOGW("RotateManager::Remove listener not found\n");
-    }
+    GRAPHIC_LOGW("RotateManager::Remove listener not found\n");
+    return false;
 }
 
-void RotateManager::Clear()
+bool RotateManager::Clear()
 {
     rotateList_.Clear();
+    return true;
 }
 
 const List<RotateEventListener*>& RotateManager::GetRegisteredListeners() const
@@ -74,39 +65,48 @@ const List<RotateEventListener*>& RotateManager::GetRegisteredListeners() const
     return rotateList_;
 }
 
-void RotateManager::OnRotateStart(const RotateEvent& event)
+bool RotateManager::OnRotateStart(const RotateEvent& event)
 {
     ListNode<RotateEventListener*>* it = rotateList_.Begin();
     while (it != rotateList_.End()) {
         RotateEventListener* listener = it->data_;
         if (listener != nullptr) {
-            listener->OnRotateStartEvent(event);
+            if (listener->OnRotateStartEvent(event)) {
+                return true;
+            };
         }
         it = it->next_;
     }
+    return false;
 }
 
-void RotateManager::OnRotate(const RotateEvent& event)
+bool RotateManager::OnRotate(const RotateEvent& event)
 {
     ListNode<RotateEventListener*>* it = rotateList_.Begin();
     while (it != rotateList_.End()) {
         RotateEventListener* listener = it->data_;
         if (listener != nullptr) {
-            listener->OnRotateEvent(event);
+            if (listener->OnRotateEvent(event)) {
+                return true;
+            };
         }
         it = it->next_;
     }
+    return false;
 }
 
-void RotateManager::OnRotateEnd(const RotateEvent& event)
+bool RotateManager::OnRotateEnd(const RotateEvent& event)
 {
     ListNode<RotateEventListener*>* it = rotateList_.Begin();
     while (it != rotateList_.End()) {
         RotateEventListener* listener = it->data_;
         if (listener != nullptr) {
-            listener->OnRotateEndEvent(event);
+            if (listener->OnRotateEndEvent(event)) {
+                return true;
+            };
         }
         it = it->next_;
     }
+    return false;
 }
 } // namespace OHOS

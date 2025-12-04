@@ -18,6 +18,7 @@
 
 #include "dock/input_device.h"
 #include "components/ui_view.h"
+#include "dock/rotate_manager.h"
 
 #if ENABLE_ROTATE_INPUT
 namespace OHOS {
@@ -36,7 +37,15 @@ public:
 
 protected:
     void DispatchEvent(const DeviceData& data) override;
+    void DispatchToGlobal(const DeviceData& data, RotateManager& manager);
+    void DispatchToFocusedView(const DeviceData& data, UIView* view);
+    bool IsViewValidAndVisible(UIView* view);
+    bool IsDispatchFocusedEvent(UIView* view);
+    bool IsDispatchGlobalEvent(RotateManager& manager);
+
     bool rotateStart_;
+    bool globalRotateEventStatus_ = false;
+    bool focusEventStatus_ = false;
     int16_t threshold_;
     int16_t cachedRotation_;
     uint8_t zeroCount_;

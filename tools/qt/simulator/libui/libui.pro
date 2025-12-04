@@ -112,6 +112,7 @@ SOURCES += \
     ../../../../frameworks/components/ui_extend_image_view.cpp \
     ../../../../frameworks/core/input_method_manager.cpp \
     ../../../../frameworks/dock/focus_manager.cpp \
+    ../../../../frameworks/dock/rotate_manager.cpp \
     ../../../../frameworks/core/render_manager.cpp \
     ../../../../frameworks/core/task_manager.cpp \
     ../../../../frameworks/default_resource/check_box_res.cpp \
