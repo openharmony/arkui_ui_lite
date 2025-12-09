@@ -63,6 +63,9 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
 
 void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
 {
+    if (manager.GetRegisteredListeners().IsEmpty()) {
+        return;
+    }
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
@@ -84,6 +87,9 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
 
 void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
 {
+    if (view == nullptr) {
+        return;
+    }
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
