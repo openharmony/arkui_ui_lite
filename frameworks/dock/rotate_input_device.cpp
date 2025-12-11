@@ -154,14 +154,14 @@ bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
     if (focusEventStatus_) {
         return false;
     }
-    /* Global is deregistered during global rotation. */
-    if (manager.GetRegisteredListeners().IsEmpty() && globalRotateEventStatus_) {
-        zeroCount_ = 0;
-        globalRotateEventStatus_ = false;
-        rotateStart_ = false;
-        return false;
-    }
+
     if (manager.GetRegisteredListeners().IsEmpty()) {
+        /* Global is deregistered during global rotation. */
+        if (globalRotateEventStatus_) {
+            zeroCount_ = 0;
+            globalRotateEventStatus_ = false;
+            rotateStart_ = false;
+        }
         return false;
     }
     return true;
