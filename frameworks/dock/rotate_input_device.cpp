@@ -63,6 +63,9 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
 
 void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
 {
+    if (manager.GetRegisteredListeners().IsEmpty()) {
+        return;
+    }
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
@@ -84,6 +87,9 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
 
 void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
 {
+    if (view == nullptr) {
+        return;
+    }
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
@@ -148,14 +154,14 @@ bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
     if (focusEventStatus_) {
         return false;
     }
-    /* Global is deregistered during global rotation. */
-    if (manager.GetRegisteredListeners().IsEmpty() && globalRotateEventStatus_) {
-        zeroCount_ = 0;
-        globalRotateEventStatus_ = false;
-        rotateStart_ = false;
-        return false;
-    }
+
     if (manager.GetRegisteredListeners().IsEmpty()) {
+        /* Global is deregistered during global rotation. */
+        if (globalRotateEventStatus_) {
+            zeroCount_ = 0;
+            globalRotateEventStatus_ = false;
+            rotateStart_ = false;
+        }
         return false;
     }
     return true;
