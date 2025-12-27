@@ -167,6 +167,10 @@ void RenderManager::UpdateFPSByPreciseSamplingMethod()
 
 void RenderManager::RenderRect(const Rect& rect, RootView* rootView)
 {
+    if (rootView == nullptr) {
+        return;
+    }
+
     Rect mask = rect;
 #if ENABLE_WINDOW
     if (rootView->GetBoundWindow()) {

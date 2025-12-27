@@ -61,9 +61,23 @@ void InputMethodManager::HideInputMethod()
     inputMethodListener_->OnHide();
 }
 
+void InputMethodManager::InputMethodOnTickHandle()
+{
+    if (inputMethodListener_ == nullptr) {
+        return;
+    }
+
+    inputMethodListener_->OnTickEventHandle();
+}
+
 void InputMethodManager::SetInputMethodListener(InputMethodListener* listener)
 {
     inputMethodListener_ = listener;
+}
+
+void InputMethodManager::ClearInputMethListener()
+{
+    inputMethodListener_ = nullptr;
 }
 
 void InputMethodManager::InsertText(std::string text)

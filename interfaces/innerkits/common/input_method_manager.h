@@ -50,6 +50,11 @@ public:
          * @brief Invoke this method when edit text view get blured.
          */
         virtual void OnHide() = 0;
+
+        /**
+         * @brief Invoke this method when edit text view need refresh.
+         */
+        virtual void OnTickEventHandle() {}
     };
 
     /**
@@ -70,10 +75,20 @@ public:
     void HideInputMethod();
 
     /**
+     * @brief Called to intput method tick handle when the edit view refresh.
+     */
+    void InputMethodOnTickHandle();
+
+    /**
      * @brief Sets a input method listener.
      * @param listener the input method listener.
      */
     void SetInputMethodListener(InputMethodListener* listener);
+
+    /**
+     * @brief Clear input method listener.
+     */
+    void ClearInputMethListener();
 
     /**
      * @brief Call to insert text when keyboard select new input text.
