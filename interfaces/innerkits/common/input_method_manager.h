@@ -88,7 +88,7 @@ public:
     /**
      * @brief Clear input method listener.
      */
-    void ClearInputMethListener();
+    void ClearInputMethodListener();
 
     /**
      * @brief Call to insert text when keyboard select new input text.

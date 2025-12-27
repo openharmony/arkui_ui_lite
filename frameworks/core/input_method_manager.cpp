@@ -75,7 +75,7 @@ void InputMethodManager::SetInputMethodListener(InputMethodListener* listener)
     inputMethodListener_ = listener;
 }
 
-void InputMethodManager::ClearInputMethListener()
+void InputMethodManager::ClearInputMethodListener()
 {
     inputMethodListener_ = nullptr;
 }
