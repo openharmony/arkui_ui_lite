@@ -47,7 +47,6 @@ void GraphicStartUp::InitFontEngine(uintptr_t cacheMemAddr,
                                     const char* dPath,
                                     const char* ttfName)
 {
-    GRAPHIC_LOGE("GraphicStartUp::InitFontEngine start");
     UIFont* uiFont = UIFont::GetInstance();
     if (uiFont == nullptr) {
         GRAPHIC_LOGE("Get UIFont error");
