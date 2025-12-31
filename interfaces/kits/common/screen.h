@@ -57,7 +57,7 @@ public:
      * @since 1.0
      * @version 1.0
      */
-    virtual bool SnapshotCurrentScreen(Imageinfo& info, bool needAlloc) = 0;
+    virtual bool SnapshotCurrentScreen(ImageInfo& info, bool needAlloc) = 0;
 };
 
 /**
