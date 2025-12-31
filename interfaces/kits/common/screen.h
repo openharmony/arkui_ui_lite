@@ -122,7 +122,7 @@ private:
 
     bool SnapshotCurrentScreen(ImageInfo& info, bool needAlloc);
 
-    creenSnapshotAdaptee* adaptee_;
+    ScreenSnapshotAdaptee* adaptee_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_SCREEN_H
