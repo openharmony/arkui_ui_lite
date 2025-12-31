@@ -55,8 +55,7 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
 
     if (IsDispatchGlobalEvent(manager)) {
         DispatchToGlobal(data, manager);
-    }
-    if (IsDispatchFocusedEvent(view)) {
+    } else if (IsDispatchFocusedEvent(view)) {
         DispatchToFocusedView(data, view);
     }
 }
@@ -138,11 +137,13 @@ bool RotateInputDevice::IsDispatchFocusedEvent(UIView* view)
         return false;
     }
 
-    /* The focus view is deregistered during the rotation of the focus view. */
-    if ((!IsViewValidAndVisible(view))  && focusEventStatus_) {
-        zeroCount_ = 0;
-        focusEventStatus_ = false;
-        rotateStart_ = false;
+    if (!IsViewValidAndVisible(view)) {
+        /* The focus view is deregistered during the rotation of the focus view. */
+        if (focusEventStatus_) {
+            zeroCount_ = 0;
+            focusEventStatus_ = false;
+            rotateStart_ = false;
+        }
         return false;
     }
     return true;
