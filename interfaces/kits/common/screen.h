@@ -45,7 +45,7 @@ namespace OHOS {
  * @since 1.0
  * @version 1.0
  */
-class ScreenSnapshotAdaptee : HeapBase {
+class ScreenSnapshotAdaptee : public HeapBase {
 public:
     virtual ~ScreenSnapshotAdaptee() = default;
 
@@ -111,7 +111,7 @@ public:
 
     /**
      * @brief 设置截图适配者.
-     * @return 截图适配者.
+     * @param adaptee 截图适配者.
      * @since 1.0
      */
     void SetSnapshotAdaptee(ScreenSnapshotAdaptee* adaptee);
