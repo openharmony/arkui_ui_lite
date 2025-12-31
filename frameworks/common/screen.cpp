@@ -37,7 +37,26 @@ uint16_t Screen::GetHeight()
     return BaseGfxEngine::GetInstance()->GetScreenHeight();
 }
 
-bool Screen::GetCurrentScreenBitmap(ImageInfo& info)
+bool Screen::GetCurrentScreenBitmap(ImageInfo& info, bool needAlloc)
+{
+    if (adaptee_ == nullptr) {
+        return SnapshotCurrentScreen(info, needAlloc);
+    }
+
+    return adaptee_->SnapshotCurrentScreen(info, needAlloc);
+}
+
+ScreenShape Screen::GetScreenShape()
+{
+    return BaseGfxEngine::GetInstance()->GetScreenShape();
+}
+
+void Screen::SetSnapshotAdaptee(ScreenSnapshotAdaptee* adaptee)
+{
+    adaptee_ = adaptee;
+}
+
+bool Screen::SnapshotCurrentScreen(ImageInfo& info, bool needAlloc)
 {
 #if defined(ENABLE_WINDOW) && ENABLE_WINDOW
     return false;
@@ -50,10 +69,17 @@ bool Screen::GetCurrentScreenBitmap(ImageInfo& info)
     uint16_t screenWidth = baseGfxEngine->GetFBBufferInfo()->width;
     uint16_t screenHeight = baseGfxEngine->GetScreenHeight();
     info.header.colorMode = ARGB8888;
-    info.dataSize = screenWidth * screenHeight * DrawUtils::GetByteSizeByColorMode(info.header.colorMode);
-    info.data = reinterpret_cast<uint8_t*>(ImageCacheMalloc(info));
-    if (info.data == nullptr) {
-        return false;
+    uint32_t dataSize = screenWidth * screenHeight * DrawUtils::GetByteSizeByColorMode(info.header.colorMode);
+    if (needAlloc) {
+        info.dataSize = dataSize;
+        info.data = reinterpret_cast<uint8_t*>(ImageCacheMalloc(info));
+        if (info.data == nullptr) {
+            return false;
+        }
+    } else {
+        if ((info.data == nullptr) || (info.dataSize < dataSize)) {
+            return false;
+        }
     }
     info.header.width = screenWidth;
     info.header.height = screenHeight;
@@ -78,10 +104,5 @@ bool Screen::GetCurrentScreenBitmap(ImageInfo& info)
     baseGfxEngine->Blit(dstBufferInfo, dstPos, *bufferInfo, screenRect, blendOption);
     return true;
 #endif
-}
-
-ScreenShape Screen::GetScreenShape()
-{
-    return BaseGfxEngine::GetInstance()->GetScreenShape();
 }
 } // namespace OHOS
