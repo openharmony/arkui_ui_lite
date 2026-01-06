@@ -40,6 +40,27 @@
 
 namespace OHOS {
 /**
+ * @brief Represents the screen snapshot adaptee.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+class ScreenSnapshotAdaptee : public HeapBase {
+public:
+    virtual ~ScreenSnapshotAdaptee() = default;
+
+    /**
+     * @brief 获取当前屏幕的bitmap截图.请注意needAlloc为true时该接口会申请内存，请在需要释放时使用{@link ImageCacheFree()}接口.
+     * @param info bitmap存储对象，获取的截图将被存到该引用中.
+     * @param needAlloc 接口中是否需要申请内存，<b>true</b> 表示需要申请，<b>false</b> 表示不需要.
+     * @return bitmap是否获取成功.
+     * @since 1.0
+     * @version 1.0
+     */
+    virtual bool SnapshotCurrentScreen(ImageInfo& info, bool needAlloc) = 0;
+};
+
+/**
  * @brief Represents the screen info of the device.
  *
  * @since 1.0
@@ -72,13 +93,14 @@ public:
     uint16_t GetHeight();
 
     /**
-     * @brief 获取当前屏幕的bitmap截图.请注意该接口会申请内存，请在需要释放时使用{@link ImageCacheFree()}接口.
+     * @brief 获取当前屏幕的bitmap截图.请注意needAlloc为true时该接口会申请内存，请在需要释放时使用{@link ImageCacheFree()}接口.
      * @param info bitmap存储对象，获取的截图将被存到该引用中.
+     * @param needAlloc 接口中是否需要申请内存，<b>true</b> 表示需要申请，<b>false</b> 表示不需要.
      * @return bitmap是否获取成功.
      * @since 5.0
      * @version 3.0
      */
-    bool GetCurrentScreenBitmap(ImageInfo& info);
+    bool GetCurrentScreenBitmap(ImageInfo& info, bool needAlloc = true);
 
     /**
      * @brief 获取当前屏幕的形状.
@@ -87,9 +109,20 @@ public:
      */
     ScreenShape GetScreenShape();
 
+    /**
+     * @brief 设置截图适配者.
+     * @param adaptee 截图适配者.
+     * @since 1.0
+     */
+    void SetSnapshotAdaptee(ScreenSnapshotAdaptee* adaptee);
+
 private:
-    Screen() {}
+    Screen() : adaptee_(nullptr) {}
     virtual ~Screen() {}
+
+    bool SnapshotCurrentScreen(ImageInfo& info, bool needAlloc);
+
+    ScreenSnapshotAdaptee* adaptee_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_SCREEN_H
