@@ -471,7 +471,7 @@ public:
 protected:
     class ImageAnimatorCallback : public AnimatorCallback {
     public:
-        ImageAnimatorCallback() : tickNum_(0), loop_(1), drawingImage_(0), repeat_(0), imageSrc_(nullptr), 
+        ImageAnimatorCallback() : tickNum_(0), loop_(1), drawingImage_(0), repeat_(0), imageSrc_(nullptr),
             imageNum_(0), totalRunTime_(0)
         {
         }
