@@ -106,7 +106,7 @@ void UIImageAnimatorView::ImageAnimatorCallback::PlayImageByTimestamp(UIImageAni
     uint32_t runTime = imageAnimatorView->GetRunTime();
     uint16_t pauseTime = imageAnimatorView->GetTimeOfPause();
     uint16_t playImageTime = pauseTime > 0 ? pauseTime : imageAnimatorView->GetTimeOfUpdate();
-    if ((totalRunTime_ != 0) && ((runTime_ - totalRunTime_) < playImageTime)) {
+    if ((totalRunTime_ != 0) && ((runTime - totalRunTime_) < playImageTime)) {
         return;
     }
 
