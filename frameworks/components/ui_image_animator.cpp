@@ -29,7 +29,8 @@ UIImageAnimatorView::UIImageAnimatorView()
       reverse_(false),
       repeat_(true),
       sizeFixed_(false),
-      fillMode_(true)
+      fillMode_(true),
+      isPlayImageByTimestamp_(false)
 {
 }
 
@@ -41,6 +42,10 @@ void UIImageAnimatorView::ImageAnimatorCallback::Callback(UIView* view)
         return;
     }
     UIImageAnimatorView* imageAnimatorView = static_cast<UIImageAnimatorView*>(view);
+    if (imageAnimatorView->IsPlayImageByTimestamp()) {
+        PlayImageByTimestamp(imageAnimatorView);
+        return;
+    }
 
     imageSrc_ = imageAnimatorView->GetImageAnimatorSrc();
     imageNum_ = imageAnimatorView->GetImageAnimatorImageNum();
@@ -78,6 +83,35 @@ void UIImageAnimatorView::ImageAnimatorCallback::Callback(UIView* view)
     }
     imageAnimatorView->UpdateImage(drawingImage_, loop_);
     tickNum_ = 0;
+}
+
+void UIImageAnimatorView::ImageAnimatorCallback::PlayImageByTimestamp(UIImageAnimatorView* imageAnimatorView)
+{
+    imageSrc_ = imageAnimatorView->GetImageAnimatorSrc();
+    imageNum_ = imageAnimatorView->GetImageAnimatorImageNum();
+    if ((imageSrc_ == nullptr) || (imageNum_ == 0) || (imageAnimatorView->GetTimeOfUpdate() == 0)) {
+        return;
+    }
+
+    if (loop_ >= imageNum_) {
+        repeat_++;
+        loop_ = 0;
+    }
+
+    if (!imageAnimatorView->IsRepeat() && (repeat_ == imageAnimatorView->GetRepeatTimes())) {
+        imageAnimatorView->Stop();
+        return;
+    }
+
+    uint32_t runTime = imageAnimatorView->GetRunTime();
+    uint16_t pauseTime = imageAnimatorView->GetTimeOfPause();
+    uint16_t playImageTime = pauseTime > 0 ? pauseTime : imageAnimatorView->GetTimeOfUpdate();
+    if ((totalRunTime_ != 0) && ((runTime_ - totalRunTime_) < playImageTime)) {
+        return;
+    }
+
+    totalRunTime_ = runTime;
+    imageAnimatorView->UpdateImage(drawingImage_, loop_);
 }
 
 void UIImageAnimatorView::UpdateImage(uint8_t& drawingImage, uint8_t& loop)

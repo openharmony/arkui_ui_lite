@@ -271,6 +271,47 @@ public:
     }
 
     /**
+     * @brief Obtains the running time of this image animator.
+     *
+     * @return Returns the image animator time.
+     * @since 1.0
+     * @version 1.0
+     */
+    uint32_t GetRunTime() const
+    {
+        return imageAnimator_.GetRunTime();
+    }
+
+    /**
+     * @brief Sets whether this animator play by timestamp.
+     *
+     * @param timestamp Specifies whether the animator is played by timestamp.<b>true</b> indicates the animator
+     *                  is played by timestamp, and <b>false</b> (default value) indicates the animator
+     *                  is played by tick.
+     * @see IsPlayImageByTimestamp
+     * @since 1.0
+     * @version 1.0
+     */
+    void SetPlayImageByTimestamp(bool timestamp)
+    {
+        isPlayImageByTimestamp_ = timestamp;
+    }
+
+    /**
+     * @brief Checks whether this animator is played by timestamp.
+     *
+     * @return Returns <b>true</b> if this animator is played by timestamp, returns <b>false</b> if the
+     *         animator is played by tick.
+     * @see SetPlayImageByTimestamp
+     * @since 1.0
+     * @version 1.0
+     */
+    bool IsPlayImageByTimestamp() const
+    {
+        return isPlayImageByTimestamp_;
+    }
+
+    /**
      * @brief Obtains the current state of this animator.
      *
      * @return Returns the current state, which can be {@link START}, {@link STOP}, or {@link PAUSE}.
@@ -430,7 +471,8 @@ public:
 protected:
     class ImageAnimatorCallback : public AnimatorCallback {
     public:
-        ImageAnimatorCallback() : tickNum_(0), loop_(1), drawingImage_(0), repeat_(0), imageSrc_(nullptr), imageNum_(0)
+        ImageAnimatorCallback() : tickNum_(0), loop_(1), drawingImage_(0), repeat_(0), imageSrc_(nullptr), 
+            imageNum_(0), totalRunTime_(0)
         {
         }
 
@@ -438,9 +480,12 @@ protected:
 
         void Callback(UIView* view) override;
 
+        void PlayImageByTimestamp(UIImageAnimatorView* imageAnimatorView);
+
         void Reset()
         {
             tickNum_ = 0;
+            totalRunTime_ = 0;
             loop_ = 1;
             repeat_ = 0;
         }
@@ -452,6 +497,7 @@ protected:
         uint32_t repeat_;
         const ImageAnimatorInfo* imageSrc_;
         uint8_t imageNum_;
+        uint32_t totalRunTime_;
     };
 
     void Reset(bool fillMode);
@@ -471,6 +517,7 @@ protected:
     bool repeat_;
     bool sizeFixed_;
     bool fillMode_;
+    bool isPlayImageByTimestamp_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_IMAGE_ANIMATOR_H
