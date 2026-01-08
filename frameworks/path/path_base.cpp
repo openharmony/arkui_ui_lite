@@ -193,7 +193,7 @@ vool PathBase::IsInvalidPoint(const FloatPoint& p0)
     return (IsFloatEqual(p0.x, INVALID_COORD) || IsFloatEqual(p0.y, INVALID_COORD));
 }
 
-bool PathBase::InInvalidCurve(const FloatPoint& p0, const FloatPoint& p1, const FloatPoint& p2)
+bool PathBase::IsInvalidCurve(const FloatPoint& p0, const FloatPoint& p1, const FloatPoint& p2)
 {
     return (IsInvalidPoint(p0) || IsInvalidPoint(p1) || IsInvalidPoint(p2));
 }

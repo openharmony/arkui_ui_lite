@@ -23,7 +23,7 @@
 
 namespace OHOS {
 enum PathCmd {
-    PATH_DONE,
+    PATH_DONE = 0,
     PATH_CLOSE,
     MOVE_TO,
     MOVE_TO_REL,
@@ -64,7 +64,7 @@ public:
 
     virtual void LineTo(FloatPoint& p0) = 0;
 
-    virtual void AddLine(float x0, float y0, float x1, float y1) = 0;
+    virtual void AddLine(float x0, float y0, float x1, float y1, float width) = 0;
 
     virtual void AddArc(ArcPathInfo& arcInfo, bool rounded) = 0;
 
@@ -89,7 +89,7 @@ public:
 
     void SetInvalidCubicBezierPoints(CubicBezierPoints& points);
 
-    bool InInvalidCurve(const FloatPoint& p0, const FloatPoint& p1, const FloatPoint& p2);
+    bool IsInvalidCurve(const FloatPoint& p0, const FloatPoint& p1, const FloatPoint& p2);
 
     static PathBase* GetInstance()
     {
