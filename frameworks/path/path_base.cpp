@@ -14,7 +14,6 @@
  */
 
 #include "path/path_base.h"
-#include <float.h>
 
 namespace OHOS {
 PathBase* PathBase::pathBase_ = nullptr;
@@ -154,7 +153,7 @@ CubicBezierPoints PathBase::CalcRoundedRectInnerPoint(const Rect& rect, float ra
     p3.y = translate.y - p3.y;
 
     CubicBezierPoints result = { p0, p1, p2, p3 };
-    return result;  
+    return result;
 }
 
 void PathBase::VerticalMirror(FloatPoint& p0, FloatPoint& p1, FloatPoint& p2, FloatPoint& p3, float y)
