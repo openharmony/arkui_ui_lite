@@ -17,7 +17,7 @@
 #define GRAPHIC_LITE_PATH_BASE_H
 
 #include <float.h>
-#include "gfx_utils/graphic_type.h"
+#include "gfx_utils/graphic_types.h"
 #include "gfx_utils/heap_base.h"
 #include "gfx_utils/rect.h"
 
