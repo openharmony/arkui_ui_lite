@@ -19,7 +19,7 @@
 namespace OHOS {
 PathBase* PathBase::pathBase_ = nullptr;
 
-void PathBase::TranslateAngle(float& startAngle, float endAngle)
+void PathBase::TranslateAngle(float& startAngle, float& endAngle)
 {
     endAngle = QUARTER_IN_DEGREE - endAngle;
     startAngle = QUARTER_IN_DEGREE - startAngle;
@@ -84,7 +84,7 @@ CubicBezierPoints PathBase::CalcCubicBezierPoints(float radius, FloatPoint cente
     FloatPoint p3;
     float endAngle = endAngleDegree / SEMICIRCLE_IN_DEGREE * (float)UI_PI;
     p3.x = radius * cos(endAngle) + center.x;
-    p3.y = radius * sin(endAngle) + center.y;
+    p3.y = -radius * sin(endAngle) + center.y;
 
     // 贝塞尔曲线控制点计算公式
     float deltaAngle = (endAngle - startAngle) / 2.0f; // 2.0:h计算公式取圆心角的一半
@@ -100,8 +100,8 @@ CubicBezierPoints PathBase::CalcCubicBezierPoints(float radius, FloatPoint cente
 
     FloatPoint p2;
     float p2Angle = endAngle - controlPointDeltaAngle;
-    p1.x = cos(p2Angle) * bezierControlRadius + center.x;
-    p1.y = -sin(p2Angle) * bezierControlRadius + center.y;
+    p2.x = cos(p2Angle) * bezierControlRadius + center.x;
+    p2.y = -sin(p2Angle) * bezierControlRadius + center.y;
 
     CubicBezierPoints result = { p0, p1, p2, p3 };
     return result;
@@ -188,12 +188,12 @@ bool PathBase::IsFloatEqual(float x, float y)
     return (fabs(x - y) < 1e-6f);
 }
 
-vool IsInvalidPoint(const FloatPoint& p0)
+vool PathBase::IsInvalidPoint(const FloatPoint& p0)
 {
     return (IsFloatEqual(p0.x, INVALID_COORD) || IsFloatEqual(p0.y, INVALID_COORD));
 }
 
-bool InInvalidCurve(FloatPoint& p0, FloatPoint& p1, FloatPoint& p2)
+bool PathBase::InInvalidCurve(const FloatPoint& p0, const FloatPoint& p1, const FloatPoint& p2)
 {
     return (IsInvalidPoint(p0) || IsInvalidPoint(p1) || IsInvalidPoint(p2));
 }

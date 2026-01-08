@@ -60,13 +60,13 @@ class PathBase : public HeapBase {
 public:
     virtual bool Reset() = 0;
 
-    virtual bool MoveTo(FloatPoint& p0) = 0;
+    virtual void MoveTo(FloatPoint& p0) = 0;
 
-    virtual bool LineTo(FloatPoint& p0) = 0;
+    virtual void LineTo(FloatPoint& p0) = 0;
 
-    virtual bool AddLine(float x0, float y0, float x1, float y1) = 0;
+    virtual void AddLine(float x0, float y0, float x1, float y1) = 0;
 
-    virtual bool AddArc(ArcPathInfo& arcInfo, bool rounded) = 0;
+    virtual void AddArc(ArcPathInfo& arcInfo, bool rounded) = 0;
 
     virtual void DoneOrClosePath(PathCmd cmd) = 0;
 
@@ -89,7 +89,7 @@ public:
 
     void SetInvalidCubicBezierPoints(CubicBezierPoints& points);
 
-    bool InInvalidCurve(FloatPoint& p0, FloatPoint& p1, FloatPoint& p2);
+    bool InInvalidCurve(const FloatPoint& p0, const FloatPoint& p1, const FloatPoint& p2);
 
     static PathBase* GetInstance()
     {
@@ -104,7 +104,7 @@ public:
 protected:
     bool IsFloatEqual(float x, float y);
 
-    vool IsInvalidPoint(const FloatPoint& p0);
+    bool IsInvalidPoint(const FloatPoint& p0);
 
     static PathBase* pathBase_;
 };
