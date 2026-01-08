@@ -188,7 +188,7 @@ bool PathBase::IsFloatEqual(float x, float y)
     return (fabs(x - y) < 1e-6f);
 }
 
-vool PathBase::IsInvalidPoint(const FloatPoint& p0)
+bool PathBase::IsInvalidPoint(const FloatPoint& p0)
 {
     return (IsFloatEqual(p0.x, INVALID_COORD) || IsFloatEqual(p0.y, INVALID_COORD));
 }
