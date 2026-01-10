@@ -218,6 +218,7 @@ if (os_level != "standard") {
       "frameworks/themes/theme_manager.cpp",
       "frameworks/window/window.cpp",
       "frameworks/window/window_impl.cpp",
+      "frameworks/path/path_base.cpp",
     ]
 
     if (ohos_kernel_type == "liteos_m") {
