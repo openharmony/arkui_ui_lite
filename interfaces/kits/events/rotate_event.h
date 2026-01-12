@@ -58,26 +58,26 @@ public:
      * @version 3.0
      */
     RotateEvent(int16_t rotate) 
-        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)) // Rotation direction
-          angularVelocity_(0)
-          rotateVelocity_(0)
+        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
+          angularVelocity_(0),
+          rotateVelocity_(0),
           rotateDegree_(0) {}
 
     /**
      * @brief A constructor used to create a <b>RotateEvent</b> instance.
      * @param rotate Indicates the short data representing the number reported by a <b>RotateEvent</b>.
      * @param angularVelocity_  Indicates the angular velocity by a <b>RotateEvent</b>.
-     * @param rotateVelocity_  Indicates the rotate velocity in degrees pre second by a <b>RotateEvent</b>.
+     * @param rotateVelocity_  Indicates the rotate velocity in degrees per second by a <b>RotateEvent</b>.
      * @param rotateDegree_  Indicates the current rotation angle in degrees by a <b>RotateEvent</b>.
      *
      * @since 1.0
      * @version 1.0
      */
     RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree)
-        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)) // Rotation direction
-          angularVelocity_(static_cast<float>(angularVelocity))
-          rotateVelocity_(static_cast<float>(rotateVelocity))
-          rotateDegree_(static_cast<float>(rotateDegree)) {}
+        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
+          angularVelocity_(static_cast<float>(angularVelocity)),
+          rotateVelocity_(static_cast<float>(rotateVelocity)),
+          rotateDegree_(static_cast<float>(rotateDegree)) {},
 
     ~RotateEvent() {}
 
@@ -106,8 +106,8 @@ public:
     }
 
     /**
-     * @brief Obtains the rotate velocity in degrees pre second by a <b>RotateEvent</b>.
-     * @return Returns the rotate velocity in degrees pre second by a <b>RotateEvent</b>.
+     * @brief Obtains the rotate velocity in degrees per second by a <b>RotateEvent</b>.
+     * @return Returns the rotate velocity in degrees per second by a <b>RotateEvent</b>.
      *
      * @since 1.0
      * @version 1.0
