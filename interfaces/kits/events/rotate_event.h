@@ -77,7 +77,7 @@ public:
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(static_cast<float>(angularVelocity)),
           rotateVelocity_(static_cast<float>(rotateVelocity)),
-          rotateDegree_(static_cast<float>(rotateDegree)) {},
+          rotateDegree_(static_cast<float>(rotateDegree)) {}
 
     ~RotateEvent() {}
 
