@@ -57,7 +57,7 @@ public:
      * @since 5.0
      * @version 3.0
      */
-    RotateEvent(int16_t rotate) 
+    RotateEvent(int16_t rotate)
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(0),
           rotateVelocity_(0),
