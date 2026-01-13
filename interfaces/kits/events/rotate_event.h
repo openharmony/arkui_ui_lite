@@ -57,7 +57,27 @@ public:
      * @since 5.0
      * @version 3.0
      */
-    RotateEvent(int16_t rotate) : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)) {} // Rotation direction
+    RotateEvent(int16_t rotate)
+        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
+          angularVelocity_(0),
+          rotateVelocity_(0),
+          rotateDegree_(0) {}
+
+    /**
+     * @brief A constructor used to create a <b>RotateEvent</b> instance.
+     * @param rotate Indicates the short data representing the number reported by a <b>RotateEvent</b>.
+     * @param angularVelocity_  Indicates the angular velocity by a <b>RotateEvent</b>.
+     * @param rotateVelocity_  Indicates the rotate velocity in degrees per second by a <b>RotateEvent</b>.
+     * @param rotateDegree_  Indicates the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree)
+        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
+          angularVelocity_(static_cast<float>(angularVelocity)),
+          rotateVelocity_(static_cast<float>(rotateVelocity)),
+          rotateDegree_(static_cast<float>(rotateDegree)) {}
 
     ~RotateEvent() {}
 
@@ -73,8 +93,47 @@ public:
         return rotate_;
     }
 
+    /**
+     * @brief Obtains the angular velocity by a <b>RotateEvent</b>.
+     * @return Returns the angular velocity by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetAngularVelocity() const
+    {
+        return angularVelocity_;
+    }
+
+    /**
+     * @brief Obtains the rotate velocity in degrees per second by a <b>RotateEvent</b>.
+     * @return Returns the rotate velocity in degrees per second by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetRotateVelocity() const
+    {
+        return rotateVelocity_;
+    }
+
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetRotateDegree() const
+    {
+        return rotateDegree_;
+    }
+
 private:
     int16_t rotate_;
+    float angularVelocity_;
+    float rotateVelocity_;
+    float rotateDegree_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_ROTATE_EVENT_H

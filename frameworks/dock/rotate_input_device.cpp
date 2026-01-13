@@ -65,10 +65,12 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
     if (manager.GetRegisteredListeners().IsEmpty()) {
         return;
     }
+
+    RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree);
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
-            manager.OnRotateEnd(data.rotate);
+            manager.OnRotateEnd(rotateEvent);
             zeroCount_ = 0;
             rotateStart_ = false;
             globalRotateEventStatus_ = false;
@@ -78,9 +80,9 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
     }
     globalRotateEventStatus_ = true;
     if (!rotateStart_) {
-        manager.OnRotateStart(data.rotate);
+        manager.OnRotateStart(rotateEvent);
     }
-    manager.OnRotate(data.rotate);
+    manager.OnRotate(rotateEvent);
     rotateStart_ = true;
 }
 
@@ -89,10 +91,12 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
     if (view == nullptr) {
         return;
     }
+
+    RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree);
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
-            view->OnRotateEndEvent(data.rotate);
+            view->OnRotateEndEvent(rotateEvent);
             zeroCount_ = 0;
             rotateStart_ = false;
             focusEventStatus_ = false;
@@ -102,9 +106,9 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
     }
     focusEventStatus_ = true;
     if (!rotateStart_) {
-        view->OnRotateStartEvent(data.rotate);
+        view->OnRotateStartEvent(rotateEvent);
     }
-    view->OnRotateEvent(data.rotate);
+    view->OnRotateEvent(rotateEvent);
     rotateStart_ = true;
     GRAPHIC_LOGI("RotateInputDevice dispatched rotate event, targetView Type = %{public}d,\
         rotate value = %{public}d\n!", static_cast<uint8_t>(view->GetViewType()), data.rotate);
