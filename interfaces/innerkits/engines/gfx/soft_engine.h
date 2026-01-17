@@ -44,6 +44,23 @@ public:
                     const ColorType& color,
                     const OpacityType opa) override;
 
+    void DrawLetter(BufferInfo& gfxDstBuffer,
+                    const Rect& subRect,
+                    LetterDataInfo& dataInfo) override;
+
+    void DrawLetterPath(BufferInfo& gfxDstBuffer,
+                        const Rect& subRect,
+                        LetterPathDataInfo& dataInfo,
+                        const TransformMap* transMap,
+                        const TransformDataInfo* dataInfo) override;
+
+    void DrawLetterPathWithClip(BufferInfo& gfxDstBuffer,
+                                const Rect& subRect,
+                                const Rect& clipRect,
+                                LetterPathDataInfo& dataInfo,
+                                const TransformMap* transMap,
+                                const TransformDataInfo* dataInfo) override;
+
     void DrawCubicBezier(BufferInfo& dst,
                          const Point& start,
                          const Point& control1,
@@ -70,6 +87,8 @@ public:
 
     // x/y: center of a circle
     void ClipCircle(const ImageInfo* info, float x, float y, float radius) override;
+
+    void ClipScreenShape(const ImageInfo* info, float x, float y, float width, float height) override;
 
     void Blit(BufferInfo& dst,
               const Point& dstPos,

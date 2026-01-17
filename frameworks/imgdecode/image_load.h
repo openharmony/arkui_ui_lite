@@ -19,13 +19,6 @@
 #include "gfx_utils/image_info.h"
 
 namespace OHOS {
-enum CompressMode : uint8_t {
-    COMPRESS_MODE_NONE = 0,
-    COMPRESS_MODE__ZIP_ALG,
-    COMPRESS_MODE_BITMAP_ALG,
-    COMPRESS_MODE_BLOCK_ALG,
-};
-
 class ImageLoad {
 public:
     static bool GetImageInfo(int32_t fd, uint32_t size, ImageInfo& imageInfo);

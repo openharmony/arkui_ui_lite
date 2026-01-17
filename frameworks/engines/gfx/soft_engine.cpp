@@ -57,6 +57,30 @@ void SoftEngine::DrawLetter(BufferInfo& gfxDstBuffer,
     DrawUtils::GetInstance()->DrawLetter(gfxDstBuffer, fontMap, fontRect, subRect, fontWeight, color, opa);
 }
 
+void SoftEngine::DrawLetter(BufferInfo& gfxDstBuffer,
+                            const Rect& subRect,
+                            LetterDataInfo& dataInfo)
+{
+    DrawUtils::GetInstance()->DrawLetter(gfxDstBuffer, subRect, dataInfo);
+}
+
+void SoftEngine::DrawLetterPath(BufferInfo& gfxDstBuffer,
+                                const Rect& subRect,
+                                LetterPathDataInfo& dataInfo,
+                                const TransformMap* transMap,
+                                const TransformDataInfo* dataInfo)
+{
+}
+
+void SoftEngine::DrawLetterPathWithClip(BufferInfo& gfxDstBuffer,
+                                        const Rect& subRect,
+                                        const Rect& clipRect,
+                                        LetterPathDataInfo& dataInfo,
+                                        const TransformMap* transMap,
+                                        const TransformDataInfo* dataInfo)
+{
+}
+
 void SoftEngine::DrawCubicBezier(BufferInfo& dst,
                                  const Point& start,
                                  const Point& control1,
@@ -94,6 +118,14 @@ void SoftEngine::ClipCircle(const ImageInfo* info, float x, float y, float radiu
 {
     ClipPath path;
     path.Circle(PointF(x, y), radius);
+    ClipUtils clip;
+    clip.PerformScan(path, info);
+}
+
+void SoftEngine::ClipScreenShape(const ImageInfo* info, float x, float y, float width, float height)
+{
+    ClipPath path;
+    path.Circle(PointF(x, y), width);
     ClipUtils clip;
     clip.PerformScan(path, info);
 }

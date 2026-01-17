@@ -375,6 +375,19 @@ void DrawUtils::DrawLetter(BufferInfo& gfxDstBuffer,
     }
 }
 
+void DrawLetter(BufferInfo& gfxDstBuffer,
+                const Rect& subRect,
+                LetterDataInfo& dataInfo)
+{
+    const uint8_t* fontMap = dataInfo.fontMap;
+    const Rect fontRect = dataInfo.fontRect;
+    const uint8_t fontWeight = dataInfo.fontWeight;
+    const ColorType color = dataInfo.color;
+    const OpacityType opa = dataInfo.opa;
+
+    DrawLetter(gfxDstBuffer, fontMap, fontRect, subRect, fontWeight, color, opa);
+}
+
 void DrawUtils::DrawImage(BufferInfo& gfxDstBuffer,
                           const Rect& area,
                           const Rect& mask,
