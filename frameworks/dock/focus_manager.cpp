@@ -41,7 +41,7 @@ bool FocusManager::RequestFocus(UIView* view)
         lastFocusView_->Blur();
     }
     focusView_->Focus();
-    
+
     UIViewType viewType = focusView_->GetViewType();
     // show keyboard if the view is edittable
     if (viewType == UI_EDIT_TEXT) {
@@ -57,7 +57,12 @@ bool FocusManager::ClearFocus()
         return false;
     }
     lastFocusView_ = focusView_;
-    focusView_->Blur();
+
+    UIViewGroup* rootView = RootView::GetInstance();
+    if (RootView::FindSubView(*rootView, focusView_)) {
+        focusView_->Blur();
+    }
+
     focusView_ = nullptr;
     return true;
 }
