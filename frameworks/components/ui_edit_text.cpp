@@ -768,6 +768,6 @@ uint16_t UIEditText::GetTextCountByTextWidth(uint32_t textWidth)
         return 0;
     }
     return inputText_->GetLetterIndexByLinePosition(GetStyleConst(),
-        GetContentRect().GetWidth(), textWidth, offsetX_); 
+        GetContentRect().GetWidth(), textWidth, offsetX_);
 }
 } // namespace OHOS
