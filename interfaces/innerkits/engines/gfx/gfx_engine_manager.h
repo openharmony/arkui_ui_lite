@@ -135,14 +135,14 @@ public:
                                 const Rect& subRect,
                                 LetterPathDataInfo& dataInfo,
                                 const TransformMap* transMap,
-                                const TransformDataInfo* dataInfo) = 0;
+                                const TransformDataInfo* transDataInfo) = 0;
 
-    virtual void DrawLetterPathWithClip(BufferInfo& gfxDstBuffer,
+    virtual void DrawLetterPathWithClip(BufferInfo& dst,
                                         const Rect& subRect,
                                         const Rect& clipRect,
                                         LetterPathDataInfo& dataInfo,
                                         const TransformMap* transMap,
-                                        const TransformDataInfo* dataInfo) = 0;
+                                        const TransformDataInfo* transDataInfo) = 0;
 
     virtual void DrawCubicBezier(BufferInfo& dst,
                                  const Point& start,
@@ -236,7 +236,7 @@ public:
         return ARGB8888;
     }
 
-    virtual void CheckCompressTexture() {}
+    virtual void CheckComposeTexture() {}
 
     virtual uint16_t GetScreenWidth()
     {
@@ -258,9 +258,9 @@ public:
         return screenShape_;
     }
 
-    virtual void StartDoubleBuffer() {}
+    virtual void StartDoubleBufferRender() {}
 
-    virtual void StopDoubleBuffer() {}
+    virtual void StopDoubleBufferRender() {}
 
     virtual int16_t AlignImageWidth(int16_t imageWidth)
     {

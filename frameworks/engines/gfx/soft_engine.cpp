@@ -68,16 +68,16 @@ void SoftEngine::DrawLetterPath(BufferInfo& gfxDstBuffer,
                                 const Rect& subRect,
                                 LetterPathDataInfo& dataInfo,
                                 const TransformMap* transMap,
-                                const TransformDataInfo* dataInfo)
+                                const TransformDataInfo* transDataInfo)
 {
 }
 
-void SoftEngine::DrawLetterPathWithClip(BufferInfo& gfxDstBuffer,
+void SoftEngine::DrawLetterPathWithClip(BufferInfo& dst,
                                         const Rect& subRect,
                                         const Rect& clipRect,
                                         LetterPathDataInfo& dataInfo,
                                         const TransformMap* transMap,
-                                        const TransformDataInfo* dataInfo)
+                                        const TransformDataInfo* transDataInfo)
 {
 }
 

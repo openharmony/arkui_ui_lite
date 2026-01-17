@@ -375,9 +375,9 @@ void DrawUtils::DrawLetter(BufferInfo& gfxDstBuffer,
     }
 }
 
-void DrawLetter(BufferInfo& gfxDstBuffer,
-                const Rect& subRect,
-                LetterDataInfo& dataInfo)
+void DrawUtils::DrawLetter(BufferInfo& gfxDstBuffer,
+                           const Rect& subRect,
+                           LetterDataInfo& dataInfo) const
 {
     const uint8_t* fontMap = dataInfo.fontMap;
     const Rect fontRect = dataInfo.fontRect;

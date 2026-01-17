@@ -52,14 +52,14 @@ public:
                         const Rect& subRect,
                         LetterPathDataInfo& dataInfo,
                         const TransformMap* transMap,
-                        const TransformDataInfo* dataInfo) override;
+                        const TransformDataInfo* transDataInfo) override;
 
-    void DrawLetterPathWithClip(BufferInfo& gfxDstBuffer,
+    void DrawLetterPathWithClip(BufferInfo& dst,
                                 const Rect& subRect,
                                 const Rect& clipRect,
                                 LetterPathDataInfo& dataInfo,
                                 const TransformMap* transMap,
-                                const TransformDataInfo* dataInfo) override;
+                                const TransformDataInfo* transDataInfo) override;
 
     void DrawCubicBezier(BufferInfo& dst,
                          const Point& start,
