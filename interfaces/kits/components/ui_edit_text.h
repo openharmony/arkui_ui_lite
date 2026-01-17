@@ -350,6 +350,11 @@ public:
 
     uint16_t GetCursorIndex();
 
+    std::string GetTextString()
+    {
+        return textStr_;
+    }
+
 protected:
     virtual void InitText();
     virtual void UpdateExtraOffsetX(const uint16_t firstVisibleIndex,
@@ -360,6 +365,8 @@ protected:
     virtual void UpdateInsertDeletedOffset();
     virtual void UpdateOffsetX();
     virtual uint16_t GetTextWidthByCursorIndex(const uint16_t cursorIndex);
+    virtual uint16_t GetTextWidthByIndex(const uint16_t cursorIndex, uint16_t length);
+    virtual uint16_t GetTextCountByTextWidth(uint32_t textWidth);
 
     void SetText(std::string text);
     void InsertTextByCursorIndex(std::string text);
