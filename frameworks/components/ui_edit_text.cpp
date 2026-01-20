@@ -756,4 +756,18 @@ uint16_t UIEditText::GetTextLength()
     return TypedText::GetUTF8CharacterSize(inputText_->GetText(),
         std::string(inputText_->GetText()).length());
 }
+
+uint16_t UIEditText::GetTextWidthByIndex(const uint16_t cursorIndex, uint16_t length)
+{
+    return GetTextWidthByCursorIndex(cursorIndex);
+}
+
+uint16_t UIEditText::GetTextCountByTextWidth(uint32_t textWidth)
+{
+    if (inputText_ == nullptr) {
+        return 0;
+    }
+    return inputText_->GetLetterIndexByLinePosition(GetStyleConst(),
+        GetContentRect().GetWidth(), textWidth, offsetX_);
+}
 } // namespace OHOS
