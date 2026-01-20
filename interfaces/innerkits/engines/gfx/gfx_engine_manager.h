@@ -61,8 +61,8 @@ struct ArcInfo {
     Point center;
     Point imgPos;
     uint16_t radius;
-    int16_t startAngle;
-    int16_t endAngle;
+    float startAngle;
+    float endAngle;
     const Image* imgSrc;
 };
 
@@ -72,6 +72,30 @@ struct TransformDataInfo {
     uint8_t pxSize;
     BlurLevel blurLevel;
     TransformAlgorithm algorithm;
+};
+
+struct LetterDataInfo {
+    const uint8_t* fontMap;
+    Rect fontRect;
+    const uint8_t fontWeight;
+    const ColorType color;
+    const OpacityType opa;
+    const int16_t fontStrokeWidth;
+    const ColorType fontStrokeColor;
+};
+
+struct LetterPathDataInfo {
+    uint32_t cmdLen;
+    uint8_t* cmds;
+    uint32_t pathLen;
+    float* points;
+    Rect fontRect;
+    const ColorType color;
+    const OpacityType opa;
+    const int16_t fontStrokeWidth;
+    const ColorType fontStrokeColor;
+    float x;
+    float y;
 };
 
 enum BufferInfoUsage { BUFFER_FB_SURFACE, BUFFER_MAP_SURFACE, BUFFER_SNAPSHOT_SURFACE };
@@ -85,7 +109,7 @@ public:
                          OpacityType opacity,
                          uint8_t cap) = 0;
 
-    virtual void MemoryBarrier() {}
+    virtual void MemoryBarrier(void* addr = nullptr, int len = 0) {}
 
     virtual void DrawLine(BufferInfo& dst,
                           const Point& start,
@@ -102,6 +126,23 @@ public:
                             const uint8_t fontWeight,
                             const ColorType& color,
                             const OpacityType opa) = 0;
+
+    virtual void DrawLetter(BufferInfo& gfxDstBuffer,
+                            const Rect& subRect,
+                            LetterDataInfo& dataInfo) = 0;
+
+    virtual void DrawLetterPath(BufferInfo& gfxDstBuffer,
+                                const Rect& subRect,
+                                LetterPathDataInfo& dataInfo,
+                                const TransformMap* transMap,
+                                const TransformDataInfo* transDataInfo) = 0;
+
+    virtual void DrawLetterPathWithClip(BufferInfo& dst,
+                                        const Rect& subRect,
+                                        const Rect& clipRect,
+                                        LetterPathDataInfo& dataInfo,
+                                        const TransformMap* transMap,
+                                        const TransformDataInfo* transDataInfo) = 0;
 
     virtual void DrawCubicBezier(BufferInfo& dst,
                                  const Point& start,
@@ -127,6 +168,13 @@ public:
     // x/y: center of a circle
     virtual void ClipCircle(const ImageInfo* info, float x, float y, float radius) = 0;
 
+    virtual void ClipScreenShape(const ImageInfo* info, float x, float y, float width, float height) = 0;
+
+    virtual void ClipRadius(const ImageInfo* info, float radius)
+    {
+        return;
+    }
+
     virtual void Blit(BufferInfo& dst,
                       const Point& dstPos,
                       const BufferInfo& src,
@@ -149,6 +197,12 @@ public:
                           const Rect& invalidatedArea,
                           const Style& style) = 0;
 
+    virtual void FlushPath(BufferInfo& dst, const Rect& mask, const ColorType color,
+        const OpacityType opacity, int16_t lineWidth = 0)
+    {
+        return;
+    }
+
     virtual uint8_t* AllocBuffer(uint32_t size, uint32_t usage) = 0;
 
     virtual void FreeBuffer(uint8_t* buffer, uint32_t usage) = 0;
@@ -160,7 +214,29 @@ public:
 
     virtual void AdjustLineStride(BufferInfo& info) {}
 
-    virtual void Flush(const Rect& flushRect) {}
+    virtual void CalcImageDataSize(ImageInfo& info) {}
+
+    virtual void *GetRenderBufferAddress()
+    {
+        return nullptr;
+    }
+
+    virtual void Flush(const Rect& flushRect)
+    {
+        (void)flushRect;
+    }
+
+    virtual CompressMode GetSnapShotDefaultCompressMode()
+    {
+        return COMPRESS_MODE_NONE;
+    }
+
+    virtual ColorMode GetSnapShotDefaultColorMode()
+    {
+        return ARGB8888;
+    }
+
+    virtual void CheckComposeTexture() {}
 
     virtual uint16_t GetScreenWidth()
     {
@@ -180,6 +256,15 @@ public:
     virtual ScreenShape GetScreenShape()
     {
         return screenShape_;
+    }
+
+    virtual void StartDoubleBufferRender() {}
+
+    virtual void StopDoubleBufferRender() {}
+
+    virtual int16_t AlignImageWidth(int16_t imageWidth)
+    {
+        return imageWidth;
     }
 
     static BaseGfxEngine* GetInstance()
