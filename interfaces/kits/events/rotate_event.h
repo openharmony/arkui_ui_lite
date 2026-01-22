@@ -74,11 +74,12 @@ public:
      * @since 1.0
      * @version 1.0
      */
-    RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree)
+    RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree, uint64_t timestamp)
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(static_cast<float>(angularVelocity)),
           rotateVelocity_(static_cast<float>(rotateVelocity)),
-          rotateDegree_(static_cast<float>(rotateDegree)) {}
+          rotateDegree_(static_cast<float>(rotateDegree)),
+          timestamp_(static_cast<uint64_t>(timestamp)) {}
 
     ~RotateEvent() {}
 
