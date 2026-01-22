@@ -54,16 +54,21 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     RotateManager& manager = RotateManager::GetInstance();
 
     if (IsDispatchGlobalEvent(manager)) {
-        DispatchToGlobal(data, manager);
+        // When false is returned globally, the event is distributed to the focus.
+        if(GLOBAFALSE == (DispatchToGlobal(data, manager))) {
+            if (IsViewValidAndVisible(view)) {
+                DispatchToFocusedView(data, view);
+            }
+        }
     } else if (IsDispatchFocusedEvent(view)) {
         DispatchToFocusedView(data, view);
     }
 }
 
-void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
+GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
 {
     if (manager.GetRegisteredListeners().IsEmpty()) {
-        return;
+        return FAILL;
     }
 
     RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree);
@@ -76,14 +81,17 @@ void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& 
             globalRotateEventStatus_ = false;
             GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         }
-        return;
+        return SUCCESS;
     }
     globalRotateEventStatus_ = true;
     if (!rotateStart_) {
         manager.OnRotateStart(rotateEvent);
     }
-    manager.OnRotate(rotateEvent);
+    if (!(manager.OnRotate(rotateEvent))) {
+        return GLOBAFALSE;
+    }
     rotateStart_ = true;
+    return SUCCESS;
 }
 
 void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
