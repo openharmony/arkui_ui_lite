@@ -71,7 +71,7 @@ GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateMana
         return FAILL;
     }
 
-    RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree);
+    RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree, data.timestamp);
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
