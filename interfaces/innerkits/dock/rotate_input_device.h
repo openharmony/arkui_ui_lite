@@ -22,6 +22,13 @@
 
 #if ENABLE_ROTATE_INPUT
 namespace OHOS {
+
+enum GlobalRet : uint8_t{
+    FAILL = 0,
+    SUCCESS,
+    GLOBAFALSE
+};
+
 /** @brief A Rotate input device. */
 class RotateInputDevice : public InputDevice {
 public:
@@ -37,7 +44,7 @@ public:
 
 protected:
     void DispatchEvent(const DeviceData& data) override;
-    void DispatchToGlobal(const DeviceData& data, RotateManager& manager);
+    GlobalRet DispatchToGlobal(const DeviceData& data, RotateManager& manager);
     void DispatchToFocusedView(const DeviceData& data, UIView* view);
     bool IsViewValidAndVisible(UIView* view);
     bool IsDispatchFocusedEvent(UIView* view);
