@@ -61,7 +61,8 @@ public:
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(0),
           rotateVelocity_(0),
-          rotateDegree_(0) {}
+          rotateDegree_(0),
+          timestamp_(0) {}
 
     /**
      * @brief A constructor used to create a <b>RotateEvent</b> instance.
