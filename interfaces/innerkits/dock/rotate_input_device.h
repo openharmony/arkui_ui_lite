@@ -24,7 +24,7 @@
 namespace OHOS {
 
 enum GlobalRet : uint8_t {
-    FAILL = 0,
+    FAILL 0,
     SUCCESS,
     GLOBAFALSE
 };
