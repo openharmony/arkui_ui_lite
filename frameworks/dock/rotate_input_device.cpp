@@ -55,7 +55,7 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
 
     if (IsDispatchGlobalEvent(manager)) {
         // When false is returned globally, the event is distributed to the focus.
-        if(GLOBAFALSE == (DispatchToGlobal(data, manager))) {
+        if (GLOBAFALSE == (DispatchToGlobal(data, manager))) {
             if (IsViewValidAndVisible(view)) {
                 DispatchToFocusedView(data, view);
             }
