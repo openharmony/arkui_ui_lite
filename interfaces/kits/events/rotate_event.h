@@ -74,6 +74,24 @@ public:
      * @since 1.0
      * @version 1.0
      */
+    RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree)
+        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
+          angularVelocity_(static_cast<float>(angularVelocity)),
+          rotateVelocity_(static_cast<float>(rotateVelocity)),
+          rotateDegree_(static_cast<float>(rotateDegree)),
+          timestamp_(0) {}
+
+    /**
+     * @brief A constructor used to create a <b>RotateEvent</b> instance.
+     * @param rotate Indicates the short data representing the number reported by a <b>RotateEvent</b>.
+     * @param angularVelocity_  Indicates the angular velocity by a <b>RotateEvent</b>.
+     * @param rotateVelocity_  Indicates the rotate velocity in degrees per second by a <b>RotateEvent</b>.
+     * @param rotateDegree_  Indicates the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @param timestamp_  Indicates the reported event stamp. by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
     RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree, uint64_t timestamp)
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(static_cast<float>(angularVelocity)),
@@ -177,10 +195,10 @@ public:
 
 private:
     int16_t rotate_;
-    uint64_t timestamp_;
     float angularVelocity_;
     float rotateVelocity_;
     float rotateDegree_;
+    uint64_t timestamp_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_ROTATE_EVENT_H
