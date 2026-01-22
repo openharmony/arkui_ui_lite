@@ -23,7 +23,7 @@
 #if ENABLE_ROTATE_INPUT
 namespace OHOS {
 
-enum GlobalRet : uint8_t{
+enum GlobalRet : uint8_t {
     FAILL = 0,
     SUCCESS,
     GLOBAFALSE
