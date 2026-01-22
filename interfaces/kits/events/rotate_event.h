@@ -129,8 +129,53 @@ public:
         return rotateDegree_;
     }
 
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    uint64_t GetTimestamp() const
+    {
+        return timestamp_;
+    }
+
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetAngularVelocityJs() const
+    {
+        if (rotate_ > 0) {
+            return angularVelocity_;
+        } else {
+            return 0 - angularVelocity_;
+        }
+    }
+
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetRotateVelocityJs() const
+    {
+        if (rotate_ > 0) {
+            return rotateVelocity_;
+        } else {
+            return 0 - rotateVelocity_;
+        }
+    }
+
 private:
     int16_t rotate_;
+    uint64_t timestamp_;
     float angularVelocity_;
     float rotateVelocity_;
     float rotateDegree_;
