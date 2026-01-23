@@ -26,7 +26,8 @@ namespace OHOS {
 enum GlobalRet : uint8_t {
     FAILL 0,
     SUCCESS,
-    GLOBAFALSE
+    GLOBAONFALSE,
+    GLOBAENDFALSE
 };
 
 /** @brief A Rotate input device. */
