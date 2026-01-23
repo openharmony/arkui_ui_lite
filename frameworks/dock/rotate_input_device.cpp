@@ -53,19 +53,27 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     UIView* view = FocusManager::GetInstance()->GetFocusedView();
     RotateManager& manager = RotateManager::GetInstance();
 
-    if (IsDispatchGlobalEvent(manager)) {
-        // When false is returned globally, the event is distributed to the focus.
-        if (GLOBAFALSE == (DispatchToGlobal(data, manager))) {
+    if (IsDispatchGlobalEvent(data, manager)) {
+        GlobalRet ret = DispatchToGlobal(data, manager);
+        if (ret == GLOBAONFALSE) {
             if (IsViewValidAndVisible(view)) {
+                rotateStart_ = false;
                 DispatchToFocusedView(data, view);
             }
         }
-    } else if (IsDispatchFocusedEvent(view)) {
+        if (ret == GLOBAENDFALSE) {
+            if (IsViewValidAndVisible(view)) {
+                zeroCount_ = ROTATE_END_ZERO_COUNT;
+                rotateStart_ = true;
+                DispatchToFocusedView(data, view);
+            }
+        }
+    } else if (IsDispatchFocusedEvent(data, view)) {
         DispatchToFocusedView(data, view);
     }
 }
 
-GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
+void RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
 {
     if (manager.GetRegisteredListeners().IsEmpty()) {
         return FAILL;
@@ -75,22 +83,24 @@ GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateMana
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
-            manager.OnRotateEnd(rotateEvent);
             zeroCount_ = 0;
             rotateStart_ = false;
             globalRotateEventStatus_ = false;
-            GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
+            if (!(manager.OnRotateEnd(rotateEvent))) {
+                return GLOBAENDFALSE;
+            }
         }
         return SUCCESS;
     }
-    globalRotateEventStatus_ = true;
+
     if (!rotateStart_) {
         manager.OnRotateStart(rotateEvent);
     }
-    if (!(manager.OnRotate(rotateEvent))) {
-        return GLOBAFALSE;
-    }
     rotateStart_ = true;
+    globalRotateEventStatus_ = true;
+    if (!(manager.OnRotate(rotateEvent))) {
+        return GLOBAONFALSE;
+    }
     return SUCCESS;
 }
 
@@ -100,7 +110,7 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
         return;
     }
 
-    RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree);
+    RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree, data.timestamp);
     if (data.rotate == 0 && rotateStart_) {
         zeroCount_++;
         if (zeroCount_ >= ROTATE_END_ZERO_COUNT) {
@@ -108,11 +118,9 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
             zeroCount_ = 0;
             rotateStart_ = false;
             focusEventStatus_ = false;
-            GRAPHIC_LOGW("RotateInputDevice dispatched 0-value event!\n");
         }
         return;
     }
-    focusEventStatus_ = true;
     if (!rotateStart_) {
         view->OnRotateStartEvent(rotateEvent);
     }
@@ -125,7 +133,6 @@ void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* vi
 bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
 {
     if (view == nullptr) {
-        GRAPHIC_LOGE("RotateInputDevice Failed to dispatch event without focused view!\n");
         return false;
     }
     UIView* parent = view;
@@ -142,7 +149,7 @@ bool RotateInputDevice::IsViewValidAndVisible(UIView* view)
     return true;
 }
 
-bool RotateInputDevice::IsDispatchFocusedEvent(UIView* view)
+bool RotateInputDevice::IsDispatchFocusedEvent(const DeviceData& data, UIView* view)
 {
     /* Global events are being distributed. */
     if (globalRotateEventStatus_) {
@@ -150,18 +157,21 @@ bool RotateInputDevice::IsDispatchFocusedEvent(UIView* view)
     }
 
     if (!IsViewValidAndVisible(view)) {
-        /* The focus view is deregistered during the rotation of the focus view. */
+         /* The focus view is deregistered during the rotation of the focus view. */
         if (focusEventStatus_) {
-            zeroCount_ = 0;
-            focusEventStatus_ = false;
-            rotateStart_ = false;
+            if (data.rotate == 0) {
+                zeroCount_ = 0;
+                focusEventStatus_ = false;
+                rotateStart_ = false;
+            }
         }
         return false;
     }
+    focusEventStatus_ = true;
     return true;
 }
 
-bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
+bool RotateInputDevice::IsDispatchGlobalEvent(const DeviceData& data, RotateManager& manager)
 {
     /* focues events are being distributed. */
     if (focusEventStatus_) {
@@ -171,9 +181,11 @@ bool RotateInputDevice::IsDispatchGlobalEvent(RotateManager& manager)
     if (manager.GetRegisteredListeners().IsEmpty()) {
         /* Global is deregistered during global rotation. */
         if (globalRotateEventStatus_) {
-            zeroCount_ = 0;
-            globalRotateEventStatus_ = false;
-            rotateStart_ = false;
+            if (data.rotate == 0) {
+                zeroCount_ = 0;
+                globalRotateEventStatus_ = false;
+                rotateStart_ = false;
+            }
         }
         return false;
     }
