@@ -24,7 +24,7 @@
 namespace OHOS {
 
 enum GlobalRet : uint8_t {
-    FAILL 0,
+    FAILL,
     SUCCESS,
     GLOBAONFALSE,
     GLOBAENDFALSE
@@ -48,8 +48,8 @@ protected:
     GlobalRet DispatchToGlobal(const DeviceData& data, RotateManager& manager);
     void DispatchToFocusedView(const DeviceData& data, UIView* view);
     bool IsViewValidAndVisible(UIView* view);
-    bool IsDispatchFocusedEvent(UIView* view);
-    bool IsDispatchGlobalEvent(RotateManager& manager);
+    bool IsDispatchFocusedEvent(const DeviceData& data, UIView* view);
+    bool IsDispatchGlobalEvent(const DeviceData& data, RotateManager& manager);
 
     bool rotateStart_;
     bool globalRotateEventStatus_ = false;
