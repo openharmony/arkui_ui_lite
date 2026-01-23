@@ -54,7 +54,7 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     RotateManager& manager = RotateManager::GetInstance();
 
     if (IsDispatchGlobalEvent(data, manager)) {
-        GlobalRet ret = DispatchToGlobal(data, manager);
+        RotateEventRet ret = DispatchToGlobal(data, manager);
         if (ret == ROTATE_ON_UNCONSUMED) {
             if (IsViewValidAndVisible(view)) {
                 rotateStart_ = false;
