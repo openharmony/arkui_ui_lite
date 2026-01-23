@@ -55,13 +55,13 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
 
     if (IsDispatchGlobalEvent(data, manager)) {
         GlobalRet ret = DispatchToGlobal(data, manager);
-        if (ret == GLOBAONFALSE) {
+        if (ret == ROTATE_ON_UNCONSUMED) {
             if (IsViewValidAndVisible(view)) {
                 rotateStart_ = false;
                 DispatchToFocusedView(data, view);
             }
         }
-        if (ret == GLOBAENDFALSE) {
+        if (ret == ROTATE_END_UNCONSUMED) {
             if (IsViewValidAndVisible(view)) {
                 zeroCount_ = ROTATE_END_ZERO_COUNT;
                 rotateStart_ = true;
@@ -73,10 +73,10 @@ void RotateInputDevice::DispatchEvent(const DeviceData& data)
     }
 }
 
-GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
+RotateEventRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateManager& manager)
 {
     if (manager.GetRegisteredListeners().IsEmpty()) {
-        return FAILL;
+        return GLOBAL_DISPATCH_FAILED;
     }
 
     RotateEvent rotateEvent(data.rotate, data.angularVelocity, data.rotateVelocity, data.rotateDegree, data.timestamp);
@@ -87,10 +87,10 @@ GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateMana
             rotateStart_ = false;
             globalRotateEventStatus_ = false;
             if (!(manager.OnRotateEnd(rotateEvent))) {
-                return GLOBAENDFALSE;
+                return ROTATE_END_UNCONSUMED;
             }
         }
-        return SUCCESS;
+        return GLOBAL_DISPATCH_SUCCESS;
     }
 
     if (!rotateStart_) {
@@ -99,9 +99,9 @@ GlobalRet RotateInputDevice::DispatchToGlobal(const DeviceData& data, RotateMana
     rotateStart_ = true;
     globalRotateEventStatus_ = true;
     if (!(manager.OnRotate(rotateEvent))) {
-        return GLOBAONFALSE;
+        return ROTATE_ON_UNCONSUMED;
     }
-    return SUCCESS;
+    return GLOBAL_DISPATCH_SUCCESS;
 }
 
 void RotateInputDevice::DispatchToFocusedView(const DeviceData& data, UIView* view)
