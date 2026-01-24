@@ -22,6 +22,27 @@
 
 #if ENABLE_ROTATE_INPUT
 namespace OHOS {
+
+/**
+ * @enum RotateEventRet
+ * @brief Enumeration of return values for rotate event handling.
+ *
+ * This enum defines the possible outcomes when processing a global
+ * crown rotation event. It is used to indicate whether the event
+ * distribution succeeded, failed, or was not consumed at key stages.
+ *
+ * @note This enum is designed for use in event dispatching systems
+ *       within OpenHarmony, particularly for touch-based navigation
+ *       (e.g., rotary input devices).
+ */
+enum RotateEventRet {
+    GLOBAL_DISPATCH_FAILED = 0, /**< Failed to distribute the global crown rotation event. */
+    GLOBAL_DISPATCH_SUCCESS,     /**< The global crown rotation event is successfully distributed. */
+    ROTATE_ON_UNCONSUMED,        /**< The rotation event was not consumed during the rotation phase. */
+    ROTATE_END_UNCONSUMED        /**< The rotation end event was not consumed after rotation completed. */
+};
+
+
 /** @brief A Rotate input device. */
 class RotateInputDevice : public InputDevice {
 public:
@@ -37,11 +58,11 @@ public:
 
 protected:
     void DispatchEvent(const DeviceData& data) override;
-    void DispatchToGlobal(const DeviceData& data, RotateManager& manager);
+    RotateEventRet DispatchToGlobal(const DeviceData& data, RotateManager& manager);
     void DispatchToFocusedView(const DeviceData& data, UIView* view);
     bool IsViewValidAndVisible(UIView* view);
-    bool IsDispatchFocusedEvent(UIView* view);
-    bool IsDispatchGlobalEvent(RotateManager& manager);
+    bool IsDispatchFocusedEvent(const DeviceData& data, UIView* view);
+    bool IsDispatchGlobalEvent(const DeviceData& data, RotateManager& manager);
 
     bool rotateStart_;
     bool globalRotateEventStatus_ = false;

@@ -61,7 +61,8 @@ public:
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(0),
           rotateVelocity_(0),
-          rotateDegree_(0) {}
+          rotateDegree_(0),
+          timestamp_(0) {}
 
     /**
      * @brief A constructor used to create a <b>RotateEvent</b> instance.
@@ -77,7 +78,26 @@ public:
         : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
           angularVelocity_(static_cast<float>(angularVelocity)),
           rotateVelocity_(static_cast<float>(rotateVelocity)),
-          rotateDegree_(static_cast<float>(rotateDegree)) {}
+          rotateDegree_(static_cast<float>(rotateDegree)),
+          timestamp_(0) {}
+
+    /**
+     * @brief A constructor used to create a <b>RotateEvent</b> instance.
+     * @param rotate Indicates the short data representing the number reported by a <b>RotateEvent</b>.
+     * @param angularVelocity_  Indicates the angular velocity by a <b>RotateEvent</b>.
+     * @param rotateVelocity_  Indicates the rotate velocity in degrees per second by a <b>RotateEvent</b>.
+     * @param rotateDegree_  Indicates the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @param timestamp_  Indicates the reported event stamp. by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    RotateEvent(int16_t rotate, float angularVelocity, float rotateVelocity, float rotateDegree, uint64_t timestamp)
+        : rotate_(static_cast<int16_t>(rotate * ROTATE_SENSITIVITY)), // Rotation direction
+          angularVelocity_(static_cast<float>(angularVelocity)),
+          rotateVelocity_(static_cast<float>(rotateVelocity)),
+          rotateDegree_(static_cast<float>(rotateDegree)),
+          timestamp_(static_cast<uint64_t>(timestamp)) {}
 
     ~RotateEvent() {}
 
@@ -129,11 +149,56 @@ public:
         return rotateDegree_;
     }
 
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    uint64_t GetTimestamp() const
+    {
+        return timestamp_;
+    }
+
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetAngularVelocityJs() const
+    {
+        if (rotate_ > 0) {
+            return angularVelocity_;
+        } else {
+            return 0 - angularVelocity_;
+        }
+    }
+
+    /**
+     * @brief Obtains the current rotation angle in degrees by a <b>RotateEvent</b>.
+     * @return Returns the current rotation angle in degrees by a <b>RotateEvent</b>.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetRotateVelocityJs() const
+    {
+        if (rotate_ > 0) {
+            return rotateVelocity_;
+        } else {
+            return 0 - rotateVelocity_;
+        }
+    }
+
 private:
     int16_t rotate_;
     float angularVelocity_;
     float rotateVelocity_;
     float rotateDegree_;
+    uint64_t timestamp_;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_ROTATE_EVENT_H
