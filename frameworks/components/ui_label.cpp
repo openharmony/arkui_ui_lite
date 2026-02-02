@@ -321,6 +321,9 @@ void UILabel::RefreshLabel()
 
 void UILabel::ReMeasure()
 {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    UIView::ReMeasure();
+#endif
     if (!needRefresh_) {
         return;
     }

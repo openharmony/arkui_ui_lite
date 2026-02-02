@@ -66,6 +66,20 @@ public:
      */
     virtual ~FlexLayout() {}
 
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    /**
+     * @brief Obtains the view type.
+     *
+     * @return Returns <b>UI_FLEXLAYOUT</b>, as defined in {@link UIViewType}.
+     * @since 1.0
+     * @version 1.0
+     */
+    UIViewType GetViewType() const override
+    {
+        return UI_FLEXLAYOUT;
+    }
+#endif
+
     /**
      * @brief Sets the alignment mode of the primary axis (the axis where the layout direction is located).
      *        The child views in the layout are placed in this mode in the direction of the primary axis.
