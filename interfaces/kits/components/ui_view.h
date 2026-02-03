@@ -120,9 +120,12 @@ enum RelativeLayoutType : uint8_t  {
 struct RelativeLayoutInfo {
     RelativeLayoutType type; // Layout type
     const char* viewId; // Depend on viewId
-    int16_t offsetX; // If the value is LAYOUT_CENTER_OF_PARENT, the offset is in the X direction; otherwise, the offset is the offset distance
-    int16_t offsetY; // If the layout is LAYOUT_CENTER_OF_PARENT, this value indicates the offset in the Y direction. This value is meaningless for other layout modes
-    RelativeLayoutInfo() {
+    int16_t offsetX; // If the value is LAYOUT_CENTER_OF_PARENT, the offset is in the X direction
+                        // Otherwise, the offset is the offset distance
+    int16_t offsetY; // If the layout is LAYOUT_CENTER_OF_PARENT, this value indicates the offset in the Y direction.
+                        // This value is meaningless for other layout modes
+    RelativeLayoutInfo() 
+    {
         type = LAYOUT_MAX;
         viewId = nullptr;
         offsetX = 0;
