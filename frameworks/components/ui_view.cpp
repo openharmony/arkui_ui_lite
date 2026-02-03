@@ -194,60 +194,17 @@ void UIView::ReMeasure()
         return;
     }
     isRemeasure_ = true;
-
     SetPosition(originalPos_->x, originalPos_->y);
     ListNode<RelativeLayoutInfo>* serialNode = layoutList_.Head();
     RelativeLayoutInfo layoutInfo;
     while (serialNode != layoutList_.End()) {
         layoutInfo = serialNode->data_;
-        switch (layoutInfo.type) {
-            case LAYOUT_CENTER_OF_PARENT:
-                LayoutCenterOfParent(layoutInfo.offsetX, layoutInfo.offsetY);
-                break;
-            case LAYOUT_LEFT_OF_PARENT:
-                LayoutLeftOfParent(layoutInfo.offsetX);
-                break;
-            case LAYOUT_RIGHT_OF_PARENT:
-                LayoutRightOfParent(layoutInfo.offsetX);
-                break;
-            case LAYOUT_TOP_OF_PARENT:
-                LayoutTopOfParent(layoutInfo.offsetX);
-                break;
-            case LAYOUT_BOTTOM_OF_PARENT:
-                LayoutBottomOfParent(layoutInfo.offsetX);
-                break;
-            case ALIGN_LEFT_TO_SIBLING:
-                AlignLeftToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case ALIGN_RIGHT_TO_SIBLING:
-                AlignRightToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case ALIGN_TOP_TO_SIBLING:
-                AlignTopToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case ALIGN_BOTTOM_TO_SIBLING:
-                AlignBottomToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case ALIGN_HOR_CENTER_TO_SIBLING:
-                AlignHorCenterToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case ALIGN_VER_CENTER_TO_SIBLING:
-                AlignVerCenterToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case LAYOUT_LEFT_TO_SIBLING:
-                LayoutLeftToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case LAYOUT_RIGHT_TO_SIBLING:
-                LayoutRightToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case LAYOUT_TOP_TO_SIBLING:
-                LayoutTopToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            case LAYOUT_BOTTOM_TO_SIBLING:
-                LayoutBottomToSibling(layoutInfo.viewId, layoutInfo.offsetX);
-                break;
-            default:
-                break;
+        if ((layoutInfo.type >= LAYOUT_CENTER_OF_PARENT) && (layoutInfo.type >= LAYOUT_BOTTOM_OF_PARENT)) {
+            LayoutOfParent(layoutInfo);
+        } else if ((layoutInfo.type >= ALIGN_LEFT_TO_SIBLING) && (layoutInfo.type >= ALIGN_VER_CENTER_TO_SIBLING)) {
+            AlignToSibling(layoutInfo);
+        } else {
+            LayoutToSibling(layoutInfo);
         }
         serialNode = serialNode->next_;
     }
@@ -271,6 +228,76 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     layoutInfo.offsetX = xOffset;
     layoutInfo.offsetY = yOffset;
     layoutList_.PushBack(layoutInfo);
+}
+
+
+void UIView::LayoutOfParent(const RelativeLayoutInfo &layoutInfo)
+{
+    switch (layoutInfo.type) {
+        case LAYOUT_CENTER_OF_PARENT:
+            LayoutCenterOfParent(layoutInfo.offsetX, layoutInfo.offsetY);
+            break;
+        case LAYOUT_LEFT_OF_PARENT:
+            LayoutLeftOfParent(layoutInfo.offsetX);
+            break;
+        case LAYOUT_RIGHT_OF_PARENT:
+            LayoutRightOfParent(layoutInfo.offsetX);
+            break;
+        case LAYOUT_TOP_OF_PARENT:
+            LayoutTopOfParent(layoutInfo.offsetX);
+            break;
+        case LAYOUT_BOTTOM_OF_PARENT:
+            LayoutBottomOfParent(layoutInfo.offsetX);
+            break;
+        default:
+            break;
+    }
+}
+
+void UIView::AlignToSibling(const RelativeLayoutInfo &layoutInfo)
+{
+    switch (layoutInfo.type) {
+        case ALIGN_LEFT_TO_SIBLING:
+            AlignLeftToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_RIGHT_TO_SIBLING:
+            AlignRightToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_TOP_TO_SIBLING:
+            AlignTopToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_BOTTOM_TO_SIBLING:
+            AlignBottomToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_HOR_CENTER_TO_SIBLING:
+            AlignHorCenterToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_VER_CENTER_TO_SIBLING:
+            AlignVerCenterToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        default:
+            break;
+    }
+}
+
+void UIView::LayoutToSibling(const RelativeLayoutInfo &layoutInfo)
+{
+    switch (layoutInfo.type) {
+        case LAYOUT_LEFT_TO_SIBLING:
+            LayoutLeftToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case LAYOUT_RIGHT_TO_SIBLING:
+            LayoutRightToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case LAYOUT_TOP_TO_SIBLING:
+            LayoutTopToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case LAYOUT_BOTTOM_TO_SIBLING:
+            LayoutBottomToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        default:
+            break;
+    }
 }
 #endif
 
