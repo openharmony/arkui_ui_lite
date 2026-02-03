@@ -1627,6 +1627,9 @@ private:
     List<RelativeLayoutInfo> layoutList_;
     Point *originalPos_; // Original location.
     void AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_t xOffset, int16_t yOffset = 0);
+    void LayoutOfParent(const RelativeLayoutInfo &layoutInfo);
+    void AlignToSibling(const RelativeLayoutInfo &layoutInfo);
+    void LayoutToSibling(const RelativeLayoutInfo &layoutInfo);
 #endif
 };
 } // namespace OHOS
