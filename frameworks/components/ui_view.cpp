@@ -40,9 +40,6 @@ UIView::UIView()
 #if ENABLE_FOCUS_MANAGER
       focusable_(false),
 #endif
-#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-      isRemeasure_(false),
-#endif
       opaScale_(OPA_OPAQUE),
       index_(0),
       zIndex_(0),
@@ -64,14 +61,13 @@ UIView::UIView()
 #endif
       viewExtraMsg_(nullptr),
       rect_(0, 0, 0, 0),
-#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-      visibleRect_(nullptr),
-      originalPos_(nullptr)
-#else 
       visibleRect_(nullptr)
-#endif
 {
     SetupThemeStyles();
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    isRemeasure_ = false;
+    originalPos_ = nullptr;
+#endif
 }
 
 UIView::~UIView()
