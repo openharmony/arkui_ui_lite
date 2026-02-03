@@ -1312,8 +1312,6 @@ void UIView::AlignTopToSibling(const char* id, int16_t offset)
     if (parent_ == nullptr) {
         return;
     }
-
-
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
