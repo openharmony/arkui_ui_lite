@@ -230,7 +230,6 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     layoutList_.PushBack(layoutInfo);
 }
 
-
 void UIView::LayoutOfParent(const RelativeLayoutInfo &layoutInfo)
 {
     switch (layoutInfo.type) {
