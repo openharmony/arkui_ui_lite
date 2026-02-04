@@ -35,6 +35,9 @@ const constexpr uint8_t MAX_INVALIDATE_SIZE = 24;
 #endif
 static Rect g_maskStack[COMPONENT_NESTING_DEPTH];
 static UIView* g_viewStack[VIEW_STACK_DEPTH];
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+UIView* g_layoutViewStack[VIEW_STACK_DEPTH];
+#endif
 } // namespace
 RootView::RootView()
 {
@@ -489,19 +492,54 @@ void RootView::Measure()
 #endif
 }
 
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+void RootView::MeasureView(UIView* view)
+{
+    int16_t stackCount = 0;
+    int16_t layoutCount = 0;
+    UIView* curView = view;
+    while (stackCount >= 0) {
+        while (curView != nullptr) {
+            if (!curView->IsVisible()) {
+                curView = curView->GetNextRenderSibling();
+                continue;
+            }
+            if (curView->GetViewType() == UI_FLEXLAYOUT) {
+                g_layoutViewStack[layoutCount++] = curView;
+            }
+            curView->ReMeasure();
+            if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
+                g_viewStack[stackCount++] = curView;
+                curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
+                continue;
+            }
+            curView = curView->GetNextRenderSibling();
+        }
+        if (--stackCount >= 0) {
+            curView = (g_viewStack[stackCount])->GetNextRenderSibling();
+        }
+    }
+
+    while (layoutCount > 0) {
+        g_layoutViewStack[--layoutCount]->LayoutChildren(true);
+    }
+}
+#else
 void RootView::MeasureView(UIView* view)
 {
     int16_t stackCount = 0;
     UIView* curView = view;
     while (stackCount >= 0) {
         while (curView != nullptr) {
-            if (curView->IsVisible()) {
-                curView->ReMeasure();
-                if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
-                    g_viewStack[stackCount++] = curView;
-                    curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
-                    continue;
-                }
+            if (!curView->IsVisible()) {
+                curView = curView->GetNextRenderSibling();
+                continue;
+            }
+            curView->ReMeasure();
+            if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
+                g_viewStack[stackCount++] = curView;
+                curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
+                continue;
             }
             curView = curView->GetNextRenderSibling();
         }
@@ -510,6 +548,7 @@ void RootView::MeasureView(UIView* view)
         }
     }
 }
+#endif
 
 void RootView::Render()
 {

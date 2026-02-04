@@ -54,6 +54,9 @@
 #include "gfx_utils/image_info.h"
 #include "gfx_utils/style.h"
 #include "gfx_utils/transform.h"
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+#include "gfx_utils/list.h"
+#endif
 
 namespace OHOS {
 /* Enumerates view types. */
@@ -90,8 +93,46 @@ enum UIViewType : uint8_t {
     UI_TEXTURE_MAPPER,
     UI_DIALOG,
     UI_QRCODE,
+    UI_FLEXLAYOUT,
     UI_NUMBER_MAX
 };
+
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+enum RelativeLayoutType : uint8_t  {
+    LAYOUT_CENTER_OF_PARENT = 0,
+    LAYOUT_LEFT_OF_PARENT,
+    LAYOUT_RIGHT_OF_PARENT,
+    LAYOUT_TOP_OF_PARENT,
+    LAYOUT_BOTTOM_OF_PARENT,
+    ALIGN_LEFT_TO_SIBLING,
+    ALIGN_RIGHT_TO_SIBLING,
+    ALIGN_TOP_TO_SIBLING,
+    ALIGN_BOTTOM_TO_SIBLING,
+    ALIGN_HOR_CENTER_TO_SIBLING,
+    ALIGN_VER_CENTER_TO_SIBLING,
+    LAYOUT_LEFT_TO_SIBLING,
+    LAYOUT_RIGHT_TO_SIBLING,
+    LAYOUT_TOP_TO_SIBLING,
+    LAYOUT_BOTTOM_TO_SIBLING,
+    LAYOUT_MAX
+};
+
+struct RelativeLayoutInfo {
+    RelativeLayoutType type; // Layout type
+    const char* viewId; // Depend on viewId
+    int16_t offsetX; // If the value is LAYOUT_CENTER_OF_PARENT, the offset is in the X direction
+                        // Otherwise, the offset is the offset distance
+    int16_t offsetY; // If the layout is LAYOUT_CENTER_OF_PARENT, this value indicates the offset in the Y direction.
+                        // This value is meaningless for other layout modes
+    RelativeLayoutInfo()
+    {
+        type = LAYOUT_MAX;
+        viewId = nullptr;
+        offsetX = 0;
+        offsetY = 0;
+    }
+};
+#endif
 
 #if ENABLE_DEBUG
 const char* const VIEW_TYPE_STRING[UI_NUMBER_MAX] = {
@@ -464,7 +505,11 @@ public:
      * @since 1.0
      * @version 1.0
      */
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    virtual void ReMeasure();
+#else
     virtual void ReMeasure() {}
+#endif
 
     /**
      * @brief Refreshes the invalidated area of the view.
@@ -1545,6 +1590,9 @@ protected:
 #if ENABLE_FOCUS_MANAGER
     bool focusable_ : 1;
 #endif
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    bool isRemeasure_ : 1;
+#endif
     uint8_t opaScale_;
     int16_t index_;
     int16_t zIndex_;
@@ -1575,6 +1623,14 @@ private:
     Rect rect_;
     Rect* visibleRect_;
     void SetupThemeStyles();
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    List<RelativeLayoutInfo> layoutList_;
+    Point *originalPos_; // Original location.
+    void AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_t xOffset, int16_t yOffset = 0);
+    void LayoutOfParent(const RelativeLayoutInfo &layoutInfo);
+    void AlignToSibling(const RelativeLayoutInfo &layoutInfo);
+    void LayoutToSibling(const RelativeLayoutInfo &layoutInfo);
+#endif
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_VIEW_H

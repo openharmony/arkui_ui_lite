@@ -64,6 +64,10 @@ UIView::UIView()
       visibleRect_(nullptr)
 {
     SetupThemeStyles();
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    isRemeasure_ = false;
+    originalPos_ = nullptr;
+#endif
 }
 
 UIView::~UIView()
@@ -81,6 +85,13 @@ UIView::~UIView()
         style_ = nullptr;
         styleAllocFlag_ = false;
     }
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    if (originalPos_ != nullptr) {
+        delete originalPos_;
+        originalPos_ = nullptr;
+    }
+    layoutList_.Clear();
+#endif
 }
 
 bool UIView::OnPreDraw(Rect& invalidatedArea) const
@@ -175,6 +186,119 @@ void UIView::DrawViewBounds(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
     delete style;
 #endif // ENABLE_DEBUG
 }
+
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+void UIView::ReMeasure()
+{
+    if (originalPos_ == nullptr) {
+        return;
+    }
+    isRemeasure_ = true;
+    SetPosition(originalPos_->x, originalPos_->y);
+    ListNode<RelativeLayoutInfo>* serialNode = layoutList_.Head();
+    RelativeLayoutInfo layoutInfo;
+    while (serialNode != layoutList_.End()) {
+        layoutInfo = serialNode->data_;
+        if ((layoutInfo.type >= LAYOUT_CENTER_OF_PARENT) && (layoutInfo.type >= LAYOUT_BOTTOM_OF_PARENT)) {
+            LayoutOfParent(layoutInfo);
+        } else if ((layoutInfo.type >= ALIGN_LEFT_TO_SIBLING) && (layoutInfo.type >= ALIGN_VER_CENTER_TO_SIBLING)) {
+            AlignToSibling(layoutInfo);
+        } else {
+            LayoutToSibling(layoutInfo);
+        }
+        serialNode = serialNode->next_;
+    }
+    isRemeasure_ = false;
+}
+
+void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_t xOffset, int16_t yOffset)
+{
+    if (isRemeasure_) {
+        return;
+    }
+    if (originalPos_ == nullptr) {
+        originalPos_ = new Point();
+        originalPos_->x = GetX();
+        originalPos_->y = GetY();
+    }
+
+    RelativeLayoutInfo layoutInfo;
+    layoutInfo.type = type;
+    layoutInfo.viewId = viewId;
+    layoutInfo.offsetX = xOffset;
+    layoutInfo.offsetY = yOffset;
+    layoutList_.PushBack(layoutInfo);
+}
+
+void UIView::LayoutOfParent(const RelativeLayoutInfo &layoutInfo)
+{
+    switch (layoutInfo.type) {
+        case LAYOUT_CENTER_OF_PARENT:
+            LayoutCenterOfParent(layoutInfo.offsetX, layoutInfo.offsetY);
+            break;
+        case LAYOUT_LEFT_OF_PARENT:
+            LayoutLeftOfParent(layoutInfo.offsetX);
+            break;
+        case LAYOUT_RIGHT_OF_PARENT:
+            LayoutRightOfParent(layoutInfo.offsetX);
+            break;
+        case LAYOUT_TOP_OF_PARENT:
+            LayoutTopOfParent(layoutInfo.offsetX);
+            break;
+        case LAYOUT_BOTTOM_OF_PARENT:
+            LayoutBottomOfParent(layoutInfo.offsetX);
+            break;
+        default:
+            break;
+    }
+}
+
+void UIView::AlignToSibling(const RelativeLayoutInfo &layoutInfo)
+{
+    switch (layoutInfo.type) {
+        case ALIGN_LEFT_TO_SIBLING:
+            AlignLeftToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_RIGHT_TO_SIBLING:
+            AlignRightToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_TOP_TO_SIBLING:
+            AlignTopToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_BOTTOM_TO_SIBLING:
+            AlignBottomToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_HOR_CENTER_TO_SIBLING:
+            AlignHorCenterToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case ALIGN_VER_CENTER_TO_SIBLING:
+            AlignVerCenterToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        default:
+            break;
+    }
+}
+
+void UIView::LayoutToSibling(const RelativeLayoutInfo &layoutInfo)
+{
+    switch (layoutInfo.type) {
+        case LAYOUT_LEFT_TO_SIBLING:
+            LayoutLeftToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case LAYOUT_RIGHT_TO_SIBLING:
+            LayoutRightToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case LAYOUT_TOP_TO_SIBLING:
+            LayoutTopToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        case LAYOUT_BOTTOM_TO_SIBLING:
+            LayoutBottomToSibling(layoutInfo.viewId, layoutInfo.offsetX);
+            break;
+        default:
+            break;
+    }
+}
+#endif
 
 void UIView::SetupThemeStyles()
 {
@@ -1108,6 +1232,10 @@ void UIView::LayoutCenterOfParent(int16_t xOffset, int16_t yOffset)
         return;
     }
 
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    AddRelativeInfo(LAYOUT_CENTER_OF_PARENT, nullptr, xOffset, yOffset);
+#endif
+
     int16_t topMargin = style_->marginTop_;
     int16_t leftMargin = style_->marginLeft_;
     int16_t rightMargin = style_->marginRight_;
@@ -1125,6 +1253,10 @@ void UIView::LayoutLeftOfParent(int16_t offset)
         return;
     }
 
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    AddRelativeInfo(LAYOUT_LEFT_OF_PARENT, nullptr, offset);
+#endif
+
     int16_t leftMargin = style_->marginLeft_;
     SetPosition(leftMargin + offset, GetY());
 }
@@ -1134,6 +1266,10 @@ void UIView::LayoutRightOfParent(int16_t offset)
     if (parent_ == nullptr) {
         return;
     }
+
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    AddRelativeInfo(LAYOUT_RIGHT_OF_PARENT, nullptr, offset);
+#endif
 
     int16_t rightMargin = style_->marginRight_;
     SetPosition(parent_->GetWidth() - offset - rect_.GetWidth() - rightMargin, GetY());
@@ -1145,6 +1281,10 @@ void UIView::LayoutTopOfParent(int16_t offset)
         return;
     }
 
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    AddRelativeInfo(LAYOUT_TOP_OF_PARENT, nullptr, offset);
+#endif
+
     int16_t topMargin = style_->marginTop_;
     SetPosition(GetX(), topMargin + offset);
 }
@@ -1154,6 +1294,10 @@ void UIView::LayoutBottomOfParent(int16_t offset)
     if (parent_ == nullptr) {
         return;
     }
+
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    AddRelativeInfo(LAYOUT_BOTTOM_OF_PARENT, nullptr, offset);
+#endif
 
     int16_t bottomMargin = style_->marginBottom_;
     SetPosition(GetX(), parent_->GetHeight() - offset - rect_.GetHeight() - bottomMargin);
@@ -1166,6 +1310,9 @@ void UIView::AlignLeftToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(ALIGN_LEFT_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginLeft_ - style_->marginLeft_;
         SetPosition(sib->GetX() - margin + offset, GetY());
     }
@@ -1178,6 +1325,9 @@ void UIView::AlignRightToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(ALIGN_RIGHT_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginRight_ - style_->marginRight_;
         SetPosition(sib->GetX() + sib->rect_.GetWidth() - rect_.GetWidth() - offset + margin, GetY());
     }
@@ -1190,6 +1340,9 @@ void UIView::AlignTopToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(ALIGN_TOP_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginTop_ - style_->marginTop_;
         SetPosition(GetX(), sib->GetY() + offset - margin);
     }
@@ -1202,6 +1355,9 @@ void UIView::AlignBottomToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(ALIGN_BOTTOM_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginBottom_ - style_->marginBottom_;
         SetPosition(GetX(), sib->GetY() + sib->rect_.GetHeight() - rect_.GetHeight() - offset + margin);
     }
@@ -1214,6 +1370,9 @@ void UIView::AlignHorCenterToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(ALIGN_HOR_CENTER_TO_SIBLING, id, offset);
+#endif
         int16_t margin =
             (sib->style_->marginRight_ - sib->style_->marginLeft_ - style_->marginRight_ + style_->marginLeft_) /
             2; // 2 : half
@@ -1227,6 +1386,9 @@ void UIView::AlignVerCenterToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(ALIGN_VER_CENTER_TO_SIBLING, id, offset);
+#endif
         int16_t margin =
             (sib->style_->marginBottom_ - sib->style_->marginTop_ - style_->marginBottom_ + style_->marginTop_) /
             2; // 2 : half
@@ -1241,6 +1403,9 @@ void UIView::LayoutLeftToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(LAYOUT_LEFT_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginLeft_ + style_->marginRight_;
         SetPosition(sib->GetX() - offset - rect_.GetWidth() - margin, GetY());
     }
@@ -1253,6 +1418,9 @@ void UIView::LayoutRightToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(LAYOUT_RIGHT_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginRight_ + style_->marginLeft_;
         SetPosition(sib->GetX() + sib->rect_.GetWidth() + offset + margin, GetY());
     }
@@ -1265,6 +1433,9 @@ void UIView::LayoutTopToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(LAYOUT_TOP_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginTop_ + style_->marginBottom_;
         SetPosition(GetX(), sib->GetY() - offset - rect_.GetHeight() - margin);
     }
@@ -1277,6 +1448,9 @@ void UIView::LayoutBottomToSibling(const char* id, int16_t offset)
     }
     UIView* sib = parent_->GetChildById(id);
     if (sib != nullptr) {
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+        AddRelativeInfo(LAYOUT_BOTTOM_TO_SIBLING, id, offset);
+#endif
         int16_t margin = sib->style_->marginBottom_ + style_->marginTop_;
         SetPosition(GetX(), sib->GetY() + sib->rect_.GetHeight() + offset + margin);
     }
