@@ -124,7 +124,7 @@ struct RelativeLayoutInfo {
                         // Otherwise, the offset is the offset distance
     int16_t offsetY; // If the layout is LAYOUT_CENTER_OF_PARENT, this value indicates the offset in the Y direction.
                         // This value is meaningless for other layout modes
-    RelativeLayoutInfo() 
+    RelativeLayoutInfo()
     {
         type = LAYOUT_MAX;
         viewId = nullptr;
