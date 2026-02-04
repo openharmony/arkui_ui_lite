@@ -500,16 +500,18 @@ void RootView::MeasureView(UIView* view)
     UIView* curView = view;
     while (stackCount >= 0) {
         while (curView != nullptr) {
-            if (curView->IsVisible()) {
-                if (curView->GetViewType() == UI_FLEXLAYOUT) {
-                    g_layoutViewStack[layoutCount++] = curView;
-                }
-                curView->ReMeasure();
-                if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
-                    g_viewStack[stackCount++] = curView;
-                    curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
-                    continue;
-                }
+            if (!curView->IsVisible()) {
+                curView = curView->GetNextRenderSibling();
+                continue;
+            }
+            if (curView->GetViewType() == UI_FLEXLAYOUT) {
+                g_layoutViewStack[layoutCount++] = curView;
+            }
+            curView->ReMeasure();
+            if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
+                g_viewStack[stackCount++] = curView;
+                curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
+                continue;
             }
             curView = curView->GetNextRenderSibling();
         }
@@ -526,13 +528,15 @@ void RootView::MeasureView(UIView* view)
     UIView* curView = view;
     while (stackCount >= 0) {
         while (curView != nullptr) {
-            if (curView->IsVisible()) {
-                curView->ReMeasure();
-                if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
-                    g_viewStack[stackCount++] = curView;
-                    curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
-                    continue;
-                }
+            if (!curView->IsVisible()) {
+                curView = curView->GetNextRenderSibling();
+                continue;
+            }
+            curView->ReMeasure();
+            if (curView->IsViewGroup() && stackCount < COMPONENT_NESTING_DEPTH) {
+                g_viewStack[stackCount++] = curView;
+                curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
+                continue;
             }
             curView = curView->GetNextRenderSibling();
         }
