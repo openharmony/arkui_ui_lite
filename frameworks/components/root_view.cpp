@@ -492,9 +492,9 @@ void RootView::Measure()
 #endif
 }
 
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
 void RootView::MeasureView(UIView* view)
 {
-#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
     int16_t stackCount = 0;
     int16_t layoutCount = 0;
     UIView* curView = view;
@@ -523,7 +523,10 @@ void RootView::MeasureView(UIView* view)
     while (layoutCount > 0) {
         g_layoutViewStack[--layoutCount]->LayoutChildren(true);
     }
+}
 #else
+void RootView::MeasureView(UIView* view)
+{
     int16_t stackCount = 0;
     UIView* curView = view;
     while (stackCount >= 0) {
@@ -544,8 +547,8 @@ void RootView::MeasureView(UIView* view)
             curView = (g_viewStack[stackCount])->GetNextRenderSibling();
         }
     }
-#endif
 }
+#endif
 
 void RootView::Render()
 {
