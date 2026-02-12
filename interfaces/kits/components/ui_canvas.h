@@ -54,6 +54,7 @@
 #include "gfx_utils/file.h"
 #include "gfx_utils/list.h"
 #include "gfx_utils/diagram/common/paint.h"
+#include "components/ui_view_group.h"
 
 namespace OHOS {
 class RenderBase;
@@ -64,7 +65,7 @@ class RenderBase;
  * @since 1.0
  * @version 1.0
  */
-class UICanvas : public UIView {
+class UICanvas : public UIViewGroup {
 public:
     /**
      * @brief A constructor used to create a <b>UICanvas</b> instance.

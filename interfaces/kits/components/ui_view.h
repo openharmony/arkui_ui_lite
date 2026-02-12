@@ -94,6 +94,7 @@ enum UIViewType : uint8_t {
     UI_DIALOG,
     UI_QRCODE,
     UI_FLEXLAYOUT,
+    UI_MAP_CANVAS,
     UI_NUMBER_MAX
 };
 
