@@ -20,15 +20,24 @@
 #include "font/ui_font_adaptor.h"
 #include "font/ui_font_builder.h"
 #include "gfx_utils/graphic_log.h"
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+#include "gfx_utils/graphic_math.h"
+#endif
 #include "securec.h"
 
 namespace OHOS {
 Text::TextLine Text::textLine_[MAX_LINE_COUNT] = {{0}};
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+float (*Text::getRatio_)() = nullptr;
+#endif
 
 Text::Text()
     : text_(nullptr),
       fontId_(0),
       fontSize_(0),
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+      originFontSize_(0),
+#endif
       textSize_({0, 0}),
       needRefresh_(false),
       expandWidth_(false),
@@ -116,7 +125,28 @@ void Text::SetText(const char* text)
 #endif
     needRefresh_ = true;
 }
-
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+void Text::SetFont(const char* name, uint8_t size, float scale)
+{
+    if (name == nullptr) {
+        return;
+    }
+    UIFont* font = UIFont::GetInstance();
+    if (font->IsVectorFont()) {
+        uint16_t fontId = font->GetFontId(name);
+        if ((fontId != UIFontBuilder::GetInstance()->GetTotalFontId()) &&
+            ((fontId_ != fontId) || (fontSize_ != size))) {
+            fontId_ = fontId;
+            originFontSize_ = size;
+            fontSize_ = CalcScaledFontSize(size, scale);
+            needRefresh_ = true;
+        }
+    } else {
+        uint16_t fontId = font->GetFontId(name, size);
+        SetFontId(fontId);
+    }
+}
+#else
 void Text::SetFont(const char* name, uint8_t size)
 {
     if (name == nullptr) {
@@ -136,6 +166,7 @@ void Text::SetFont(const char* name, uint8_t size)
         SetFontId(fontId);
     }
 }
+#endif
 
 void Text::SetFont(const char* name, uint8_t size, char*& destName, uint8_t& destSize)
 {
@@ -169,6 +200,56 @@ void Text::SetFont(const char* name, uint8_t size, char*& destName, uint8_t& des
     }
 }
 
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+void Text::SetFontId(uint16_t fontId, float scale)
+{
+    UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
+    if (fontId >= fontBuilder->GetTotalFontId()) {
+        GRAPHIC_LOGE("Text::SetFontId invalid fontId(%hhd)", fontId);
+        return;
+    }
+    UIFont* font = UIFont::GetInstance();
+    if ((fontId_ == fontId) && (fontSize_ != 0) && !font->IsVectorFont()) {
+        GRAPHIC_LOGD("Text::SetFontId same font has already set");
+        return;
+    }
+
+    UITextLanguageFontParam* fontParam = fontBuilder->GetTextLangFontsTable(fontId);
+    if (fontParam == nullptr) {
+        return;
+    }
+    if (font->IsVectorFont()) {
+        uint16_t fontId = font->GetFontId(fontParam->ttfName);
+        if ((fontId != fontBuilder->GetTotalFontId()) && ((fontId_ != fontId) ||
+            (originFontSize_ != fontParam->size))) {
+            fontId_ = fontId;
+            originFontSize_ = fontParam->size;
+            needRefresh_ = true;
+        }
+        // only vector font support scale font size
+        fontSize_ = CalcScaledFontSize(originFontSize_, scale);
+    } else {
+        fontId_ = fontId;
+        fontSize_ = fontParam->size;
+        needRefresh_ = true;
+    }
+}
+
+void Text::ReMeasureTextSize(const Rect& textRect, const Style& style, uint8_t maxLines)
+{
+    if (fontSize_ == 0) {
+        return;
+    }
+    int16_t baseLineOffset = GetBaseLineOffset(baseLine_, fontId_, fontSize_);
+    int16_t maxWidth = (expandWidth_ ? COORD_MAX : textRect.GetWidth());
+    if (maxWidth > 0) {
+        MeasureArg styleArg = { maxWidth, style.letterSpace_, style.lineHeight_, style.lineSpace_, maxLines,
+            IsEliminateTrailingSpaces() };
+        textSize_ = TypedText::GetTextSize(text_, fontId_, fontSize_, styleArg, spannableString_);
+        textSize_.y += baseLineOffset;
+    }
+}
+#else
 void Text::SetFontId(uint16_t fontId)
 {
     UIFontBuilder* fontBuilder = UIFontBuilder::GetInstance();
@@ -219,6 +300,7 @@ void Text::ReMeasureTextSize(const Rect& textRect, const Style& style)
         }
     }
 }
+#endif
 
 void Text::ReMeasureTextWidthInEllipsisMode(const Rect& textRect, const Style& style, uint16_t ellipsisIndex)
 {
@@ -391,6 +473,11 @@ int16_t Text::TextPositionY(const Rect& textRect, int16_t textHeight)
             yOffset = textRect.GetHeight() - textHeight;
         }
     }
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    int16_t baseLineOffset = GetBaseLineOffset(baseLine_, fontId_, fontSize_);
+    yOffset -= baseLineOffset / 2; // 2: half offset
+#endif
+
     return textRect.GetY() + yOffset;
 }
 
@@ -494,6 +581,11 @@ uint16_t Text::GetEllipsisIndex(const Rect& textRect, const Style& style)
     Point p;
     p.x = textRect.GetWidth() - letterWidth;
     p.y = textRect.GetHeight();
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    // clear base line offset
+    int16_t baseLineOffset = GetBaseLineOffset(baseLine_, fontId_, fontSize_);
+    p.y -= baseLineOffset;
+#else
     int16_t height = style.lineHeight_;
     if (height == 0) {
         height = fontEngine->GetHeight(fontId_, fontSize_) + style.lineSpace_;
@@ -504,6 +596,7 @@ uint16_t Text::GetEllipsisIndex(const Rect& textRect, const Style& style)
     if (height != style.lineHeight_) {
         p.y -= style.lineSpace_;
     }
+#endif
     return GetLetterIndexByPosition(textRect, style, p);
 }
 
@@ -538,6 +631,62 @@ uint16_t Text::GetPosXByLetterIndex(const Rect &textRect, const Style &style,
     return static_cast<uint16_t>(textWidth > maxWidth ? maxWidth : textWidth);
 }
 
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style, const Point& pos)
+{
+    if (text_ == nullptr) {
+        return 0;
+    }
+    uint32_t lineStart = 0;
+    uint32_t nextLineStart = 0;
+    uint32_t lastLineStart = 0;
+    bool staticHeight = style.lineHeight_ != 0;
+    int16_t lineSpace = staticHeight ? 0 : style.lineSpace_;
+    int16_t currentHeight = 0;
+    uint32_t textLen = static_cast<uint32_t>(strlen(text_));
+    const int16_t textRectWidth = textRect.GetWidth();
+    int16_t lineWidth = 0;
+    uint16_t letterIndex = 0;
+    uint16_t curLineStartLetterIndex = 0;
+    uint16_t lastLineStartLetterIndex = 0;
+    int16_t lineHeight = 0;
+    bool removeSpace = IsEliminateTrailingSpaces();
+    while ((lineStart < textLen) && (text_[lineStart] != '\0')) {
+        lastLineStartLetterIndex = curLineStartLetterIndex;
+        curLineStartLetterIndex = letterIndex;
+        lineWidth = textRectWidth;
+        nextLineStart += UIFontAdaptor::GetNextLineAndWidth(&text_[lineStart], fontId_, fontSize_, style.letterSpace_,
+            lineWidth, lineHeight, letterIndex, spannableString_, false, 0xFFFF, removeSpace);
+        if (nextLineStart == 0) {
+            break;
+        }
+        lineHeight = staticHeight ? style.lineHeight_ : lineHeight;
+        // next line start Y over rect height
+        if ((pos.y >= currentHeight + lineHeight) && (pos.y <= currentHeight + lineHeight + lineSpace)) {
+            letterIndex = curLineStartLetterIndex;
+            break;
+        }
+        // current line bottom over rect height
+        if (pos.y < currentHeight + lineHeight) {
+            lineStart = lastLineStart;
+            letterIndex = lastLineStartLetterIndex;
+            break;
+        }
+
+        currentHeight += lineHeight + lineSpace;
+        lastLineStart = lineStart;
+        lineStart = nextLineStart;
+    }
+    if (nextLineStart == textLen) {
+        return TEXT_ELLIPSIS_END_INV;
+    }
+    /* Calculate the x coordinate */
+    lineWidth = pos.x;
+    lineStart += UIFontAdaptor::GetNextLineAndWidth(&text_[lineStart], fontId_, fontSize_, style.letterSpace_,
+        lineWidth, lineHeight, letterIndex, spannableString_, true, 0xFFFF, removeSpace);
+    return (lineStart < textLen) ? lineStart : TEXT_ELLIPSIS_END_INV;
+}
+#else
 uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style, const Point& pos)
 {
     if (text_ == nullptr) {
@@ -584,6 +733,7 @@ uint16_t Text::GetLetterIndexByPosition(const Rect& textRect, const Style& style
                                            letterIndex, spannableString_, true, 0xFFFF, IsEliminateTrailingSpaces());
     return (lineStart < textLen) ? lineStart : TEXT_ELLIPSIS_END_INV;
 }
+#endif
 
 void Text::SetAbsoluteSizeSpan(uint16_t start, uint16_t end, uint8_t size)
 {

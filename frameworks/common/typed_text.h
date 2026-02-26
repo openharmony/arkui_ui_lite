@@ -39,6 +39,13 @@ public:
     static constexpr uint8_t UTF8_TO_UNICODE_SHIFT2 = 12;
     static constexpr uint8_t UTF8_TO_UNICODE_SHIFT3 = 18;
 
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    static Point GetTextSize(const char* text,
+                             uint16_t fontId,
+                             uint8_t fontSize,
+                             const MeasureArg& arg,
+                             SpannableString* spannableString = nullptr);
+#else
     static Point GetTextSize(const char* text,
                              uint16_t fontId,
                              uint8_t fontSize,
@@ -48,6 +55,7 @@ public:
                              int8_t lineSpace,
                              SpannableString* spannableString = nullptr,
                              bool eliminateTrailingSpaces = false);
+#endif
 
     static uint32_t GetNextLine(const char* text,
                                 uint16_t fontId,

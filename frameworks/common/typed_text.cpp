@@ -25,6 +25,62 @@
 
 namespace OHOS {
 #ifndef _FONT_TOOL
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize, const MeasureArg& arg,
+    SpannableString* spannableString)
+{
+    Point size{0, 0};
+    uint16_t lineCount = 0;
+
+    if (text == nullptr) {
+        return size;
+    }
+
+    uint32_t lineBegin = 0;
+    uint32_t newLineBegin = 0;
+    uint16_t letterHeight = UIFont::GetInstance()->GetHeight(fontId, fontSize);
+    bool hasLineHeight = (arg.lineHeight != 0);
+    uint16_t curLineHeight;
+    uint16_t letterIndex = 0;
+    int16_t curLetterHeight = 0;
+    while (text[lineBegin] != '\0') {
+        int16_t lineWidth = arg.maxWidth;
+        newLineBegin += UIFontAdaptor::GetNextLineAndWidth(&text[lineBegin], fontId, fontSize, arg.letterSpace,
+                                                           lineWidth, curLetterHeight, letterIndex, spannableString,
+                                                           false, 0xFFFF, arg.eliminateTrailingSpaces);
+        if (!hasLineHeight) {
+            curLineHeight = curLetterHeight + arg.lineSpace;
+        } else {
+            curLineHeight = arg.lineHeight;
+        }
+        lineCount++;
+        if ((newLineBegin == lineBegin) || (lineCount > arg.maxLines)) {
+            break;
+        }
+
+        size.y += curLineHeight;
+        size.x = MATH_MAX(lineWidth, size.x);
+        lineBegin = newLineBegin;
+    }
+
+    if ((lineBegin != 0) && ((text[lineBegin - 1] == '\n') || (text[lineBegin - 1] == '\r'))) {
+        if (!hasLineHeight) {
+            size.y += letterHeight + arg.lineSpace;
+        } else {
+            size.y += arg.lineHeight;
+        }
+    }
+
+    if (!hasLineHeight) {
+        size.y = (size.y == 0) ? letterHeight : (size.y - arg.lineSpace);
+    } else {
+        if (size.y == 0) {
+            size.y = arg.lineHeight;
+        }
+    }
+    return size;
+}
+#else
 Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize, int16_t letterSpace,
                              int16_t lineHeight, int16_t maxWidth, int8_t lineSpace, SpannableString* spannableString,
                              bool eliminateTrailingSpaces)
@@ -78,6 +134,7 @@ Point TypedText::GetTextSize(const char* text, uint16_t fontId, uint8_t fontSize
     }
     return size;
 }
+#endif
 
 Rect TypedText::GetArcTextRect(const char* text,
                                uint16_t fontId,

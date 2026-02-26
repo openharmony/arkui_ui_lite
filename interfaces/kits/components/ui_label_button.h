@@ -95,6 +95,9 @@ public:
     {
         InitLabelButtonText();
         labelButtonText_->SetText(text);
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        needRefresh_ = labelButtonText_->IsNeedRefresh();
+#endif
     }
 
     /**
@@ -146,6 +149,9 @@ public:
     {
         InitLabelButtonText();
         labelButtonText_->SetAlign(align, TEXT_ALIGNMENT_CENTER);
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        needRefresh_ = labelButtonText_->IsNeedRefresh();
+#endif
     }
 
     /**
@@ -172,6 +178,9 @@ public:
     {
         InitLabelButtonText();
         labelButtonText_->SetDirect(direct);
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        needRefresh_ = labelButtonText_->IsNeedRefresh();
+#endif
     }
 
     /**
@@ -197,6 +206,9 @@ public:
     void SetLabelStyle(Style& labelStyle)
     {
         labelStyle_ = labelStyle;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        needRefresh_ = true;
+#endif
     }
 
     /**
@@ -210,6 +222,9 @@ public:
     void SetLabelStyle(uint8_t key, int64_t value)
     {
         labelStyle_.SetStyle(key, value);
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        needRefresh_ = true;
+#endif
     }
 
     /**
@@ -260,7 +275,12 @@ public:
     void SetFont(const char* name, uint8_t size)
     {
         InitLabelButtonText();
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        labelButtonText_->SetFont(name, size, scaleRatio_);
+        needRefresh_ = labelButtonText_->IsNeedRefresh();
+#else
         labelButtonText_->SetFont(name, size);
+#endif
     }
 
     /**
@@ -273,7 +293,12 @@ public:
     void SetFontId(uint16_t fontId)
     {
         InitLabelButtonText();
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+        labelButtonText_->SetFontId(fontId, scaleRatio_);
+        needRefresh_ = labelButtonText_->IsNeedRefresh();
+#else
         labelButtonText_->SetFontId(fontId);
+#endif
     }
 
     /**
@@ -289,6 +314,74 @@ public:
         return labelButtonText_->GetFontId();
     }
 
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    /**
+     * @brief Set the font size scale ratio for this labelbutton.
+     *
+     * @param ratio Indicates the scale value.
+     * @return Returns <b>true</b> if the scale ratio set success; returns <b>false</b> otherwise.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool SetFontSizeScale(float ratio);
+
+    /**
+     * @brief Obtains the font size scale ratio for this labelbutton.
+     *
+     * @return Returns labelbutton's current font size scale ratio.
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetFontSizeScale() const;
+
+    /**
+     * @brief Obtains whether this labelbutton is scaled.
+     *
+     * @return Returns Returns <b>false</b> if the scale ratio is 1.0f; returns <b>false</b> otherwise.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool HasFontSizeScale() const;
+
+    /**
+     * @brief Obtains the text height for this labelbutton.
+     *
+     * @return Returns the text height for this labelbutton.
+     * @since 1.0
+     * @version 1.0
+     */
+    int16_t GetTextHeight();
+
+    /**
+     * @brief Sets the max show lines count for this labelbutton.
+     *
+     * @param count Indicates the max lines count to set.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool SetMaxLines(int32_t count);
+
+    void ReMeasure() override;
+
+    /**
+     * @brief Sets this labelbutton's text area width.
+     *
+     * @param width Indicates text area width
+     * @since 1.0
+     * @version 1.0
+     */
+    void SetTextRectWidth(uint16_t width);
+
+    /**
+     * @brief Sets this labelbutton force remeasure
+     *
+     * @param flag Indicates whether use remeasure before ondraw.
+     * @since 1.0
+     * @version 1.0
+     */
+    void SetForceRemeasure(bool flag);
+#endif
+
 protected:
     virtual void InitLabelButtonText()
     {
@@ -303,6 +396,15 @@ protected:
     }
 
     Text* labelButtonText_;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    bool needRefresh_ : 1;
+    bool forceRemeasure_ : 1;
+    float scaleRatio_;
+    uint8_t maxLines_;
+    int16_t limitTextHeight_;
+    uint16_t ellipsisIndex_;
+    uint16_t textRectWidth_;
+#endif
 
 private:
     Style labelStyle_;

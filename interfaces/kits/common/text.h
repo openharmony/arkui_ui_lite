@@ -179,6 +179,25 @@ struct LineBackgroundColor : public HeapBase {
     ColorType linebackgroundColor;
 };
 
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+static constexpr float DEFAULT_SCALE_RATIO = 1.0f;
+static constexpr float MAX_SCALE_RATIO = 1.45f;
+static constexpr uint8_t MAX_LINE_COUNT = 50;
+struct TextSizeLimitArg {
+    Rect rect;
+    uint8_t maxLines = MAX_LINE_COUNT;
+};
+
+struct MeasureArg {
+    int16_t maxWidth;
+    int16_t letterSpace;
+    int16_t lineHeight;
+    int16_t lineSpace;
+    uint8_t maxLines;
+    bool eliminateTrailingSpaces = false;
+};
+#endif
+
 struct LabelLineInfo;
 
 /**
@@ -248,7 +267,11 @@ public:
      * @since 1.0
      * @version 1.0
      */
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    void SetFont(const char* name, uint8_t size, float scale = DEFAULT_SCALE_RATIO);
+#else
     void SetFont(const char* name, uint8_t size);
+#endif
 
     static void SetFont(const char* name, uint8_t size, char*& destName, uint8_t& destSize);
 
@@ -259,7 +282,11 @@ public:
      * @since 1.0
      * @version 1.0
      */
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    void SetFontId(uint16_t fontId, float scale = DEFAULT_SCALE_RATIO);
+#else
     void SetFontId(uint16_t fontId);
+#endif
 
     /**
      * @brief Obtains the font ID.
@@ -284,6 +311,71 @@ public:
     {
         return fontSize_;
     }
+
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    /**
+     * @brief Obtains the font size before scaled.
+     *
+     * @return Returns the origin font size.
+     * @since 1.0
+     * @version 1.0
+     */
+    uint8_t GetOriginFontSize() const
+    {
+        return originFontSize_;
+    }
+
+    /**
+     * @brief Set the font size scale ratio.
+     *
+     * @param ratio Indicates the scale value.
+     * @return Returns <b>true</b> if the scale ratio set success; returns <b>false</b> otherwise.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool SetFontSizeScale(float ratio);
+
+    /**
+     * @brief Obtains the text base line offset for text height calculate.
+     *
+     * @param baseLine Indicates whether support base line.
+     * @param fontId Indicates the ttf id.
+     * @param fontSize Indicates the font size
+     * @return Returns the base line offset. if baseLine is false, return zero.
+     * @since 1.0
+     * @version 1.0
+     */
+    static int16_t GetBaseLineOffset(bool baseLine, uint16_t fontId, uint16_t fontSize);
+
+    /**
+     * @brief Obtains the scaled font size.
+     *
+     * @param size Indicates origin font size.
+     * @param ratio Indicates scale ratio.
+     * @return Returns font size after scaled.
+     * @since 1.0
+     * @version 1.0
+     */
+    static uint8_t CalcScaledFontSize(uint8_t size, float ratio);
+
+    /**
+     * @brief Set callback function for get current system scale ratio.
+     *
+     * @param getRatio Indicates the callback function
+     * @since 1.0
+     * @version 1.0
+     */
+    static void SetDefaultScaleCallback(float (*getRatio)());
+
+    /**
+     * @brief Obtains the current system font size scale ratio.
+     *
+     * @return Returns scale ratio.
+     * @since 1.0
+     * @version 1.0
+     */
+    static float GetDefaultScale();
+#endif
 
     /**
      * @brief Sets the direction for this text.
@@ -366,7 +458,11 @@ public:
         return textSize_;
     }
 
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    virtual void ReMeasureTextSize(const Rect& textRect, const Style& style, uint8_t maxLines = MAX_LINE_COUNT);
+#else
     virtual void ReMeasureTextSize(const Rect& textRect, const Style& style);
+#endif
 
     void ReMeasureTextWidthInEllipsisMode(const Rect& textRect, const Style& style, uint16_t ellipsisIndex);
 
@@ -570,7 +666,9 @@ protected:
     };
 
     /** Maximum number of lines */
+#if !defined(CONFIG_SCALE_FONT_SIZE) || (CONFIG_SCALE_FONT_SIZE == 0)
     static constexpr uint16_t MAX_LINE_COUNT = 50;
+#endif
     static TextLine textLine_[MAX_LINE_COUNT];
 
     static constexpr const char* TEXT_ELLIPSIS = "…";
@@ -607,6 +705,9 @@ protected:
     char* text_;
     uint16_t fontId_;
     uint8_t fontSize_; // Only the vector font library has a valid value.
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    uint8_t originFontSize_;
+#endif
     Point textSize_;
     bool needRefresh_ : 1;
     bool expandWidth_ : 1;
@@ -624,6 +725,9 @@ private:
     uint8_t horizontalAlign_ : 4; // UITextLanguageAlignment
     uint8_t verticalAlign_ : 4;   // UITextLanguageAlignment
     bool eliminateTrailingSpaces_;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    static float (*getRatio_)();
+#endif
     static constexpr uint8_t FONT_ID_MAX = 0xFF;
 #if defined(ENABLE_ICU) && ENABLE_ICU
     void SetLineBytes(uint16_t& lineBytes, uint16_t lineBegin);
