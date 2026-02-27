@@ -95,9 +95,15 @@ public:
 
     void Reset();
     void SetSpannableString(const SpannableString* input);
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    void SetFontSizeScale(float ratio);
+#endif
 
 private:
     uint16_t isSpannableLen_;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    float scaleRatio_ = 1.0f;
+#endif
 
     /* Record each letter having full text setting or not. */
     bool* isSpannable_;

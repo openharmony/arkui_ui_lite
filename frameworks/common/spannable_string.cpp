@@ -250,6 +250,10 @@ bool SpannableString::GetFontSize(uint16_t index, uint8_t& outputSize)
         uint16_t tempEnd = tempSpan->data_.end;
         if ((tempStart <= index) && (index < tempEnd)) {
             outputSize = tempSpan->data_.fontSize;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+            float tempSize = ceilf(outputSize * scaleRatio_);
+            outputSize = tempSize > 0xff ? 0xff : static_cast<uint8_t>(tempSize);
+#endif
             hasFind = true;
             break;
         }
@@ -571,4 +575,14 @@ bool SpannableString::GetLineBackgroundColor(uint16_t index, ColorType& outputLi
     }
     return hasFind;
 }
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+void SpannableString::SetFontSizeScale(float ratio)
+{
+    if (fabs(ratio - scaleRatio_) < 1e-6f) {
+        return;
+    }
+
+    scaleRatio_ = ratio;
+}
+#endif
 } // namespace OHOS

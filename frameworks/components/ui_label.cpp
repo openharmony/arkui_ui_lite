@@ -115,6 +115,11 @@ private:
 
 UILabel::UILabel()
     : labelText_(nullptr),
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+      scaleRatio_(DEFAULT_SCALE_RATIO),
+      maxLines_(MAX_LINE_COUNT),
+      limitTextHeight_(0),
+#endif
       needRefresh_(false),
       useTextColor_(false),
       hasAnimator_(false),
@@ -128,6 +133,9 @@ UILabel::UILabel()
     Style& style = (theme != nullptr) ? (theme->GetLabelStyle()) : (StyleDefault::GetLabelStyle());
     UIView::SetStyle(style);
     animator_.speed = DEFAULT_ANIMATOR_SPEED;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    scaleRatio_ = Text::GetDefaultScale();
+#endif
 }
 
 UILabel::~UILabel()
@@ -261,7 +269,11 @@ void UILabel::SetAlign(UITextLanguageAlignment horizontalAlign, UITextLanguageAl
 void UILabel::SetFontId(uint16_t fontId)
 {
     InitLabelText();
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    labelText_->SetFontId(fontId, scaleRatio_);
+#else
     labelText_->SetFontId(fontId);
+#endif
     if (labelText_->IsNeedRefresh()) {
         RefreshLabel();
     }
@@ -270,7 +282,11 @@ void UILabel::SetFontId(uint16_t fontId)
 void UILabel::SetFont(const char* name, uint8_t size)
 {
     InitLabelText();
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    labelText_->SetFont(name, size, scaleRatio_);
+#else
     labelText_->SetFont(name, size);
+#endif
     if (labelText_->IsNeedRefresh()) {
         RefreshLabel();
     }
@@ -291,6 +307,11 @@ uint16_t UILabel::GetTextHeight()
     if (labelText_->IsNeedRefresh()) {
         ReMeasure();
     }
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    if ((lineBreakMode_ == LINE_BREAK_ELLIPSIS) && (limitTextHeight_ > 0)) {
+        return limitTextHeight_;
+    }
+#endif
     return labelText_->GetTextSize().y;
 }
 
@@ -318,7 +339,7 @@ void UILabel::RefreshLabel()
         needRefresh_ = true;
     }
 }
-
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
 void UILabel::ReMeasure()
 {
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
@@ -336,6 +357,55 @@ void UILabel::ReMeasure()
         transMap_->SetInvalid(true);
         flag = true;
     }
+    TextSizeLimitArg limit = { GetContentRect(), maxLines_ };
+    bool skipElps = ReMeasureLabelTextSize(limit, style);
+    Point textSize = labelText_->GetTextSize();
+    switch (lineBreakMode_) {
+        case LINE_BREAK_ADAPT:
+            Resize(textSize.x, textSize.y);
+            break;
+        case LINE_BREAK_STRETCH:
+            SetWidth(textSize.x);
+            break;
+        case LINE_BREAK_WRAP:
+            SetHeight(textSize.y);
+            break;
+        case LINE_BREAK_ELLIPSIS:
+            if (skipElps) {
+                break;
+            }
+            ellipsisIndex_ = labelText_->GetEllipsisIndex(limit.rect, style);
+            labelText_->ReMeasureTextWidthInEllipsisMode(limit.rect, style, ellipsisIndex_);
+            break;
+        case LINE_BREAK_MARQUEE:
+            RemeasureForMarquee(textSize.x);
+            break;
+        default:
+            break;
+    }
+    if ((transMap_ != nullptr) && flag) {
+        transMap_->SetInvalid(false);
+    }
+}
+#else
+void UILabel::ReMeasure()
+{
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    UIView::ReMeasure();
+#endif
+    if (!needRefresh_) {
+        return;
+    }
+    needRefresh_ = false;
+    InitLabelText();
+    Style style = GetStyleConst();
+    style.textColor_ = GetTextColor();
+    bool flag = false;
+    if ((transMap_ != nullptr) && !transMap_->IsInvalid()) {
+        transMap_->SetInvalid(true);
+        flag = true;
+    }
+
     labelText_->ReMeasureTextSize(GetContentRect(), style);
     Point textSize = labelText_->GetTextSize();
     switch (lineBreakMode_) {
@@ -362,6 +432,7 @@ void UILabel::ReMeasure()
         transMap_->SetInvalid(false);
     }
 }
+#endif
 
 void UILabel::RemeasureForMarquee(int16_t textWidth)
 {
@@ -432,4 +503,108 @@ void UILabel::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
     labelText_->OnDraw(gfxDstBuffer, invalidatedArea, GetOrigRect(),
                        GetContentRect(), offsetX_, style, ellipsisIndex_, opa);
 }
+
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+bool IsSameScaleRatio(float ratioA, float ratioB)
+{
+    return fabs(ratioA - ratioB) < 1e-6f;
+}
+
+uint8_t UILabel::GetOriginFontSize()
+{
+    InitLabelText();
+
+    return labelText_->GetOriginFontSize();
+}
+
+bool UILabel::SetFontSizeScale(float ratio)
+{
+    InitLabelText();
+
+    float realRatio = ratio;
+    if (realRatio > MAX_SCALE_RATIO) {
+        GRAPHIC_LOGW("UILabel::SetFontSizeScale ratio over max: %f", ratio);
+        realRatio = MAX_SCALE_RATIO;
+    }
+
+    if (IsSameScaleRatio(realRatio, scaleRatio_)) {
+        return true;
+    }
+
+    if (!labelText_->SetFontSizeScale(realRatio)) {
+        return false;
+    }
+    scaleRatio_ = realRatio;
+    RefreshLabel();
+
+    return true;
+}
+
+float UILabel::GetFontSizeScale() const
+{
+    return scaleRatio_;
+}
+
+bool UILabel::HasFontSizeScale() const
+{
+    return !IsSameScaleRatio(scaleRatio_, DEFAULT_SCALE_RATIO);
+}
+
+bool UILabel::SetMaxLines(int32_t count)
+{
+    if (count > MAX_LINE_COUNT) {
+        return false;
+    }
+
+    maxLines_ = count;
+
+    return true;
+}
+
+int32_t UILabel::GetMaxLines() const
+{
+    return maxLines_;
+}
+
+bool UILabel::ReMeasureLabelTextSize(TextSizeLimitArg &limit, const Style &style)
+{
+    limitTextHeight_ = 0;
+    int8_t maxLines = limit.maxLines == MAX_LINE_COUNT ? MAX_LINE_COUNT : limit.maxLines + 1;
+    labelText_->ReMeasureTextSize(limit.rect, style, maxLines);
+
+    return AdjustBreakModeForLimitLines(limit, style);
+}
+
+bool UILabel::AdjustBreakModeForLimitLines(TextSizeLimitArg &limit, const Style &style)
+{
+    if (maxLines_ == MAX_LINE_COUNT) {
+        return false;
+    }
+
+    if (lineBreakMode_ != LINE_BREAK_WRAP && lineBreakMode_ != LINE_BREAK_CLIP &&
+        lineBreakMode_ != LINE_BREAK_ELLIPSIS) {
+        return false;
+    }
+
+    int16_t totalTextHeight = labelText_->GetTextSize().y;
+    labelText_->ReMeasureTextSize(limit.rect, style, limit.maxLines);
+    limitTextHeight_ = labelText_->GetTextSize().y;
+    bool needEllipsis = totalTextHeight > limitTextHeight_;
+    if (needEllipsis && (lineBreakMode_ == LINE_BREAK_WRAP || lineBreakMode_ == LINE_BREAK_CLIP)) {
+        lineBreakMode_ = LINE_BREAK_ELLIPSIS;
+    }
+
+    UIView::SetHeight(limitTextHeight_);
+    if (lineBreakMode_ == LINE_BREAK_ELLIPSIS) {
+        labelText_->ReMeasureTextSize(limit.rect, style, limit.maxLines + 1);
+        limit.rect.SetHeight(limitTextHeight_);
+        ellipsisIndex_ = labelText_->GetEllipsisIndex(limit.rect, style);
+        labelText_->ReMeasureTextWidthInEllipsisMode(limit.rect, style, ellipsisIndex_);
+
+        return true;
+    }
+
+    return false;
+}
+#endif
 } // namespace OHOS

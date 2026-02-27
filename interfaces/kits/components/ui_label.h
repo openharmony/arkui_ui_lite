@@ -454,8 +454,71 @@ public:
     void SetAbsoluteSizeSpan(uint16_t start, uint16_t end, uint8_t size);
     void SetRelativeSizeSpan(uint16_t start, uint16_t end, float size);
     uint8_t GetFontSize();
+
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    /**
+     * @brief Obtains this label's font size before scaled.
+     *
+     * @return Returns the origin font size.
+     * @since 1.0
+     * @version 1.0
+     */
+    uint8_t GetOriginFontSize();
+
+    /**
+     * @brief Set the font size scale ratio for this label.
+     *
+     * @param ratio Indicates the scale value.
+     * @return Returns <b>true</b> if the scale ratio set success; returns <b>false</b> otherwise.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool SetFontSizeScale(float ratio);
+
+    /**
+     * @brief Obtains the font size scale ratio for this label.
+     *
+     * @return Returns label's current font size scale ratio.
+     * @since 1.0
+     * @version 1.0
+     */
+    float GetFontSizeScale() const;
+
+    /**
+     * @brief Obtains whether this label is scaled.
+     *
+     * @return Returns Returns <b>false</b> if the scale ratio is 1.0f; returns <b>false</b> otherwise.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool HasFontSizeScale() const;
+
+    /**
+     * @brief Sets the max show lines count for this label.
+     *
+     * @param count Indicates the max lines count to set.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool SetMaxLines(int32_t count);
+
+    /**
+     * @brief Obtain the max show lines count for this label.
+     *
+     * @return Returns this label's max show lines count.
+     * @since 1.0
+     * @version 1.0
+     */
+    int32_t GetMaxLines() const;
+#endif
+
 protected:
     Text* labelText_;
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    float scaleRatio_;
+    uint8_t maxLines_;
+    int16_t limitTextHeight_;
+#endif
     void RefreshLabel();
     virtual void InitLabelText();
 
@@ -463,6 +526,10 @@ private:
     friend class LabelAnimator;
 
     void RemeasureForMarquee(int16_t textWidth);
+#if defined(CONFIG_SCALE_FONT_SIZE) && (CONFIG_SCALE_FONT_SIZE == 1)
+    bool ReMeasureLabelTextSize(TextSizeLimitArg &limit, const Style &style);
+    bool AdjustBreakModeForLimitLines(TextSizeLimitArg &limit, const Style &style);
+#endif
 
     bool needRefresh_ : 1;
     bool useTextColor_ : 1;
