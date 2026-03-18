@@ -313,6 +313,9 @@ void UIView::Scale(const Vector3<float>& scale, const Vector3<float>& pivot)
     if (transMap_ == nullptr) {
         ReMeasure();
         transMap_ = new TransformMap();
+        if (transMap_ == nullptr) {
+            return;
+        }
     }
     bool firstTrans = transMap_->IsInvalid();
     Rect joinRect = transMap_->GetBoxRect();
