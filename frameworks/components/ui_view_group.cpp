@@ -46,6 +46,7 @@ void UIViewGroup::Add(UIView* view)
         return;
     }
     if (view->GetParent() != nullptr) {
+        GRAPHIC_LOGE("can not add view multi times");
         return;
     }
 
@@ -76,6 +77,7 @@ void UIViewGroup::Insert(UIView* prevView, UIView* insertView)
     }
 
     if (insertView->GetParent() != nullptr) {
+        GRAPHIC_LOGE("can not insert view multi times");
         return;
     }
 
