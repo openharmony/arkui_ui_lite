@@ -42,23 +42,24 @@ public:
         uint32_t timeToOpen;
         int32_t fd;
         ImageSrcType srcType;
-        bool inCache_;
+        bool inCache;
     };
 
-    RetCode Open(ImgResDsc& dsc);
+    virtual RetCode Open(ImgResDsc& dsc);
 
-    RetCode Close(ImgResDsc& dsc);
+    virtual RetCode Close(ImgResDsc& dsc);
 
-    RetCode GetHeader(ImgResDsc& dsc);
+    virtual RetCode GetHeader(ImgResDsc& dsc);
 
-    RetCode ReadLine(ImgResDsc& dsc, const Point& start, int16_t len, uint8_t* buf);
+    virtual RetCode ReadLine(ImgResDsc& dsc, const Point& start, int16_t len, uint8_t* buf);
 
-    RetCode ReadToCache(ImgResDsc& dsc);
+    virtual RetCode ReadToCache(ImgResDsc& dsc);
+
+protected:
+    FileImgDecoder() {}
+    virtual ~FileImgDecoder() {}
 
 private:
-    FileImgDecoder() {}
-    ~FileImgDecoder() {}
-
     bool IsImgValidMode(uint8_t colorMode)
     {
         if ((colorMode == RGB565) || (colorMode == RGB888) || (colorMode == ARGB8888)) {
@@ -67,7 +68,11 @@ private:
             return false;
         }
     }
-    RetCode ReadLineTrueColor(ImgResDsc& dsc, const Point& start, int16_t len, uint8_t* buf);
+    RetCode ReadLineTrueColor(const ImgResDsc& dsc, const Point& start, int16_t len, uint8_t* buf);
+    RetCode ReadFileHeader(ImgResDsc& dsc, int32_t& readCount);
+    RetCode GetFileSize(int32_t fd, uint32_t& fileSize);
+    RetCode ReadImageData(ImgResDsc& dsc, uint32_t pxCount);
+    void HandleReadFailure(ImgResDsc& dsc);
 
     FileImgDecoder(const FileImgDecoder&) = delete;
     FileImgDecoder& operator=(const FileImgDecoder&) = delete;

@@ -38,6 +38,7 @@
 #endif
 #if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
 #include "hals/gfx_engines.h"
+#include "hals/gralloc_engines.h"
 #endif
 #include "securec.h"
 
@@ -149,6 +150,7 @@ void GraphicStartUp::Init()
 #endif
 #if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
     GfxEngines::GetInstance()->InitDriver();
+    GrallocEngines::GetInstance()->Init();
 #endif
 }
 } // namespace OHOS

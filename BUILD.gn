@@ -186,7 +186,6 @@ if (os_level != "standard") {
       "frameworks/draw/draw_triangle.cpp",
       "frameworks/draw/draw_utils.cpp",
       "frameworks/engines/gfx/gfx_engine_manager.cpp",
-      "frameworks/engines/gfx/hi3516/hi3516_engine.cpp",
       "frameworks/engines/gfx/soft_engine.cpp",
       "frameworks/events/event.cpp",
       "frameworks/font/base_font.cpp",
@@ -208,6 +207,8 @@ if (os_level != "standard") {
       "frameworks/imgdecode/cache_manager.cpp",
       "frameworks/imgdecode/file_img_decoder.cpp",
       "frameworks/imgdecode/image_load.cpp",
+      "frameworks/imgdecode/png_img_decoder.cpp",
+      "frameworks/imgdecode/jpeg_img_decoder.cpp",
       "frameworks/layout/flex_layout.cpp",
       "frameworks/layout/grid_layout.cpp",
       "frameworks/layout/list_layout.cpp",
@@ -220,6 +221,12 @@ if (os_level != "standard") {
       "frameworks/window/window_impl.cpp",
       "frameworks/path/path_base.cpp",
     ]
+
+    if (defined(media_interface_upgrade)) {
+      sources += ["frameworks/engines/gfx/hi3519/hi3519_engine.cpp"]
+    } else {
+      sources += ["frameworks/engines/gfx/hi3516/hi3516_engine.cpp"]
+    }
 
     if (ohos_kernel_type == "liteos_m") {
       target_type = "static_library"
@@ -262,7 +269,7 @@ if (os_level != "standard") {
 
       if (ui_lite_enable_video_component_config) {
         defines += [ "ENABLE_VIDEO_COMPONENT=1" ]
-        source += [ "frameworks/components/ui_video.cpp" ]
+        sources += [ "frameworks/components/ui_video.cpp" ]
 
         deps += [ "//foundation/multimedia/media_lite/frameworks/player_lite:player_lite" ]
       }
