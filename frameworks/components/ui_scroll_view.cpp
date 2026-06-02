@@ -140,7 +140,7 @@ bool UIScrollView::OnRotateEvent(const RotateEvent& event)
 bool UIScrollView::OnRotateEndEvent(const RotateEvent& event)
 {
     if (direction_ == HORIZONTAL_NOR_VERTICAL) {
-        return UIView::OnRotateEvent(event);
+        return UIView::OnRotateEndEvent(event);
     }
     return UIAbstractScroll::OnRotateEndEvent(event);
 }
