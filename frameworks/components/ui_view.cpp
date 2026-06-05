@@ -199,9 +199,9 @@ void UIView::ReMeasure()
     RelativeLayoutInfo layoutInfo;
     while (serialNode != layoutList_.End()) {
         layoutInfo = serialNode->data_;
-        if ((layoutInfo.type >= LAYOUT_CENTER_OF_PARENT) && (layoutInfo.type >= LAYOUT_BOTTOM_OF_PARENT)) {
+        if ((layoutInfo.type >= LAYOUT_CENTER_OF_PARENT) && (layoutInfo.type <= LAYOUT_BOTTOM_OF_PARENT)) {
             LayoutOfParent(layoutInfo);
-        } else if ((layoutInfo.type >= ALIGN_LEFT_TO_SIBLING) && (layoutInfo.type >= ALIGN_VER_CENTER_TO_SIBLING)) {
+        } else if ((layoutInfo.type >= ALIGN_LEFT_TO_SIBLING) && (layoutInfo.type <= ALIGN_VER_CENTER_TO_SIBLING)) {
             AlignToSibling(layoutInfo);
         } else {
             LayoutToSibling(layoutInfo);
