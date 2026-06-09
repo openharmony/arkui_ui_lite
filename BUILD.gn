@@ -114,6 +114,13 @@ if (os_level != "standard") {
       "frameworks/common/task.cpp",
       "frameworks/common/text.cpp",
       "frameworks/common/typed_text.cpp",
+      "frameworks/common/qrcodegen/qrcode_generator.cpp",
+      "frameworks/common/qrcodegen/qrcode_version.cpp",
+      "frameworks/common/qrcodegen/qrcode_stream.cpp",
+      "frameworks/common/qrcodegen/qrcode_item.cpp",
+      "frameworks/common/qrcodegen/qrcode_rscode.cpp",
+      "frameworks/common/qrcodegen/qrcode_mask.cpp",
+      "frameworks/common/qrcodegen/qrcode_string.cpp",
       "frameworks/components/root_view.cpp",
       "frameworks/components/text_adapter.cpp",
       "frameworks/components/ui_abstract_clock.cpp",
@@ -242,7 +249,6 @@ if (os_level != "standard") {
         "//third_party/icu/icu4c/source/common:icu_font",
         "//third_party/libjpeg-turbo:libjpeg",
         "//third_party/libpng:libpng",
-        "//third_party/qrcodegen:qrcodegen",
       ]
     } else {
       target_type = "shared_library"
@@ -257,7 +263,6 @@ if (os_level != "standard") {
         "//third_party/icu/icu4c/source/common:icu_font",
         "//third_party/libjpeg-turbo:libjpeg",
         "//third_party/libpng:libpng",
-        "//third_party/qrcodegen:qrcodegen",
       ]
 
       if (ui_lite_enable_video_component_config) {
