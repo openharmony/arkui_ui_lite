@@ -21,6 +21,7 @@
 #include "common/qrcodegen/qrcode_rscode.h"
 #include "common/qrcodegen/qrcode_inner.h"
 #include "common/qrcodegen/qrcode_mask.h"
+#include "securec.h"
 
 #define MASK_SUM_NUM 8
 #define BIT_SUM_NUM 8

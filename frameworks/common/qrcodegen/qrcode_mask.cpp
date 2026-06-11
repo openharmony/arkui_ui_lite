@@ -19,6 +19,7 @@
 #include "common/qrcodegen/qrcode_generator.h"
 #include "common/qrcodegen/qrcode_version.h"
 #include "common/qrcodegen/qrcode_item.h"
+#include "securec.h"
 
 #define QR_MASK_NUM (8)
 

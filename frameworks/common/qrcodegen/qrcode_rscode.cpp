@@ -16,6 +16,7 @@
 #include "common/qrcodegen/qrcode_rscode.h"
 #include "common/qrcodegen/qrcode_generator.h"
 #include "common/qrcodegen/qrcode_inner.h"
+#include "securec.h"
 
 #define MM (rsCode->mm)
 #define NN (rsCode->nn)

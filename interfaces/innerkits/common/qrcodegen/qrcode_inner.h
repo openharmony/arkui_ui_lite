@@ -18,7 +18,6 @@
 
 #include "qrcode_generator.h"
 #include "qrcode_list.h"
-#include "securec.h"
 
 typedef enum {
     QRCODE_MODE_NUL = -1,
