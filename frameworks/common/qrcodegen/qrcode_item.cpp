@@ -98,7 +98,7 @@ int32_t QrcodeItemListAdd(QrcodeItemList *list, QrcodeMode mode, int32_t size, c
 void QrcodeItemListFree(QrcodeItemList *list)
 {
     QrcodeItem *pos = nullptr;
-    QrcodeItem *next = nullptr;
+
     if ((list == nullptr) || QrCodeListEmpty(&list->list)) {
         return;
     }

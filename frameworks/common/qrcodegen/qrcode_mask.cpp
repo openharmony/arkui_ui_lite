@@ -278,7 +278,7 @@ static int32_t QrcodeMaskGetScore(int32_t width, uint8_t *data)
             return 0;
         }
         QrcodeMaskGetBuffer(buffer, data + x, width, 1);
-        int32_t bufLen = (width > (QRCODE_VERSION_WIDTH_MAX + 1)) ? (width, QRCODE_VERSION_WIDTH_MAX + 1) : width;
+        int32_t bufLen = (width > (QRCODE_VERSION_WIDTH_MAX + 1)) ? (QRCODE_VERSION_WIDTH_MAX + 1) : width;
         score += QrcodeMaskGetRoleCalcN1N3(buffer, bufLen);
     }
 
