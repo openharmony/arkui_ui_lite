@@ -17,6 +17,7 @@
 #include "gfx_utils/graphic_log.h"
 #include "securec.h"
 #include "common/qrcodegen/qrcode_generator.h"
+#include "engines/gfx/gfx_engine_manager.h"
 
 namespace OHOS {
 UIQrcode::UIQrcode()
@@ -104,7 +105,7 @@ void UIQrcode::ReMeasure()
         GRAPHIC_LOGE("UIQrcode::ReMeasure qrImage_ is null!\n");
         return;
     }
-    SetImageInfo(qr);
+    SetImageInfo();
     SetSrc(&imageInfo_);
 }
 
