@@ -65,7 +65,6 @@ if (os_level != "standard" || build_ohos_sdk == true) {
       "icu:icu_font",
       "libjpeg-turbo:turbojpeg_static",
       "libpng:libpng_static",
-      "qrcodegen:qrcodegen_static",
     ]
     public_deps = [ ":graphic_utils_static_ide" ]
     public_configs = [ ":graphic_public_config_ide" ]
