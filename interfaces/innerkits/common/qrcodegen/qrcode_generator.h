@@ -15,7 +15,6 @@
 
 #ifndef __QRCODE_GENERATOR_H__
 #define __QRCODE_GENERATOR_H__
-#include <string.h>
 #include <stdint.h>
 
 #if defined(__cplusplus)
