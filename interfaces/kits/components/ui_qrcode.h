@@ -37,10 +37,6 @@
 
 #include "components/ui_image_view.h"
 
-namespace qrcodegen {
-class QrCode;
-}
-
 namespace OHOS {
 /**
  * @brief Provides functions related to quick response (QR) codes.
@@ -110,9 +106,9 @@ public:
 private:
     void ReMeasure() override;
     void RefreshQrcode();
-    void SetImageInfo(qrcodegen::QrCode& qrcode);
-    void GenerateQrCode(qrcodegen::QrCode& qrcode);
-    void FillQrCodeColor(qrcodegen::QrCode& qrcode);
+    void SetImageInfo();
+    void GenerateQrCode();
+    void FillQrCodeColor();
     void FillQrCodeBackgroundColor();
     void SetQrcodeVal(const char* val, uint32_t length);
     void GetDestData(uint8_t* destData, int32_t outFilePixelPrescaler);
@@ -124,6 +120,7 @@ private:
     ColorType backgroundColor_;
     ColorType qrColor_;
     char* qrcodeVal_;
+    void* qrImage_ = nullptr;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_QRCODE_H
