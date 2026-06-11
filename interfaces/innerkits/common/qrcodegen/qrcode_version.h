@@ -101,13 +101,13 @@ static inline int32_t QrcodeVersionRsEcc2(const int32_t *spec)
 
 static inline int32_t QrcodeVersionRsDataLen(const int32_t *spec)
 {
-    return QrcodeVersionRsBlockNum1(spec) + QrcodeVersionRsData1(spec) +
-        QrcodeVersionRsBlockNum2(spec) + QrcodeVersionRsData2(spec);
+    return (QrcodeVersionRsBlockNum1(spec) * QrcodeVersionRsData1(spec)) +
+        (QrcodeVersionRsBlockNum2(spec) * QrcodeVersionRsData2(spec));
 }
 
 static inline int32_t QrcodeVersionRsEccLen(const int32_t *spec)
 {
-    return QrcodeVersionRsBlockNum(spec) + QrcodeVersionRsEcc1(spec);
+    return QrcodeVersionRsBlockNum(spec) * QrcodeVersionRsEcc1(spec);
 }
 
 extern uint32_t QrcodeVersionGetPattern(int32_t version);
