@@ -127,6 +127,13 @@ arkui_ui_lite_sources = [
   "$ARKUI_UI_LITE_PATH/frameworks/render/render_scanline.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/themes/theme.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/themes/theme_manager.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_generator.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_version.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_stream.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_item.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_rscode.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_mask.cpp",
+  "$ARKUI_UI_LITE_PATH/frameworks/common/qrcodegen/qrcode_string.cpp",
 ]
 
 declare_args() {
