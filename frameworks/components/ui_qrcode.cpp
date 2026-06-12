@@ -14,11 +14,11 @@
  */
 
 #include "components/ui_qrcode.h"
-#include "qrcodegen.hpp"
 #include "gfx_utils/graphic_log.h"
 #include "securec.h"
+#include "common/qrcodegen/qrcode_generator.h"
+#include "engines/gfx/gfx_engine_manager.h"
 
-using qrcodegen::QrCode;
 namespace OHOS {
 UIQrcode::UIQrcode()
     : width_(0), needDraw_(false), backgroundColor_(Color::White()), qrColor_(Color::Black()), qrcodeVal_(nullptr)
@@ -37,6 +37,11 @@ UIQrcode::~UIQrcode()
     if (imageInfo_.data != nullptr) {
         ImageCacheFree(imageInfo_);
         imageInfo_.data = nullptr;
+    }
+
+    if (qrImage_ != nullptr) {
+        QrcodeImageFree(static_cast<QrcodeImage *>(qrImage_));
+        qrImage_ = nullptr;
     }
 }
 
@@ -91,8 +96,16 @@ void UIQrcode::ReMeasure()
         GRAPHIC_LOGE("UIQrcode::ReMeasure qrcodeVal_ is null!\n");
         return;
     }
-    QrCode qr = QrCode::encodeText(qrcodeVal_, QrCode::Ecc::LOW);
-    SetImageInfo(qr);
+    if (qrImage_ != nullptr) {
+        QrcodeImageFree(static_cast<QrcodeImage *>(qrImage_));
+        qrImage_ = nullptr;
+    }
+    qrImage_ = QrcodeImageEncodeString(qrcodeVal_, QRCODE_ECC_MEDIUM);
+    if (qrImage_ == nullptr) {
+        GRAPHIC_LOGE("UIQrcode::ReMeasure qrImage_ is null!\n");
+        return;
+    }
+    SetImageInfo();
     SetSrc(&imageInfo_);
 }
 
@@ -113,19 +126,19 @@ void UIQrcode::SetQrcodeVal(const char* qrcodeVal, uint32_t length)
     }
 }
 
-void UIQrcode::SetImageInfo(qrcodegen::QrCode& qrcode)
+void UIQrcode::SetImageInfo()
 {
     int16_t width = GetWidth();
     int16_t height = GetHeight();
     width_ = (width >= height) ? height : width;
-    if (width_ < qrcode.getSize()) {
-        GRAPHIC_LOGE("UIQrcode::SetImageInfo width is less than the minimum qrcode width!\n");
+    if (width_ < static_cast<QrcodeImage *>(qrImage_)->width) {
+        GRAPHIC_LOGE("UIQrcode::SetImageInfo width is less than the minimum qrImage_ width!\n");
         return;
     }
     imageInfo_.header.width = width;
     imageInfo_.header.height = height;
     imageInfo_.header.colorMode = ARGB8888;
-    width = UI_ALIGN_UP(width);
+    width = BaseGfxEngine::GetInstance()->AlignImageWidth(width);
     imageInfo_.dataSize = width * imageInfo_.header.height * QRCODE_FACTOR_NUM;
     if (imageInfo_.data != nullptr) {
         ImageCacheFree(imageInfo_);
@@ -136,21 +149,21 @@ void UIQrcode::SetImageInfo(qrcodegen::QrCode& qrcode)
         GRAPHIC_LOGE("UIQrcode::SetImageInfo imageInfo_.data is null!\n");
         return;
     }
-    GenerateQrCode(qrcode);
+    GenerateQrCode();
 }
 
-void UIQrcode::GenerateQrCode(qrcodegen::QrCode& qrcode)
+void UIQrcode::GenerateQrCode()
 {
     FillQrCodeBackgroundColor();
 
-    FillQrCodeColor(qrcode);
+    FillQrCodeColor();
 }
 
-void UIQrcode::FillQrCodeColor(qrcodegen::QrCode& qrcode)
+void UIQrcode::FillQrCodeColor()
 {
-    int32_t qrWidth = qrcode.getSize();
+    int32_t qrWidth = static_cast<QrcodeImage *>(qrImage_)->width;
     if (qrWidth <= 0) {
-        GRAPHIC_LOGE("UIQrcode::FillQrCodeColor generated qrcode size is less or equal 0!\n");
+        GRAPHIC_LOGE("UIQrcode::FillQrCodeColor generated qrImage_ size is less or equal 0!\n");
         return;
     }
     int16_t width = imageInfo_.header.width;
@@ -159,17 +172,19 @@ void UIQrcode::FillQrCodeColor(qrcodegen::QrCode& qrcode)
     int32_t offsetX = (width - outFilePixelPrescaler * qrWidth) / 2;    // 2: half
     int32_t offsetY = (height - outFilePixelPrescaler * qrWidth) / 2;   // 2: half
 
-    width = UI_ALIGN_UP(width);
+    width = BaseGfxEngine::GetInstance()->AlignImageWidth(width);
     uint8_t* destData = nullptr;
     int64_t oneLinePixel = width * QRCODE_FACTOR_NUM * outFilePixelPrescaler;
     int64_t oneLineOffsetPixel = (offsetY * width * QRCODE_FACTOR_NUM) + (offsetX * QRCODE_FACTOR_NUM);
+    uint8_t *sourceData = static_cast<QrcodeImage *>(qrImage_)->data;
     for (int32_t y = 0; y < qrWidth; ++y) {
         destData = const_cast<uint8_t*>(imageInfo_.data) + (oneLinePixel * y) + oneLineOffsetPixel;
         for (int32_t x = 0; x < qrWidth; ++x) {
-            if (qrcode.getModule(x, y)) {
+            if ((*sourceData & 1) != 0) {
                 GetDestData(destData, outFilePixelPrescaler);
             }
             destData += QRCODE_FACTOR_NUM * outFilePixelPrescaler;
+            sourceData++;
         }
     }
 }
@@ -183,10 +198,10 @@ void UIQrcode::FillQrCodeBackgroundColor()
     *(initColorData + 3) = OPA_OPAQUE;             // 3: Alpha channel
 
     uint32_t width = imageInfo_.header.width;
-    width = UI_ALIGN_UP(width);
+    width = BaseGfxEngine::GetInstance()->AlignImageWidth(width);
 
     uint8_t* tempColorData = initColorData;
-    for (int16_t col = 1; col < width; ++col) {
+    for (uint32_t col = 1; col < width; ++col) {
         initColorData += QRCODE_FACTOR_NUM;
         if (memcpy_s(initColorData, QRCODE_FACTOR_NUM, tempColorData, QRCODE_FACTOR_NUM) != EOK) {
             GRAPHIC_LOGE("UIQrcode::FillQrCodeBackgroundColor memcpy_s failed!\n");
@@ -207,7 +222,7 @@ void UIQrcode::FillQrCodeBackgroundColor()
 void UIQrcode::GetDestData(uint8_t* destData, int32_t outFilePixelPrescaler)
 {
     uint32_t width = imageInfo_.header.width;
-    width = UI_ALIGN_UP(width);
+    width = BaseGfxEngine::GetInstance()->AlignImageWidth(width);
 
     for (int32_t x = 0; x < outFilePixelPrescaler; ++x) {
         uint8_t* tempData = destData + width * QRCODE_FACTOR_NUM * x;
