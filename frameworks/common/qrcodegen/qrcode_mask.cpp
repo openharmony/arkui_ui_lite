@@ -233,15 +233,16 @@ static int32_t QrcodeMaskGetRoleCalcN2(int32_t width, uint8_t *data)
 
 static int32_t QrcodeMaskGetBuffer(uint8_t *buff, uint8_t *src, int32_t width, int32_t isCol)
 {
-    int32_t moveLen = (isCol == 0) ? 1 : width;
-
-    if (memset_s(buff, width, 0, width) != 0) {
-        return 0;
-    }
     uint8_t *p = src;
     if ((p == nullptr) || (buff == nullptr)) {
         return 0;
     }
+
+    int32_t moveLen = (isCol == 0) ? 1 : width;
+    if (memset_s(buff, width, 0, width) != 0) {
+        return 0;
+    }
+
     for (int32_t i = 0; i < width; i++) {
         if (p[i * moveLen] & 1) {
             buff[i] = 1;
