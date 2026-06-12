@@ -14,8 +14,9 @@
  */
 
 #include "common/qrcodegen/qrcode_mask.h"
-#include <cstring>
+#include "securec.h"
 #include <cmath>
+#include <cstdlib>
 #include "common/qrcodegen/qrcode_generator.h"
 #include "common/qrcodegen/qrcode_version.h"
 #include "common/qrcodegen/qrcode_item.h"
@@ -251,7 +252,6 @@ static int32_t QrcodeMaskGetBuffer(uint8_t *buff, uint8_t *src, int32_t width, i
     return width;
 }
 
-#define INT_MAX 2147483647
 static int32_t QrcodeMaskGetScore(int32_t width, uint8_t *data)
 {
     int32_t x = 0;

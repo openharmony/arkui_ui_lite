@@ -16,7 +16,7 @@
 #include "common/qrcodegen/qrcode_stream.h"
 #include "common/qrcodegen/qrcode_generator.h"
 #include "common/qrcodegen/qrcode_item.h"
-#include <cstring>
+#include "securec.h"
 
 QrcodeStream *QrcodeStreamNew(void)
 {

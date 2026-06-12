@@ -18,7 +18,7 @@
 #include "common/qrcodegen/qrcode_stream.h"
 #include "common/qrcodegen/qrcode_version.h"
 #include "common/qrcodegen/qrcode_list.h"
-#include <cstring>
+#include "securec.h"
 
 #define THIRD_ENCODE 3
 #define THIRD_ENCODE_TWO 2
