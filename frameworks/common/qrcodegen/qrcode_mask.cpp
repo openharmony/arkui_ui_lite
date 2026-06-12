@@ -27,7 +27,7 @@
 #define N3 (40)
 #define N4 (10)
 
-constexpr int32_t qrcodeIntMax = 2147483647;
+constexpr int32_t QRCODE_INT_MAX = 2147483647;
 
 typedef int32_t (*QrcodeMaskExpressionFunc)(int32_t x, int32_t y);
 
@@ -294,7 +294,7 @@ uint8_t *QrcodeMaskFindMask(int32_t width, uint8_t *data)
         return nullptr;
     }
     uint8_t *bestMask = nullptr;
-    int32_t minScore = qrcodeIntMax;
+    int32_t minScore = QRCODE_INT_MAX;
     for (int32_t i = 0; i < QR_MASK_NUM; i++) {
         int32_t score = 0;
         int32_t blackCounts = QrcodeMaskCopyWithExpression(width, data, curMask, g_qrcodeMaskMakers[i]);
