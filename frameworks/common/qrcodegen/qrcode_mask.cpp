@@ -287,8 +287,6 @@ static int32_t QrcodeMaskGetScore(int32_t width, uint8_t *data)
     return score;
 }
 
-int32_t QrcodeGetAbs()
-
 uint8_t *QrcodeMaskFindMask(int32_t width, uint8_t *data)
 {
     int32_t total = width * width;
