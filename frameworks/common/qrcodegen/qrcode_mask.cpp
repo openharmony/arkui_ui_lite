@@ -16,7 +16,6 @@
 #include "common/qrcodegen/qrcode_mask.h"
 #include "securec.h"
 #include <cmath>
-#include <cstdlib>
 #include "common/qrcodegen/qrcode_generator.h"
 #include "common/qrcodegen/qrcode_version.h"
 #include "common/qrcodegen/qrcode_item.h"
@@ -27,6 +26,8 @@
 #define N2 (3)
 #define N3 (40)
 #define N4 (10)
+
+constexpr int32_t qrcodeIntMax = 2147483647;
 
 typedef int32_t (*QrcodeMaskExpressionFunc)(int32_t x, int32_t y);
 
@@ -293,7 +294,7 @@ uint8_t *QrcodeMaskFindMask(int32_t width, uint8_t *data)
         return nullptr;
     }
     uint8_t *bestMask = nullptr;
-    int32_t minScore = INT_MAX;
+    int32_t minScore = qrcodeIntMax;
     for (int32_t i = 0; i < QR_MASK_NUM; i++) {
         int32_t score = 0;
         int32_t blackCounts = QrcodeMaskCopyWithExpression(width, data, curMask, g_qrcodeMaskMakers[i]);
