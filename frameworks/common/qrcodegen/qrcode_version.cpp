@@ -15,7 +15,7 @@
 
 #include "common/qrcodegen/qrcode_version.h"
 #include "common/qrcodegen/qrcode_item.h"
-#include "securec.h"
+#include <cstring>
 
 #define QR_NUM_IS_FIVE 5
 
