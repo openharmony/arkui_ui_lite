@@ -155,12 +155,14 @@ int32_t QrcodeStreamAddBytes(QrcodeStream *stream, int32_t size, uint8_t *data)
 
 uint8_t *QrcodeStreamDupData(QrcodeStream *stream)
 {
+    if (stream == nullptr) {
+        return nullptr;
+    }
     uint8_t *data = (uint8_t *)QrcodeMalloc(QrcodeCharCount(stream->bitCount));
     if (data) {
         if (memcpy_s(data, QrcodeCharCount(stream->bitCount), stream->data,
             QrcodeCharCount(stream->bitCount)) != 0) {
-            QrcodeFree(data);
-            return nullptr;
+            return data;
         }
     }
 
@@ -179,7 +181,7 @@ void QrcodeStreamFree(QrcodeStream *stream)
 
 void QrcodeStreamClean(QrcodeStream *stream)
 {
-    if (!stream) {
+    if (stream) {
         if (stream->data) {
             QrcodeFree(stream->data);
         }

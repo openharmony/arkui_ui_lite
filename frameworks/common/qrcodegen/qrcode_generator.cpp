@@ -75,6 +75,7 @@ void *QrcodeMalloc(size_t size)
 void QrcodeFree(void *ptr)
 {
     g_memoryHooks.freeFunc(ptr);
+    ptr = nullptr;
 }
 
 static void QrcodeBlockBlockInit(QrcodeBlock *block, uint8_t *data, int32_t dataLen, uint8_t *ecc, ReedSolomonCode *rs)
@@ -97,6 +98,7 @@ static int32_t QrcodeBlockInit(QrcodeBlock *blocks, int32_t spec[5], uint32_t le
     int32_t dataLen = QrcodeVersionRsData1(spec);
     int32_t eccLen = QrcodeVersionRsEcc1(spec);
 
+    // 255: Reed Solomon编码参数
     ReedSolomonCodeData codeData1 = { MASK_SUM_NUM, 0x11d, 0, 1, eccLen, 255 - dataLen - eccLen };
     ReedSolomonCode *rs = ReedSolomonCodeInit(codeData1);
     if (rs == nullptr) {
@@ -121,6 +123,7 @@ static int32_t QrcodeBlockInit(QrcodeBlock *blocks, int32_t spec[5], uint32_t le
     dataLen = QrcodeVersionRsData2(spec);
     eccLen = QrcodeVersionRsEcc2(spec);
 
+    // 255: Reed Solomon编码参数
     ReedSolomonCodeData codeData2 = { MASK_SUM_NUM, 0x11d, 0, 1, eccLen, 255 - dataLen - eccLen };
     rs = ReedSolomonCodeInit(codeData2);
     if (rs == nullptr) {
@@ -157,7 +160,7 @@ static QrcodeMergeCode *QRMergeCodeNew(QrcodeItemList *list)
         return nullptr;
     }
 
-    int32_t spec[5] = { 0 };
+    int32_t spec[QR_BIT_FIVE] = { 0 };
     QrcodeVersionGetEccInfo(list->version, spec, QR_BIT_FIVE);
     merge->version = list->version;
     merge->b1 = QrcodeVersionRsBlockNum1(spec);

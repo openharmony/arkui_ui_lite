@@ -441,7 +441,7 @@ static int32_t QrcodeItemListListToStream(QrcodeStream *stream, QrcodeItemList *
     }
 
     int32_t retryTimesCount = 0;
-    while (retryTimesCount < QRCODE_VERSION_MAX) {
+    while (retryTimesCount <= QRCODE_VERSION_MAX) {
         QrcodeStreamClean(stream);
         if (QrcodeItemListFillStream(stream, list) < 0) {
             return -1;
@@ -456,7 +456,7 @@ static int32_t QrcodeItemListListToStream(QrcodeStream *stream, QrcodeItemList *
         }
         retryTimesCount++;
     }
-    if (retryTimesCount >= QRCODE_VERSION_MAX) {
+    if (retryTimesCount > QRCODE_VERSION_MAX) {
         return -1;
     }
 
