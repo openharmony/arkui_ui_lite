@@ -1513,12 +1513,19 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     RootView* rootView = RootView::GetInstance();
     rootView->SaveDrawContext();
     rootView->UpdateBufferInfo(&bufInfo);
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    Point *tempPos = originalPos_;
+    originalPos_ = nullptr;
+#endif
     rootView->MeasureView(this);
     rootView->DrawTop(this, mask);
     rootView->RestoreDrawContext();
 
     nextRenderSibling_ = tempRenderSibling;
     parent_ = tempParent;
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    originalPos_ = nullptr;
+#endif
     rect_.SetPosition(tempX, tempY);
     return true;
 }
