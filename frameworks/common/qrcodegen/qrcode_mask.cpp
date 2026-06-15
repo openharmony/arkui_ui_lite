@@ -303,7 +303,7 @@ uint8_t *QrcodeMaskFindMask(int32_t width, uint8_t *data)
         // 200: 百分比计算的中间系数
         int32_t percent = (200 * blackCounts + total) / total / 2;
         // 50: 目标黑白比例,5: 容差档次
-        score = (fabs(percent - 50) / 5) * N4;
+        score = ((percent > 50) ? (percent - 50) : (50 - percent)) / 5 * N4;
         score += QrcodeMaskGetScore(width, curMask);
         if (score < minScore) {
             minScore = score;
