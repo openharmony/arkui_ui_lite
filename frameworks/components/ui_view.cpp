@@ -1518,7 +1518,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     originalPos_ = nullptr;
 #endif
     rootView->MeasureView(this);
-    rootView->DrawTop(this, GetRect());
+    rootView->DrawTop(this, mask);
     rootView->RestoreDrawContext();
 
     nextRenderSibling_ = tempRenderSibling;
