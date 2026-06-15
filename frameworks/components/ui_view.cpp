@@ -1482,8 +1482,10 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     int16_t tempY = rect_.GetY();
     rect_.SetPosition(0, 0);
 
-    BufferInfo bufInfo{ GetRect(), 0, nullptr, nullptr, GetRect().GetWidth(),
-        GetRect().GetHeight(), colorMode, 0 };
+    Rect mask = GetRect();
+    BufferInfo bufInfo{mask, 0, nullptr, nullptr, 0, 0, colorMode, 0};
+    bufInfo.width = mask.GetWidth();
+    bufInfo.height = mask.GetHeight();
     bufInfo.stride = bufInfo.width * DrawUtils::GetByteSizeByColorMode(bufInfo.mode);
     BaseGfxEngine::GetInstance()->AdjustLineStride(bufInfo);
     imageInfo.header.colorMode = bufInfo.mode;
