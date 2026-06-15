@@ -1482,10 +1482,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     int16_t tempY = rect_.GetY();
     rect_.SetPosition(0, 0);
 
-    Rect mask = GetRect();
-    BufferInfo bufInfo{mask, 0, nullptr, nullptr, 0, 0, colorMode, 0};
-    bufInfo.width = mask.GetWidth();
-    bufInfo.height = mask.GetHeight();
+    BufferInfo bufInfo{ GetRect(), 0, nullptr, nullptr, mask.GetWidth(), mask.GetHeight(), colorMode, 0 };
     bufInfo.stride = bufInfo.width * DrawUtils::GetByteSizeByColorMode(bufInfo.mode);
     BaseGfxEngine::GetInstance()->AdjustLineStride(bufInfo);
     imageInfo.header.colorMode = bufInfo.mode;
@@ -1518,7 +1515,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     originalPos_ = nullptr;
 #endif
     rootView->MeasureView(this);
-    rootView->DrawTop(this, mask);
+    rootView->DrawTop(this, GetRect());
     rootView->RestoreDrawContext();
 
     nextRenderSibling_ = tempRenderSibling;
