@@ -1524,7 +1524,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     nextRenderSibling_ = tempRenderSibling;
     parent_ = tempParent;
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-    originalPos_ = nullptr;
+    originalPos_ = tempPos;
 #endif
     rect_.SetPosition(tempX, tempY);
     return true;
