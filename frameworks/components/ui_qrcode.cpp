@@ -130,7 +130,7 @@ void UIQrcode::SetImageInfo()
     int16_t width = GetWidth();
     int16_t height = GetHeight();
     width_ = (width >= height) ? height : width;
-    if (width_ < qrImage_->width) {
+    if ((width_ >= 0) && (static_cast<uint32_t>(width_) < qrImage_->width)) {
         GRAPHIC_LOGE("UIQrcode::SetImageInfo width is less than the minimum qrImage_ width!\n");
         return;
     }
