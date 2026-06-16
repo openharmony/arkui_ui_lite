@@ -232,7 +232,7 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     RelativeLayoutInfo layout;
     while (serialNode != layoutList_.End()) {
         layout = serialNode->data_;
-        if ((layoutInfo.type == type) && (layoutInfo.viewId == viewId)) {
+        if ((layout.type == type) && (layout.viewId == viewId)) {
             return;
         }
         serialNode = serialNode->next_;
