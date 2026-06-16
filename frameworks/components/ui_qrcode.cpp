@@ -16,7 +16,6 @@
 #include "components/ui_qrcode.h"
 #include "gfx_utils/graphic_log.h"
 #include "securec.h"
-#include "common/qrcodegen/qrcode_generator.h"
 #include "engines/gfx/gfx_engine_manager.h"
 
 namespace OHOS {
@@ -40,7 +39,7 @@ UIQrcode::~UIQrcode()
     }
 
     if (qrImage_ != nullptr) {
-        QrcodeImageFree(static_cast<QrcodeImage *>(qrImage_));
+        QrcodeImageFree(qrImage_);
         qrImage_ = nullptr;
     }
 }
@@ -97,7 +96,7 @@ void UIQrcode::ReMeasure()
         return;
     }
     if (qrImage_ != nullptr) {
-        QrcodeImageFree(static_cast<QrcodeImage *>(qrImage_));
+        QrcodeImageFree(qrImage_);
         qrImage_ = nullptr;
     }
     qrImage_ = QrcodeImageEncodeString(qrcodeVal_, QRCODE_ECC_MEDIUM);
@@ -131,7 +130,7 @@ void UIQrcode::SetImageInfo()
     int16_t width = GetWidth();
     int16_t height = GetHeight();
     width_ = (width >= height) ? height : width;
-    if (width_ < static_cast<QrcodeImage *>(qrImage_)->width) {
+    if (width_ < qrImage_->width) {
         GRAPHIC_LOGE("UIQrcode::SetImageInfo width is less than the minimum qrImage_ width!\n");
         return;
     }
@@ -161,7 +160,7 @@ void UIQrcode::GenerateQrCode()
 
 void UIQrcode::FillQrCodeColor()
 {
-    int32_t qrWidth = static_cast<QrcodeImage *>(qrImage_)->width;
+    int32_t qrWidth = qrImage_->width;
     if (qrWidth <= 0) {
         GRAPHIC_LOGE("UIQrcode::FillQrCodeColor generated qrImage_ size is less or equal 0!\n");
         return;
@@ -176,7 +175,7 @@ void UIQrcode::FillQrCodeColor()
     uint8_t* destData = nullptr;
     int64_t oneLinePixel = width * QRCODE_FACTOR_NUM * outFilePixelPrescaler;
     int64_t oneLineOffsetPixel = (offsetY * width * QRCODE_FACTOR_NUM) + (offsetX * QRCODE_FACTOR_NUM);
-    uint8_t *sourceData = static_cast<QrcodeImage *>(qrImage_)->data;
+    uint8_t *sourceData = qrImage_->data;
     for (int32_t y = 0; y < qrWidth; ++y) {
         destData = const_cast<uint8_t*>(imageInfo_.data) + (oneLinePixel * y) + oneLineOffsetPixel;
         for (int32_t x = 0; x < qrWidth; ++x) {
