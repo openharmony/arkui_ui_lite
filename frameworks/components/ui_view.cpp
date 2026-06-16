@@ -227,6 +227,16 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     layoutInfo.viewId = viewId;
     layoutInfo.offsetX = xOffset;
     layoutInfo.offsetY = yOffset;
+
+    ListNode<RelativeLayoutInfo>* serialNode = layoutList_.Head();
+    RelativeLayoutInfo layout;
+    while (serialNode != layoutList_.End()) {
+        layout = serialNode->data_;
+        if ((layoutInfo.type == type) && (layoutInfo.viewId == viewId)) {
+            return;
+        }
+        serialNode = serialNode->next_;
+    }
     layoutList_.PushBack(layoutInfo);
 }
 
@@ -1483,7 +1493,9 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     rect_.SetPosition(0, 0);
 
     Rect mask = GetRect();
-    BufferInfo bufInfo{ mask, 0, nullptr, nullptr, mask.GetWidth(), mask.GetWidth(), colorMode, 0 };
+    BufferInfo bufInfo{mask, 0, nullptr, nullptr, 0, 0, colorMode, 0};
+    bufInfo.width = mask.GetWidth();
+    bufInfo.height = mask.GetHeight();
     bufInfo.stride = bufInfo.width * DrawUtils::GetByteSizeByColorMode(bufInfo.mode);
     BaseGfxEngine::GetInstance()->AdjustLineStride(bufInfo);
     imageInfo.header.colorMode = bufInfo.mode;
