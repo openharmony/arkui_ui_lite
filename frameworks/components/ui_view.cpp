@@ -262,6 +262,7 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
         }
         serialNode = serialNode->next_;
     }
+
     dynamicLayoutInfo_->layoutList->PushBack(layoutInfo);
 }
 
