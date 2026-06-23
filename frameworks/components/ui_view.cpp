@@ -1508,7 +1508,7 @@ uint8_t UIView::GetMixOpaScale() const
     return opaMix;
 }
 
-void UIView::ReDrawComponents(BufferInfo &bufferInfo, const Rect &mask)
+void UIView::ReDrawComponents(BufferInfo &bufInfo, const Rect &mask)
 {
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
     DynamicLayoutInfo *tempLayoutInfo = dynamicLayoutInfo_;
@@ -1565,7 +1565,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
         return false;
     }
     bufInfo.phyAddr = bufInfo.virAddr;
-    ReDrawComponents(bufferInfo, mask);
+    ReDrawComponents(bufInfo, mask);
 
     nextRenderSibling_ = tempRenderSibling;
     parent_ = tempParent;
