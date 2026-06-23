@@ -99,7 +99,6 @@ UIView::~UIView()
         delete dynamicLayoutInfo_;
         dynamicLayoutInfo_ = nullptr;
     }
-    layoutList_.Clear();
 #endif
 }
 
@@ -204,7 +203,7 @@ void UIView::ReMeasure()
         return;
     }
     isRemeasure_ = true;
-    SetPosition(dynamicLayoutInfo_->originalPos_->x, dynamicLayoutInfo_->originalPos_->y);
+    SetPosition(dynamicLayoutInfo_->originalPos->x, dynamicLayoutInfo_->originalPos->y);
     ListNode<RelativeLayoutInfo>* serialNode = dynamicLayoutInfo_->layoutList->Head();
     RelativeLayoutInfo layoutInfo;
     while (serialNode != dynamicLayoutInfo_->layoutList->End()) {
@@ -243,7 +242,7 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     }
     if (dynamicLayoutInfo_->layoutList == nullptr) {
         dynamicLayoutInfo_->layoutList = new List<RelativeLayoutInfo>();
-        if (dynamicLayoutInfo_->layoutInfo == nullptr) {
+        if (dynamicLayoutInfo_->layoutList == nullptr) {
             return;
         }
     }
