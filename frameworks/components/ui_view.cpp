@@ -1508,6 +1508,25 @@ uint8_t UIView::GetMixOpaScale() const
     return opaMix;
 }
 
+void UIView::ReDrawComponents(BufferInfo &bufferInfo, const Rect &mask)
+{
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    DynamicLayoutInfo *tempLayoutInfo = dynamicLayoutInfo_;
+    dynamicLayoutInfo_ = nullptr;
+#endif
+
+    RootView* rootView = RootView::GetInstance();
+    rootView->SaveDrawContext();
+    rootView->UpdateBufferInfo(&bufInfo);
+    rootView->MeasureView(this);
+    rootView->DrawTop(this, mask);
+    rootView->RestoreDrawContext();
+
+#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
+    dynamicLayoutInfo_ = tempLayoutInfo;
+#endif
+}
+
 bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
 {
     UIView* tempRenderSibling = nextRenderSibling_;
@@ -1546,16 +1565,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
         return false;
     }
     bufInfo.phyAddr = bufInfo.virAddr;
-    RootView* rootView = RootView::GetInstance();
-    rootView->SaveDrawContext();
-    rootView->UpdateBufferInfo(&bufInfo);
-#if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-    DynamicLayoutInfo *tempLayoutInfo = dynamicLayoutInfo_;
-    dynamicLayoutInfo_ = nullptr;
-#endif
-    rootView->MeasureView(this);
-    rootView->DrawTop(this, mask);
-    rootView->RestoreDrawContext();
+    ReDrawComponents(bufferInfo, mask);
 
     nextRenderSibling_ = tempRenderSibling;
     parent_ = tempParent;
