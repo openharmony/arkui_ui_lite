@@ -133,6 +133,16 @@ struct RelativeLayoutInfo {
         offsetY = 0;
     }
 };
+
+struct DynamicLayoutInfo {
+    List<RelativeLayoutInfo> *layoutList;
+    Point *originalPos; // Originan location.
+    DynamicLayoutInfo()
+    {
+        layoutList = nullptr;
+        originalPos = nullptr;
+    }
+};
 #endif
 
 #if ENABLE_DEBUG

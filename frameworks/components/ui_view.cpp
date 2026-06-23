@@ -66,7 +66,7 @@ UIView::UIView()
     SetupThemeStyles();
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
     isRemeasure_ = false;
-    originalPos_ = nullptr;
+    dynamicLayoutInfo_ = nullptr;
 #endif
 }
 
@@ -86,9 +86,18 @@ UIView::~UIView()
         styleAllocFlag_ = false;
     }
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-    if (originalPos_ != nullptr) {
-        delete originalPos_;
-        originalPos_ = nullptr;
+    if (dynamicLayoutInfo_ != nullptr) {
+        if (dynamicLayoutInfo_->layoutList != nullptr) {
+            dynamicLayoutInfo_->layoutList->Clear();
+            delete dynamicLayoutInfo_->layoutList;
+            dynamicLayoutInfo_->layoutList = nullptr;
+        }
+        if (dynamicLayoutInfo_->originalPos != nullptr) {
+            delete dynamicLayoutInfo_->originalPos;
+            dynamicLayoutInfo_->originalPos = nullptr;
+        }
+        delete dynamicLayoutInfo_;
+        dynamicLayoutInfo_ = nullptr;
     }
     layoutList_.Clear();
 #endif
@@ -190,14 +199,15 @@ void UIView::DrawViewBounds(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
 void UIView::ReMeasure()
 {
-    if (originalPos_ == nullptr) {
+    if ((dynamicLayoutInfo_ == nullptr) || (dynamicLayoutInfo_->originalPos == nullptr) ||
+        (dynamicLayoutInfo_->layoutList == nullptr)) {
         return;
     }
     isRemeasure_ = true;
-    SetPosition(originalPos_->x, originalPos_->y);
-    ListNode<RelativeLayoutInfo>* serialNode = layoutList_.Head();
+    SetPosition(dynamicLayoutInfo_->originalPos_->x, dynamicLayoutInfo_->originalPos_->y);
+    ListNode<RelativeLayoutInfo>* serialNode = dynamicLayoutInfo_->layoutList->Head();
     RelativeLayoutInfo layoutInfo;
-    while (serialNode != layoutList_.End()) {
+    while (serialNode != dynamicLayoutInfo_->layoutList->End()) {
         layoutInfo = serialNode->data_;
         if ((layoutInfo.type >= LAYOUT_CENTER_OF_PARENT) && (layoutInfo.type <= LAYOUT_BOTTOM_OF_PARENT)) {
             LayoutOfParent(layoutInfo);
@@ -216,10 +226,26 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     if (isRemeasure_) {
         return;
     }
-    if (originalPos_ == nullptr) {
-        originalPos_ = new Point();
-        originalPos_->x = GetX();
-        originalPos_->y = GetY();
+
+    if (dynamicLayoutInfo_ == nullptr) {
+        dynamicLayoutInfo_ = new DynamicLayoutInfo();
+        if (dynamicLayoutInfo_ == nullptr) {
+            return;
+        }
+    }
+    if (dynamicLayoutInfo_->originalPos == nullptr) {
+        dynamicLayoutInfo_->originalPos = new Point();
+        if (dynamicLayoutInfo_->originalPos == nullptr) {
+            return;
+        }
+        dynamicLayoutInfo_->originalPos->x = GetX();
+        dynamicLayoutInfo_->originalPos->y = GetY();
+    }
+    if (dynamicLayoutInfo_->layoutList == nullptr) {
+        dynamicLayoutInfo_->layoutList = new List<RelativeLayoutInfo>();
+        if (dynamicLayoutInfo_->layoutInfo == nullptr) {
+            return;
+        }
     }
 
     RelativeLayoutInfo layoutInfo;
@@ -228,16 +254,16 @@ void UIView::AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_
     layoutInfo.offsetX = xOffset;
     layoutInfo.offsetY = yOffset;
 
-    ListNode<RelativeLayoutInfo>* serialNode = layoutList_.Head();
+    ListNode<RelativeLayoutInfo>* serialNode = dynamicLayoutInfo_->layoutList->Head();
     RelativeLayoutInfo layout;
-    while (serialNode != layoutList_.End()) {
+    while (serialNode != dynamicLayoutInfo_->layoutList->End()) {
         layout = serialNode->data_;
         if ((layout.type == type) && (layout.viewId == viewId)) {
             return;
         }
         serialNode = serialNode->next_;
     }
-    layoutList_.PushBack(layoutInfo);
+    dynamicLayoutInfo_->layoutList->PushBack(layoutInfo);
 }
 
 void UIView::LayoutOfParent(const RelativeLayoutInfo &layoutInfo)
@@ -1524,8 +1550,8 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     rootView->SaveDrawContext();
     rootView->UpdateBufferInfo(&bufInfo);
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-    Point *tempPos = originalPos_;
-    originalPos_ = nullptr;
+    DynamicLayoutInfo *tempLayoutInfo = dynamicLayoutInfo_;
+    dynamicLayoutInfo_ = nullptr;
 #endif
     rootView->MeasureView(this);
     rootView->DrawTop(this, mask);
@@ -1534,7 +1560,7 @@ bool UIView::GetBitmap(ImageInfo& imageInfo, ColorMode colorMode)
     nextRenderSibling_ = tempRenderSibling;
     parent_ = tempParent;
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-    originalPos_ = tempPos;
+    dynamicLayoutInfo_ = tempLayoutInfo;
 #endif
     rect_.SetPosition(tempX, tempY);
     return true;
