@@ -1629,7 +1629,7 @@ protected:
     bool IsInvalid(float percent);
     void DrawViewBounds(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea);
     void UpdateRectInfo(uint8_t key, const Rect& rect);
-    void ReDrawComponents(BufferInfo &bufferInfo, const Rect &mask);
+    void ReDrawComponents(BufferInfo &bufInfo, const Rect &mask);
 
 private:
     Rect rect_;
