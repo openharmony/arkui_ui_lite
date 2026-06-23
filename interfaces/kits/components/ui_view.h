@@ -136,7 +136,7 @@ struct RelativeLayoutInfo {
 
 struct DynamicLayoutInfo {
     List<RelativeLayoutInfo> *layoutList;
-    Point *originalPos; // Originan location.
+    Point *originalPos; // Original location.
     DynamicLayoutInfo()
     {
         layoutList = nullptr;
