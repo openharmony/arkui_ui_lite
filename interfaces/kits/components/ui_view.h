@@ -133,6 +133,16 @@ struct RelativeLayoutInfo {
         offsetY = 0;
     }
 };
+
+struct DynamicLayoutInfo {
+    List<RelativeLayoutInfo> *layoutList;
+    Point *originalPos; // Original location.
+    DynamicLayoutInfo()
+    {
+        layoutList = nullptr;
+        originalPos = nullptr;
+    }
+};
 #endif
 
 #if ENABLE_DEBUG
@@ -1619,14 +1629,14 @@ protected:
     bool IsInvalid(float percent);
     void DrawViewBounds(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea);
     void UpdateRectInfo(uint8_t key, const Rect& rect);
+    void ReDrawComponents(BufferInfo &bufInfo, const Rect &mask);
 
 private:
     Rect rect_;
     Rect* visibleRect_;
     void SetupThemeStyles();
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
-    List<RelativeLayoutInfo> layoutList_;
-    Point *originalPos_; // Original location.
+    DynamicLayoutInfo *dynamicLayoutInfo_;
     void AddRelativeInfo(RelativeLayoutType type, const char* viewId, int16_t xOffset, int16_t yOffset = 0);
     void LayoutOfParent(const RelativeLayoutInfo &layoutInfo);
     void AlignToSibling(const RelativeLayoutInfo &layoutInfo);
