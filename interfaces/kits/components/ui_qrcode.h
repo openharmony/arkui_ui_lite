@@ -36,6 +36,7 @@
 #define GRAPHIC_LITE_UI_QRCODE_H
 
 #include "components/ui_image_view.h"
+#include "common/qrcodegen/qrcode_generator.h"
 
 namespace OHOS {
 /**
@@ -120,7 +121,7 @@ private:
     ColorType backgroundColor_;
     ColorType qrColor_;
     char* qrcodeVal_;
-    void* qrImage_ = nullptr;
+    QrcodeImage* qrImage_ = nullptr;
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_QRCODE_H

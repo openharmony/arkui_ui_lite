@@ -103,11 +103,13 @@ static int32_t QrcodeMaskExpression0(int32_t x, int32_t y)
 
 static int32_t QrcodeMaskExpression1(int32_t x, int32_t y)
 {
+    (void)x;
     return ((uint32_t)y) & 1;
 }
 
 static int32_t QrcodeMaskExpression2(int32_t x, int32_t y)
 {
+    (void)y;
     return x % QR_BIT_THREE;
 }
 
