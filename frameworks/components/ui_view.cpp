@@ -100,6 +100,9 @@ UIView::~UIView()
         dynamicLayoutInfo_ = nullptr;
     }
 #endif
+    if (FocusManager::GetInstance()->GetFocusedView() == this) {
+        FocusManager::GetInstance()->ClearFocus();
+    }
 }
 
 bool UIView::OnPreDraw(Rect& invalidatedArea) const
