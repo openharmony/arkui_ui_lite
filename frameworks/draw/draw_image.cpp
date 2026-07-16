@@ -28,8 +28,13 @@ void DrawImage::DrawCommon(BufferInfo& gfxDstBuffer, const Rect& coords, const R
     }
     OpacityType opa = DrawUtils::GetMixOpacity(opaScale, style.imageOpa_);
     uint8_t pxBitSize = DrawUtils::GetPxSizeByColorMode(img->header.colorMode);
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+    DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, coords, mask, img->data, opa, pxBitSize,
+                                        static_cast<ColorMode>(img->header.colorMode), img->phyAddr);
+#else
     DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, coords, mask, img->data, opa, pxBitSize,
                                         static_cast<ColorMode>(img->header.colorMode));
+#endif
 }
 
 void DrawImage::DrawCommon(BufferInfo& gfxDstBuffer, const Rect& coords, const Rect& mask,
@@ -45,43 +50,62 @@ void DrawImage::DrawCommon(BufferInfo& gfxDstBuffer, const Rect& coords, const R
         return;
     }
 
-    uint8_t pxBitSize = DrawUtils::GetPxSizeByColorMode(entry.GetImageInfo().header.colorMode);
     if (entry.InCache()) {
-        DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, coords, mask, entry.GetImgData(), opa, pxBitSize,
-                                            static_cast<ColorMode>(entry.GetImageInfo().header.colorMode));
+        DrawFromCache(gfxDstBuffer, coords, mask, entry, opa);
     } else {
-        Rect valid = coords;
-        if (!valid.Intersect(valid, mask)) {
-            return;
-        }
-
-        int16_t width = valid.GetWidth();
-        if (width <= 0) {
-            return;
-        }
-        uint8_t* buf = static_cast<uint8_t*>(UIMalloc(static_cast<uint32_t>(width) * ((COLOR_DEPTH >> SHIFT_3) + 1)));
-        if (buf == nullptr) {
-            return;
-        }
-
-        Rect line = valid;
-        line.SetHeight(1);
-        Point start;
-        start.x = valid.GetLeft() - coords.GetLeft();
-        start.y = valid.GetTop() - coords.GetTop();
-        for (int16_t row = valid.GetTop(); row <= valid.GetBottom(); row++) {
-            if (entry.ReadLine(start, width, buf) != RetCode::OK) {
-                CacheManager::GetInstance().Close(path);
-                UIFree(buf);
-                return;
-            }
-            DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, line, mask, buf, opa, pxBitSize,
-                                                static_cast<ColorMode>(entry.GetImageInfo().header.colorMode));
-            line.SetTop(line.GetTop() + 1);
-            line.SetBottom(line.GetBottom() + 1);
-            start.y++;
-        }
-        UIFree(buf);
+        DrawFromFile(gfxDstBuffer, coords, mask, path, entry, opa);
     }
+}
+
+void DrawImage::DrawFromCache(BufferInfo& gfxDstBuffer, const Rect& coords, const Rect& mask,
+                              const CacheEntry& entry, OpacityType opa)
+{
+    uint8_t pxBitSize = DrawUtils::GetPxSizeByColorMode(entry.GetImageInfo().header.colorMode);
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+    DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, coords, mask, entry.GetImgData(), opa, pxBitSize,
+                                        static_cast<ColorMode>(entry.GetImageInfo().header.colorMode),
+                                        entry.GetImageInfo().phyAddr);
+#else
+    DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, coords, mask, entry.GetImgData(), opa, pxBitSize,
+                                        static_cast<ColorMode>(entry.GetImageInfo().header.colorMode));
+#endif
+}
+
+void DrawImage::DrawFromFile(BufferInfo& gfxDstBuffer, const Rect& coords, const Rect& mask,
+                             const char* path, const CacheEntry& entry, OpacityType opa)
+{
+    Rect valid = coords;
+    if (!valid.Intersect(valid, mask)) {
+        return;
+    }
+
+    int16_t width = valid.GetWidth();
+    if (width <= 0) {
+        return;
+    }
+    uint8_t* buf = static_cast<uint8_t*>(UIMalloc(static_cast<uint32_t>(width) * ((COLOR_DEPTH >> SHIFT_3) + 1)));
+    if (buf == nullptr) {
+        return;
+    }
+
+    Rect line = valid;
+    line.SetHeight(1);
+    Point start;
+    start.x = valid.GetLeft() - coords.GetLeft();
+    start.y = valid.GetTop() - coords.GetTop();
+    uint8_t pxBitSize = DrawUtils::GetPxSizeByColorMode(entry.GetImageInfo().header.colorMode);
+    for (int16_t row = valid.GetTop(); row <= valid.GetBottom(); row++) {
+        if (entry.ReadLine(start, width, buf) != RetCode::OK) {
+            CacheManager::GetInstance().Close(path);
+            UIFree(buf);
+            return;
+        }
+        DrawUtils::GetInstance()->DrawImage(gfxDstBuffer, line, mask, buf, opa, pxBitSize,
+                                            static_cast<ColorMode>(entry.GetImageInfo().header.colorMode));
+        line.SetTop(line.GetTop() + 1);
+        line.SetBottom(line.GetBottom() + 1);
+        start.y++;
+    }
+    UIFree(buf);
 }
 } // namespace OHOS

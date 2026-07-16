@@ -394,7 +394,8 @@ void DrawUtils::DrawImage(BufferInfo& gfxDstBuffer,
                           const uint8_t* image,
                           OpacityType opa,
                           uint8_t pxBitSize,
-                          ColorMode colorMode) const
+                          ColorMode colorMode,
+                          const uint8_t* imgPhyAddr) const
 {
     if (image == nullptr) {
         return;
@@ -417,6 +418,11 @@ void DrawUtils::DrawImage(BufferInfo& gfxDstBuffer,
 
     src.virAddr = static_cast<void*>(const_cast<uint8_t*>(image));
     src.stride = imageWidthInByte;
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+    src.width = area.GetWidth();
+    src.height = area.GetHeight();
+    src.phyAddr = static_cast<void*>(const_cast<uint8_t*>(imgPhyAddr));
+#endif
     src.mode = colorMode;
     src.color = 0;
 

@@ -42,11 +42,11 @@ public:
         return dsc_.imgInfo;
     }
 
-    RetCode ReadLine(const Point& start, int16_t bufSize, uint8_t* buf);
+    RetCode ReadLine(const Point& start, int16_t bufSize, uint8_t* buf) const;
 
     bool InCache() const
     {
-        return dsc_.inCache_;
+        return dsc_.inCache;
     }
 
 private:

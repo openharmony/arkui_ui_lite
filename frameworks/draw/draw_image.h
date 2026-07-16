@@ -35,6 +35,13 @@ public:
 
     static void DrawCommon(BufferInfo& gfxDstBuffer, const Rect& coords, const Rect& mask,
         const char* path, const Style& style, uint8_t opaScale);
+
+private:
+    static void DrawFromCache(BufferInfo& gfxDstBuffer, const Rect& coords, const Rect& mask,
+                              const CacheEntry& entry, OpacityType opa);
+
+    static void DrawFromFile(BufferInfo& gfxDstBuffer, const Rect& coords, const Rect& mask,
+                             const char* path, const CacheEntry& entry, OpacityType opa);
 };
 } // namespace OHOS
 

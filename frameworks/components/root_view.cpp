@@ -19,6 +19,9 @@
 #include "core/render_manager.h"
 #include "draw/draw_utils.h"
 #include "gfx_utils/graphic_log.h"
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+#include "hals/gralloc_engines.h"
+#endif
 #if defined(ENABLE_WINDOW) && ENABLE_WINDOW
 #include "window/window_impl.h"
 #endif
@@ -576,7 +579,13 @@ void RootView::BlitMapBuffer(Rect& curViewRect, TransformMap& transMap, const Re
         imageInfo.header.height = dc_.mapBufferInfo->height;
         imageInfo.header.reserved = 0;
         imageInfo.data = reinterpret_cast<uint8_t*>(dc_.mapBufferInfo->virAddr);
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+        imageInfo.phyAddr = reinterpret_cast<uint8_t *>(dc_.mapBufferInfo->phyAddr);
+        TransformDataInfo imageTranDataInfo = {imageInfo.header, imageInfo.data,
+            imageInfo.phyAddr, pxSize, LEVEL0, BILINEAR};
+#else
         TransformDataInfo imageTranDataInfo = {imageInfo.header, imageInfo.data, pxSize, LEVEL0, BILINEAR};
+#endif
         BaseGfxEngine::GetInstance()->DrawTransform(*dc_.bufferInfo, invalidRect, {0, 0}, Color::Black(), OPA_OPAQUE,
                                                     transMap, imageTranDataInfo);
     }
@@ -843,14 +852,34 @@ void RootView::InitMapBufferInfo(BufferInfo* bufferInfo)
     BaseGfxEngine* baseGfxEngine = BaseGfxEngine::GetInstance();
     baseGfxEngine->AdjustLineStride(*dc_.mapBufferInfo);
     uint32_t bufferSize = dc_.mapBufferInfo->stride * dc_.mapBufferInfo->height;
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+    AllocInfo info;
+    info.expectedSize = bufferSize;
+    info.usage = HBM_USE_ASSIGN_SIZE | HBM_USE_MEM_MMZ;
+
+    GrallocBuffer buffer;
+    if (!GrallocEngines::GetInstance()->AllocBuffer(info, buffer)) {
+        GRAPHIC_LOGE("AllocBuffer failed.");
+        delete dc_.mapBufferInfo;
+        dc_.mapBufferInfo = nullptr;
+        return;
+    }
+    dc_.mapBufferInfo->virAddr = buffer.virAddr;
+    dc_.mapBufferInfo->phyAddr = reinterpret_cast<void *>(buffer.phyAddr);
+#else
     dc_.mapBufferInfo->virAddr = dc_.mapBufferInfo->phyAddr =
         baseGfxEngine->AllocBuffer(bufferSize, BUFFER_MAP_SURFACE);
+#endif
 }
 
 void RootView::DestroyMapBufferInfo()
 {
     if (dc_.mapBufferInfo != nullptr) {
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+        GrallocEngines::GetInstance()->FreeBuffer(static_cast<uint8_t*>(dc_.mapBufferInfo->virAddr));
+#else
         BaseGfxEngine::GetInstance()->FreeBuffer(static_cast<uint8_t*>(dc_.mapBufferInfo->virAddr), BUFFER_MAP_SURFACE);
+#endif
         dc_.mapBufferInfo->virAddr = dc_.mapBufferInfo->phyAddr = nullptr;
         delete dc_.mapBufferInfo;
         dc_.mapBufferInfo = nullptr;

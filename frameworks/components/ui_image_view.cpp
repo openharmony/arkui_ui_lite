@@ -456,9 +456,15 @@ void UIImageView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
                     imgInfo = *(GetImageInfo());
                 }
                 uint8_t pxSize = DrawUtils::GetPxSizeByColorMode(imgInfo.header.colorMode);
+#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
+                TransformDataInfo imageTranDataInfo = {imgInfo.header, imgInfo.data, imgInfo.phyAddr, pxSize,
+                                                       static_cast<BlurLevel>(blurLevel_),
+                                                       static_cast<TransformAlgorithm>(algorithm_)};
+#else
                 TransformDataInfo imageTranDataInfo = {imgInfo.header, imgInfo.data, pxSize,
                                                        static_cast<BlurLevel>(blurLevel_),
                                                        static_cast<TransformAlgorithm>(algorithm_)};
+#endif
                 OpacityType opaScale = DrawUtils::GetMixOpacity(opa, style_->imageOpa_);
                 Matrix4<float> scaleMatrix = drawTransMap_->GetScaleMatrix();
                 int16_t paddingX = style_->paddingLeft_ * scaleMatrix[0][0];

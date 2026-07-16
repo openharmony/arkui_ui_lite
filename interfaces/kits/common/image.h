@@ -167,14 +167,15 @@ private:
     bool mallocFlag_;
     bool SetLiteSrc(const char* src);
     bool SetStandardSrc(const char* src);
-#if ENABLE_JPEG
+#if ENABLE_JPEG && (!CACHE_JPEG_AND_PNG)
     bool SetJPEGSrc(const char* src);
 #endif
-#if ENABLE_PNG
+#if ENABLE_PNG && (!CACHE_JPEG_AND_PNG)
     bool SetPNGSrc(const char* src);
 #endif
 #if ENABLE_JPEG || ENABLE_PNG
-    ImageType CheckImgType(const char* src);
+    friend class CacheManager;
+    static ImageType CheckImgType(const char* src);
 #endif
     bool IsImgValid(const char* suffix)
     {
