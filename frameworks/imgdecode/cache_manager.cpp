@@ -18,26 +18,17 @@
 #include "hal_tick.h"
 #include "securec.h"
 
-#include "imgdecode/cache_manager.h"
-#include "gfx_utils/graphic_log.h"
-#include "hal_tick.h"
-#include "securec.h"
-
-#include "common/image.h"
-#include "jpeg_img_decoder.h"
-#include "png_img_decoder.h"
-
 namespace OHOS {
 const uint8_t* CacheEntry::GetImgData() const
 {
     return dsc_.imgInfo.data;
 }
 
-RetCode CacheEntry::ReadLine(const Point& start, int16_t len, uint8_t* buf) const
+RetCode CacheEntry::ReadLine(const Point& start, int16_t len, uint8_t* buf)
 {
     RetCode ret;
     if (dsc_.decoder != nullptr) {
-        ret = dsc_.decoder->ReadLine(const_cast<FileImgDecoder::ImgResDsc&>(dsc_), start, len, buf);
+        ret = dsc_.decoder->ReadLine(dsc_, start, len, buf);
     } else {
         ret = RetCode::FAIL;
     }
@@ -135,6 +126,7 @@ RetCode CacheManager::Open(const char* path, const Style& style, CacheEntry& ent
     uint16_t indexHitted = 0;
     RetCode ret = GetIndex(path, indexHitted);
     if (ret == RetCode::OK) {
+        ReadToCache(entryArr_[indexHitted]);
         entry = entryArr_[indexHitted];
         return RetCode::OK;
     }
@@ -149,14 +141,9 @@ RetCode CacheManager::Open(const char* path, const Style& style, CacheEntry& ent
 
     ret = TryDecode(path, style, entryArr_[indexHitted]);
     if (ret != RetCode::OK) {
-        GRAPHIC_LOGE("CacheManager TryDecode %s faild\n", path);
         return ret;
     }
-    ret = ReadToCache(entryArr_[indexHitted]);
-    if (ret != RetCode::OK) {
-        Clear(entryArr_[indexHitted]);
-        return ret;
-    }
+    ReadToCache(entryArr_[indexHitted]);
     entryArr_[indexHitted].life_ = HALTick::GetInstance().GetElapseTime(startTime);
     entry = entryArr_[indexHitted];
     return RetCode::OK;
@@ -281,34 +268,27 @@ RetCode CacheManager::SelectEntryToReplace(uint16_t& selectedIndex)
 
 RetCode CacheManager::TryDecode(const char* path, const Style& style, CacheEntry& entry)
 {
+    FileImgDecoder* decoder = &(FileImgDecoder::GetInstance());
+    if (decoder == nullptr) {
+        Clear(entry);
+        return RetCode::FAIL;
+    }
+
     entry.dsc_.srcType = IMG_SRC_FILE;
     RetCode ret = entry.SetSrc(path);
     if (ret != RetCode::OK) {
         Clear(entry);
         return ret;
     }
-    FileImgDecoder* decoder = &(FileImgDecoder::GetInstance());
-
-    Image::ImageType type = Image::CheckImgType(path);
-    if (type == Image::IMG_PNG) {
-        decoder = &(PngImgDecoder::GetInstance());
-    } else if (type == Image::IMG_JPEG) {
-        decoder = &(JpegImgDecoder::GetInstance());
-    }
-
-    if (decoder == nullptr) {
-        Clear(entry);
-        return RetCode::FAIL;
-    }
     entry.dsc_.decoder = decoder;
 
-    ret = entry.dsc_.decoder->Open(entry.dsc_);
+    ret = entry.dsc_.decoder->GetHeader(entry.dsc_);
     if (ret != RetCode::OK) {
         Clear(entry);
         return ret;
     }
 
-    ret = entry.dsc_.decoder->GetHeader(entry.dsc_);
+    ret = entry.dsc_.decoder->Open(entry.dsc_);
     if (ret != RetCode::OK) {
         Clear(entry);
         return ret;

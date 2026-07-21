@@ -119,8 +119,6 @@ arkui_ui_lite_sources = [
   "$ARKUI_UI_LITE_PATH/frameworks/imgdecode/cache_manager.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/imgdecode/file_img_decoder.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/imgdecode/image_load.cpp",
-  "$ARKUI_UI_LITE_PATH/frameworks/imgdecode/png_img_decoder.cpp",
-  "$ARKUI_UI_LITE_PATH/frameworks/imgdecode/jpeg_img_decoder.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/layout/flex_layout.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/layout/grid_layout.cpp",
   "$ARKUI_UI_LITE_PATH/frameworks/layout/list_layout.cpp",

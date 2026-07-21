@@ -280,13 +280,8 @@ void UIAnalogClock::DrawHandImage(BufferInfo& gfxDstBuffer,
         return;
     }
     uint8_t pxSize = DrawUtils::GetPxSizeByColorMode(hand.imageInfo_.header.colorMode);
-#if defined(ENABLE_GFX_ENGINES) && ENABLE_GFX_ENGINES
-    TransformDataInfo imageTranDataInfo = {hand.imageInfo_.header, hand.imageInfo_.data, hand.imageInfo_.phyAddr,
-        pxSize, BlurLevel::LEVEL0, TransformAlgorithm::BILINEAR};
-#else
     TransformDataInfo imageTranDataInfo = {hand.imageInfo_.header, hand.imageInfo_.data, pxSize, BlurLevel::LEVEL0,
                                            TransformAlgorithm::BILINEAR};
-#endif
     BaseGfxEngine::GetInstance()->DrawTransform(gfxDstBuffer, invalidatedArea, {0, 0}, Color::Black(), opaScale_,
                                                 hand.trans_, imageTranDataInfo);
 }
