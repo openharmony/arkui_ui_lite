@@ -17,10 +17,17 @@
 
 #include "font/ui_font_header.h"
 #include "gfx_utils/heap_base.h"
+#if (defined ENABLE_SPLIT_FONT)
+#include "gfx_utils/list.h"
+#endif
 
 namespace OHOS {
 class UIFontBuilder : public HeapBase {
 public:
+    typedef struct {
+        uint16_t viewId;
+        uint32_t totalTextId;
+    } AppTotalTextId;
 
     static UIFontBuilder* GetInstance();
 
@@ -28,7 +35,7 @@ public:
 
     void SetLangTextDefaultParamTable(const LangTextParam* langTextDefaultParamTable, uint8_t totalLangId);
 
-    void SetMaxTextId(uint16_t totalTextId);
+    void SetMaxTextId(uint32_t totalTextId);
 
     UITextLanguageFontParam* GetTextLangFontsTable(uint16_t langFontId);
 
@@ -38,19 +45,24 @@ public:
 
     uint16_t GetBitmapFontIdMax() const;
 
-    uint16_t GetTotalTextId() const;
+    uint32_t GetTotalTextId(uint16_t viewId = 0) const;
 
     LangTextParam* GetLangTextDefaultParamTable();
 
     UITextLanguageFontParam* uiTextLangFontsTable_;
     LangTextParam* langTextDefaultParamTable_;
 
+#if (defined ENABLE_SPLIT_FONT)
+    void SetAppMaxTextId(uint32_t totalTextId);
+    void DeleteAppMaxTextId(uint32_t totalTextId);
+    List<AppTotalTextId> appTotalTextId_;
+#endif
 private:
     UIFontBuilder();
     ~UIFontBuilder() {}
     uint8_t totalLangId_;
     uint16_t totalFontId_;
-    uint16_t totalTextId_;
+    uint32_t totalTextId_;
 };
 }
 #endif // GRAPHIC_LITE_UI_FONT_BUILDER_H

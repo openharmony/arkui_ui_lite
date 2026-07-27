@@ -44,7 +44,7 @@ void UIFontBuilder::SetLangTextDefaultParamTable(const LangTextParam* langTextDe
     }
 }
 
-void UIFontBuilder::SetMaxTextId(uint16_t totalTextId)
+void UIFontBuilder::SetMaxTextId(uint32_t totalTextId)
 {
     totalTextId_ = totalTextId;
 }
@@ -76,8 +76,21 @@ uint16_t UIFontBuilder::GetBitmapFontIdMax() const
     return totalFontId_;
 }
 
-uint16_t UIFontBuilder::GetTotalTextId() const
+uint32_t UIFontBuilder::GetTotalTextId(uint16_t viewId) const
 {
+#if (defined ENABLE_SPLIT_FONT)
+    if ((viewId == 0) || appTotalTextId_.IsEmpty()) {
+        return totalTextId_;
+    }
+    ListNode<AppTotalTextId> *node = appTotalTextId_.Begin();
+    for (uint16_t i = 0; i < appTotalTextId_.Size(); i++) {
+        if (viewId == node->data_.viewId) {
+            return node->data_.totalTextId;
+        }
+        node = node->next_;
+    }
+#endif
+
     return totalTextId_;
 }
 
@@ -88,4 +101,40 @@ LangTextParam* UIFontBuilder::GetLangTextDefaultParamTable()
     }
     return langTextDefaultParamTable_;
 }
+
+#if (defined ENABLE_SPLIT_FONT)
+void UIFontBuilder::SetAppMaxTextId(uint32_t totalTextId)
+{
+    uint16_t viewId = (totalTextId & 0x7fffffff) >> 16; // 取高16位
+    if (viewId == 0) {
+        return;
+    }
+    ListNode<AppTotalTextId> *node = appTotalTextId_.Begin();
+    for (uint16_t i = 0; i < appTotalTextId_.Size(); i++) {
+        if (viewId == node->data_.viewId) {
+            return;
+        }
+        node = node->next_;
+    }
+    AppTotalTextId id = { viewId, totalTextId };
+    appTotalTextId_.PushBack(id);
+
+    return;
+}
+
+void UIFontBuilder::DeleteAppMaxTextId(uint32_t totalTextId)
+{
+    uint16_t viewId = (totalTextId & 0x7fffffff) >> 16; // 取高16位
+    ListNode<AppTotalTextId> *node = appTotalTextId_.Begin();
+    for (uint16_t i = 0; i < appTotalTextId_.Size(); i++) {
+        if (viewId == node->data_.viewId) {
+            appTotalTextId_.Remove(node);
+            return;
+        }
+        node = node->next_;
+    }
+
+    return;
+}
+#endif
 } // namespace OHOS
