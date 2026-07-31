@@ -16,6 +16,7 @@
       "SystemCapability.Applications.Settings.Core.Lite"
     ],
     "features": [
+      "ui_lite_enable_blur_effect_config",
       "ui_lite_enable_video_component_config",
       "ui_lite_enable_graphic_font_config",
       "ui_lite_enable_smarthomehost_config"

@@ -187,6 +187,22 @@ public:
         blurLevel_ = level;
     }
 
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+    /**
+     * @brief Sets the edge smooth radius for box-blur based anti-aliasing.
+     *
+     * When radius > 0, a box blur is applied to the image during PNG decoding,
+     * smoothing jagged edges on scaled images. Delegates to Image::SetEdgeSmoothRadius.
+     *
+     * @param radius Blur radius in pixels. 0 disables edge smoothing.
+     * @since 5.0
+     */
+    void SetEdgeSmoothRadius(uint16_t radius)
+    {
+        image_.SetEdgeSmoothRadius(radius);
+    }
+#endif
+
     /**
      * @brief Obtains the blur level of this image when it is rotated or scaled.
      *

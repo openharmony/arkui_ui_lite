@@ -26,8 +26,26 @@
 #include "png.h"
 #endif
 #include "securec.h"
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+#include "gfx_utils/diagram/imagefilter/filter_blur.h"
+#endif
 
 namespace OHOS {
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+namespace {
+/* Adapter that wraps raw pixel data to satisfy Filterblur::BoxBlur's
+   Img template interface. BoxBlur calls GetWidth/GetHeight for dimensions
+   and PixValuePtr for a pointer to pixel data. */
+struct ImgDataAdapter {
+    uint8_t* data;
+    int32_t width;
+    int32_t height;
+    int32_t GetWidth() const { return width; }
+    int32_t GetHeight() const { return height; }
+    uint8_t* PixValuePtr(int, int) const { return data; }
+};
+} // namespace
+#endif
 Image::Image() : imageInfo_(nullptr), path_(nullptr), srcType_(IMG_SRC_UNKNOWN), mallocFlag_(false) {}
 
 Image::~Image()
@@ -313,6 +331,29 @@ static inline png_bytep* MallocPngBytep(uint16_t height, uint32_t rowBytes)
     return rowPointer;
 }
 
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+/*
+ * ApplyEdgeSmooth - Apply box blur for edge smoothing on decoded ARGB8888 data.
+ *
+ * Operates in-place on srcData using Filterblur::BoxBlur for B/G/R channels
+ * and BoxBlurAlpha for the alpha channel.
+ */
+void Image::ApplyEdgeSmooth(uint8_t* srcData, uint16_t width, uint16_t height, uint8_t pixelByteSize)
+{
+    if (edgeSmoothRadius_ == 0) {
+        return;
+    }
+    ImgDataAdapter imgAdapter { srcData, static_cast<int32_t>(width), static_cast<int32_t>(height) };
+    Filterblur filterBlur;
+    filterBlur.BoxBlur(imgAdapter, edgeSmoothRadius_,
+        Filterblur::ARGB_BYTES_PER_PIXEL,
+        static_cast<int32_t>(width) * pixelByteSize);
+    Filterblur filterAlphaBlur;
+    filterAlphaBlur.BoxBlurAlpha(imgAdapter, edgeSmoothRadius_,
+        static_cast<int32_t>(width) * pixelByteSize);
+}
+#endif
+
 bool Image::SetPNGSrc(const char* src)
 {
     srcType_ = IMG_SRC_UNKNOWN;
@@ -396,6 +437,10 @@ bool Image::SetPNGSrc(const char* src)
         }
     }
     FreePngBytep(&rowPointer, height);
+
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+    ApplyEdgeSmooth(srcData, width, height, pixelByteSize);
+#endif
 
     imgInfo->header.width = width;
     imgInfo->header.height = height;
