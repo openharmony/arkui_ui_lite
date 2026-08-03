@@ -376,13 +376,11 @@ INCLUDEPATH += \
     ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-3.1.0/src \
     ../../../../../../../third_party/libjpeg-turbo/libjpeg-turbo-3.1.0 \
     ../../../../../../../third_party/libpng \
-    ../../../../../../../third_party/libpng/libpng-1.6.44 \
-    ../../../../../../../third_party/qrcodegen/cpp
+    ../../../../../../../third_party/libpng/libpng-1.6.44
 
 
 LIBS += $$OUT_PWD/../libs/libpng.dll
 LIBS += $$OUT_PWD/../libs/libjpeg-turbo.dll
-LIBS += $$OUT_PWD/../libs/qrcodegen.dll
 LIBS += $$OUT_PWD/../libs/freetype.dll
 LIBS += $$OUT_PWD/../libs/libharfbuzz.a
 LIBS += $$OUT_PWD/../libs/icu.dll
