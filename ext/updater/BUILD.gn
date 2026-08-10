@@ -23,6 +23,12 @@ if (os_level == "standard") {
     ldflags = [ "-Wl,--lto-O0" ]
   }
 
+  config("updater_blur_effect_config") {
+    if (ui_lite_enable_blur_effect_config) {
+      defines = [ "GRAPHIC_ENABLE_BLUR_EFFECT_FLAG=1" ]
+    }
+  }
+
   ohos_shared_library("libupdater_layout") {
     defines = [
       "__LITEOS_M__",
@@ -35,6 +41,10 @@ if (os_level == "standard") {
       "ENABLE_STATIC_FONT = 0",
       "ENABLE_VECTOR_FONT = 1",
     ]
+
+    if (ui_lite_enable_blur_effect_config) {
+      defines += [ "GRAPHIC_ENABLE_BLUR_EFFECT_FLAG=1" ]
+    }
 
     sources = arkui_ui_lite_sources
     sources -= [
@@ -71,7 +81,10 @@ if (os_level == "standard") {
     include_dirs += [ "//foundation/arkui/ui_lite/frameworks" ]
 
     configs = [ ":updater_layout_link_config" ]
-    public_configs = [ ":libupdater_layout_header_files" ]
+    public_configs = [
+      ":libupdater_layout_header_files",
+      ":updater_blur_effect_config",
+    ]
 
     external_deps = [
       "bounds_checking_function:libsec_static",

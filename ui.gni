@@ -138,4 +138,5 @@ arkui_ui_lite_sources = [
 
 declare_args() {
   ui_lite_enable_smarthomehost_config = false
+  ui_lite_enable_blur_effect_config = false
 }

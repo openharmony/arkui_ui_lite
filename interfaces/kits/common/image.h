@@ -143,6 +143,24 @@ public:
      */
     bool PreParse(const char* src);
 
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+    /**
+     * @brief Sets the edge smooth radius for box-blur based anti-aliasing.
+     *
+     * When radius > 0, a box blur is applied to the image after PNG decoding,
+     * smoothing jagged edges on scaled images. The blur is applied in-place to
+     * both RGB channels (via Filterblur::BoxBlur) and the alpha channel
+     * (via Filterblur::BoxBlurAlpha).
+     *
+     * @param radius Blur radius in pixels. 0 disables edge smoothing.
+     * @since 5.0
+     */
+    void SetEdgeSmoothRadius(uint16_t radius)
+    {
+        edgeSmoothRadius_ = radius;
+    }
+#endif
+
     void DrawImage(BufferInfo& gfxDstBuffer,
                    const Rect& coords,
                    const Rect& mask,
@@ -165,6 +183,10 @@ private:
 #endif
     uint8_t srcType_;
     bool mallocFlag_;
+#if defined(GRAPHIC_ENABLE_BLUR_EFFECT_FLAG) && GRAPHIC_ENABLE_BLUR_EFFECT_FLAG
+    uint16_t edgeSmoothRadius_ = 0;
+    void ApplyEdgeSmooth(uint8_t* srcData, uint16_t width, uint16_t height, uint8_t pixelByteSize);
+#endif
     bool SetLiteSrc(const char* src);
     bool SetStandardSrc(const char* src);
 #if ENABLE_JPEG
