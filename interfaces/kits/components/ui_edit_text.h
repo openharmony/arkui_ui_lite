@@ -353,7 +353,7 @@ public:
     std::string GetTextString()
     {
         if (inputType_ == InputType::TEXT_TYPE) {
-             return textStr_;
+            return textStr_;
         } else {
             return passwordStr_;
         }
