@@ -352,7 +352,11 @@ public:
 
     std::string GetTextString()
     {
-        return textStr_;
+        if (inputType_ == InputType::TEXT_TYPE) {
+            return textStr_;
+        } else {
+            return passwordStr_;
+        }
     }
 
 protected:
