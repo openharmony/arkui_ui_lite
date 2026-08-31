@@ -14,6 +14,7 @@
  */
 
 #include "components/ui_time_picker.h"
+#include "components/parse_time_picker_uint.h"
 #include <cstdio>
 #include <ctime>
 #include "draw/draw_rect.h"
@@ -205,6 +206,13 @@ bool UITimePicker::SetSelected(const char* value)
         return false;
     }
 
+    uint16_t hourSelect = 0;
+    uint16_t minSelect = 0;
+    uint16_t secSelect = 0;
+    if (!ParseTimePickerValue(value, secVisible_, hourSelect, minSelect, secSelect)) {
+        return false;
+    }
+
     if (memset_s(selectedValue_, SELECTED_VALUE_SIZE, 0, SELECTED_VALUE_SIZE) != EOK) {
         return false;
     }
@@ -228,24 +236,19 @@ bool UITimePicker::SetSelected(const char* value)
 
 bool UITimePicker::RefreshSelected(const char* value)
 {
-    uint32_t hourSelect;
-    uint32_t minSelect;
+    uint16_t hourSelect = 0;
+    uint16_t minSelect = 0;
+    uint16_t secSelect = 0;
 
     if (value == nullptr) {
         return false;
     }
 
+    if (!ParseTimePickerValue(value, secVisible_, hourSelect, minSelect, secSelect)) {
+        return false;
+    }
     if (secVisible_) {
-        uint32_t secSelect;
-        // 3: three variables
-        if (sscanf_s(value, "%u:%u:%u", &hourSelect, &minSelect, &secSelect) < 3) {
-            return false;
-        }
         secondPicker_->SetSelected(secSelect);
-    } else {
-        if (sscanf_s(value, "%u:%u", &hourSelect, &minSelect) < 2) { // 2: two variables
-            return false;
-        }
     }
 
     hourPicker_->SetSelected(hourSelect);
