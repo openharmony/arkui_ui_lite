@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,14 +14,60 @@
  */
 
 #include "components/ui_time_picker.h"
+#include <charconv>
 #include <cstdio>
+#include <cstring>
 #include <ctime>
+#include <system_error>
 #include "draw/draw_rect.h"
 #include "gfx_utils/graphic_log.h"
 #include "securec.h"
 #include "themes/theme_manager.h"
 
 namespace OHOS {
+namespace {
+bool ParseTimeUint(const char *begin, const char *end, uint32_t &out)
+{
+    if ((begin == nullptr) || (end == nullptr) || (begin == end)) {
+        return false;
+    }
+    uint32_t value = 0;
+    auto result = std::from_chars(begin, end, value);
+    if ((result.ec != std::errc()) || (result.ptr != end)) {
+        return false;
+    }
+    out = value;
+    return true;
+}
+
+bool ParseColonSeparatedTime(const char *value, bool withSecond, uint32_t &hour, uint32_t &minute, uint32_t &second)
+{
+    if ((value == nullptr) || (*value == '\0')) {
+        return false;
+    }
+    const char *end = value + std::strlen(value);
+    const char *colon1 = static_cast<const char *>(std::memchr(value, ':', static_cast<size_t>(end - value)));
+    if ((colon1 == nullptr) || (colon1 == value)) {
+        return false;
+    }
+    if (!ParseTimeUint(value, colon1, hour)) {
+        return false;
+    }
+    const char *p = colon1 + 1;
+    if (withSecond) {
+        const char *colon2 = static_cast<const char *>(std::memchr(p, ':', static_cast<size_t>(end - p)));
+        if ((colon2 == nullptr) || (colon2 == p)) {
+            return false;
+        }
+        if (!ParseTimeUint(p, colon2, minute)) {
+            return false;
+        }
+        return ParseTimeUint(colon2 + 1, end, second);
+    }
+    return ParseTimeUint(p, end, minute);
+}
+}
+
 UITimePicker::UITimePicker()
     : selectedValue_{0},
       selectedHour_{0},
@@ -235,17 +281,12 @@ bool UITimePicker::RefreshSelected(const char* value)
         return false;
     }
 
+    uint32_t secSelect = 0;
+    if (!ParseColonSeparatedTime(value, secVisible_, hourSelect, minSelect, secSelect)) {
+        return false;
+    }
     if (secVisible_) {
-        uint32_t secSelect;
-        // 3: three variables
-        if (sscanf_s(value, "%u:%u:%u", &hourSelect, &minSelect, &secSelect) < 3) {
-            return false;
-        }
         secondPicker_->SetSelected(secSelect);
-    } else {
-        if (sscanf_s(value, "%u:%u", &hourSelect, &minSelect) < 2) { // 2: two variables
-            return false;
-        }
     }
 
     hourPicker_->SetSelected(hourSelect);
