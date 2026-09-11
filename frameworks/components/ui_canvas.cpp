@@ -25,6 +25,9 @@
 #if ( (defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND) )
 #include "draw/draw_canvas.h"
 #endif
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+#include "gfx_utils/diagram/spancolorfill/fill_gradient_svg.h"
+#endif
 
 namespace OHOS {
 UICanvas::UICanvasPath::~UICanvasPath()
@@ -302,6 +305,11 @@ void UICanvas::DeletePathParam(void* param)
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
     if (pathParam->vertices != nullptr) {
         pathParam->vertices->FreeAll();
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+        if (pathParam->isSvg) {
+            delete pathParam->vertices;
+        }
+#endif
         pathParam->vertices = nullptr;
     }
     if (pathParam->imageParam != nullptr) {
@@ -928,6 +936,108 @@ void OnBlendDrawPattern(ListNode<UICanvas::DrawCmd>* curDraw,
 #endif
 }
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+static GradientRadialCalculateSvg BuildSvgRadialGradientCalculate(const Paint::RadialGradientPoint& radialPoint,
+                                                                  float endRadius)
+{
+    float scaleX = radialPoint.scaleX;
+    float scaleY = radialPoint.scaleY;
+    if (scaleX < 1e-6f) {
+        scaleX = 1.0f;
+    }
+    if (scaleY < 1e-6f) {
+        scaleY = 1.0f;
+    }
+    return GradientRadialCalculateSvg(endRadius,
+                                      (radialPoint.x0 - radialPoint.x1) / scaleX,
+                                      (radialPoint.y0 - radialPoint.y1) / scaleY);
+}
+#endif
+
+#if defined(GRAPHIC_ENABLE_GRADIENT_FILL_FLAG) && GRAPHIC_ENABLE_GRADIENT_FILL_FLAG
+static void BuildGradientColorForBlend(const Paint& paint,
+                                       PathParam* pathParamBlend,
+                                       FillGradientLut& gradientColorMode)
+{
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    if (pathParamBlend->isSvg) {
+        DrawCanvas::BuildGradientColorSvg(paint, gradientColorMode);
+    } else
+#endif
+    {
+        (void)pathParamBlend;
+        DrawCanvas::BuildGradientColor(paint, gradientColorMode);
+    }
+}
+
+static void BlendLinearGradient(const UICanvas::DrawCmd& drawCmd,
+                                const Rect& trunc,
+                                RasterizerScanlineAntialias& blendRasterizer,
+                                RasterizerScanlineAntialias& rasterizer,
+                                RenderBase& renBase,
+                                TransAffine& transform,
+                                PathParam* pathParamBlend,
+                                FillGradientLut& gradientColorMode)
+{
+    float distance = 0;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    if (pathParamBlend->isSvg) {
+        TransAffine gradientMatrix;
+        DrawCanvas::BuildLineGradientMatrixSvg(drawCmd.paint, gradientMatrix, transform, distance);
+        FillInterpolator interpolatorType(gradientMatrix);
+        GradientLinearCalculateSvg svgCalc;
+        FillGradientSvg span(interpolatorType, svgCalc, gradientColorMode, 0, distance);
+        UICanvas::BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase,
+                              transform, span, trunc, pathParamBlend->isStroke);
+    } else
+#endif
+    {
+        TransAffine gradientMatrix;
+        DrawCanvas::BuildLineGradientMatrix(drawCmd.paint, gradientMatrix, transform, distance);
+        FillInterpolator interpolatorType(gradientMatrix);
+        GradientLinearCalculate gradientLinearCalculate;
+        FillGradient span(interpolatorType, gradientLinearCalculate, gradientColorMode, 0, distance);
+        UICanvas::BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase,
+                              transform, span, trunc, pathParamBlend->isStroke);
+    }
+}
+
+static void BlendRadialGradient(const UICanvas::DrawCmd& drawCmd,
+                                const Rect& trunc,
+                                RasterizerScanlineAntialias& blendRasterizer,
+                                RasterizerScanlineAntialias& rasterizer,
+                                RenderBase& renBase,
+                                TransAffine& transform,
+                                PathParam* pathParamBlend,
+                                FillGradientLut& gradientColorMode)
+{
+    Paint::RadialGradientPoint radialPoint = drawCmd.paint.GetRadialGradientPoint();
+    float startRadius = 0;
+    float endRadius = 0;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    if (pathParamBlend->isSvg) {
+        TransAffine gradientMatrix;
+        DrawCanvas::BuildRadialGradientMatrixSvg(drawCmd.paint, gradientMatrix, transform, startRadius, endRadius);
+        FillInterpolator interpolatorType(gradientMatrix);
+        GradientRadialCalculateSvg svgCalc = BuildSvgRadialGradientCalculate(radialPoint, endRadius);
+        FillGradientSvg span(interpolatorType, svgCalc, gradientColorMode, startRadius, endRadius);
+        UICanvas::BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase,
+                              transform, span, trunc, pathParamBlend->isStroke);
+    } else
+#endif
+    {
+        TransAffine gradientMatrix;
+        DrawCanvas::BuildRadialGradientMatrix(drawCmd.paint, gradientMatrix, transform, startRadius, endRadius);
+        FillInterpolator interpolatorType(gradientMatrix);
+        GradientRadialCalculate gradientRadialCalculate(endRadius, radialPoint.x0 - radialPoint.x1,
+                                                        radialPoint.y0 - radialPoint.y1);
+        FillGradient span(interpolatorType, gradientRadialCalculate, gradientColorMode, startRadius, endRadius);
+        UICanvas::BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase,
+                              transform, span, trunc, pathParamBlend->isStroke);
+    }
+}
+#endif
+
 void OnBlendDrawGradient(ListNode<UICanvas::DrawCmd>* curDraw,
                          UICanvas::DrawCmd& drawCmd,
                          const Rect& trunc,
@@ -939,28 +1049,15 @@ void OnBlendDrawGradient(ListNode<UICanvas::DrawCmd>* curDraw,
 {
 #if defined(GRAPHIC_ENABLE_GRADIENT_FILL_FLAG) && GRAPHIC_ENABLE_GRADIENT_FILL_FLAG
     if (curDraw->data_.paint.GetStyle() == Paint::GRADIENT) {
-        TransAffine gradientMatrix;
-        FillInterpolator interpolatorType(gradientMatrix);
         FillGradientLut gradientColorMode;
-        DrawCanvas::BuildGradientColor(curDraw->data_.paint, gradientColorMode);
+        BuildGradientColorForBlend(curDraw->data_.paint, pathParamBlend, gradientColorMode);
         if (curDraw->data_.paint.GetGradient() == Paint::Linear) {
-            float distance = 0;
-            DrawCanvas::BuildLineGradientMatrix(drawCmd.paint, gradientMatrix, transform, distance);
-            GradientLinearCalculate gradientLinearCalculate;
-            FillGradient span(interpolatorType, gradientLinearCalculate, gradientColorMode, 0, distance);
-            UICanvas::BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase,
-                                  transform, span, trunc, pathParamBlend->isStroke);
+            BlendLinearGradient(drawCmd, trunc, blendRasterizer, rasterizer, renBase,
+                                transform, pathParamBlend, gradientColorMode);
         }
         if (curDraw->data_.paint.GetGradient() == Paint::Radial) {
-            Paint::RadialGradientPoint radialPoint = drawCmd.paint.GetRadialGradientPoint();
-            float startRadius = 0;
-            float endRadius = 0;
-            DrawCanvas::BuildRadialGradientMatrix(drawCmd.paint, gradientMatrix, transform, startRadius, endRadius);
-            GradientRadialCalculate gradientRadialCalculate(endRadius, radialPoint.x0 - radialPoint.x1,
-                                                            radialPoint.y0 - radialPoint.y1);
-            FillGradient span(interpolatorType, gradientRadialCalculate, gradientColorMode, startRadius, endRadius);
-            UICanvas::BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase,
-                                  transform, span, trunc, pathParamBlend->isStroke);
+            BlendRadialGradient(drawCmd, trunc, blendRasterizer, rasterizer, renBase,
+                                transform, pathParamBlend, gradientColorMode);
         }
     }
 #endif
@@ -989,6 +1086,11 @@ void UICanvas::OnBlendDraw(BufferInfo& gfxDstBuffer, const Rect& trunc)
     DrawCanvas::InitRenderAndTransform(gfxDstBuffer, renderBuffer, rect, transform, *style_, curDraw->data_.paint);
     DrawCanvas::SetRasterizer(*pathParamBlend->vertices, drawCmd.paint, blendRasterizer, transform,
                               pathParamBlend->isStroke);
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    if (pathParamBlend->isSvg && !pathParamBlend->isStroke) {
+        blendRasterizer.SetFillingRule(drawCmd.paint.GetFillingRule());
+    }
+#endif
     RasterizerScanlineAntialias scanline;
     RenderPixfmtRgbaBlend pixFormat(renderBuffer);
     RenderBase renBase(pixFormat);
@@ -1017,9 +1119,22 @@ void UICanvas::OnBlendDraw(BufferInfo& gfxDstBuffer, const Rect& trunc)
         rasterizer.ClipBox(0, 0, gfxDstBuffer.width, gfxDstBuffer.height);
         DrawCanvas::SetRasterizer(*pathParam->vertices, curDraw->data_.paint, rasterizer, transform,
                                   pathParam->isStroke);
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+        if (pathParam->isSvg && !pathParam->isStroke) {
+            rasterizer.SetFillingRule(curDraw->data_.paint.GetFillingRule());
+        }
+#endif
         if (IsSoild(curDraw->data_.paint)) {
             Rgba8T color;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+            if (pathParam->isSvg) {
+                DrawCanvas::RenderBlendSolidSvg(curDraw->data_.paint, color, pathParam->isStroke);
+            } else {
+                DrawCanvas::RenderBlendSolid(curDraw->data_.paint, color, pathParam->isStroke);
+            }
+#else
             DrawCanvas::RenderBlendSolid(curDraw->data_.paint, color, pathParam->isStroke);
+#endif
             SpanSoildColor spanSoildColor(color);
             BlendRaster(drawCmd.paint, drawCmd.param, blendRasterizer, rasterizer, renBase, transform,
                         spanSoildColor, rect, pathParamBlend->isStroke);
@@ -1542,6 +1657,10 @@ void UICanvas::DoDrawText(BufferInfo& gfxDstBuffer,
 void UICanvas::InitGfxMapBuffer(const BufferInfo& srcBuff, const Rect& rect)
 {
     gfxMapBuffer_ = new BufferInfo();
+    if (gfxMapBuffer_ == nullptr) {
+        GRAPHIC_LOGE("new BufferInfo fail");
+        return;
+    }
     gfxMapBuffer_->rect = rect;
     gfxMapBuffer_->mode = srcBuff.mode;
     gfxMapBuffer_->color = srcBuff.color;
@@ -1612,9 +1731,21 @@ void UICanvas::BlendRaster(const Paint& paint,
     GeometryScanline scanline2;
     FillBase allocator1;
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    PathParam* blendPathParam = static_cast<PathParam*>(param);
+#endif
+
     if (IsSoild(paint)) {
         Rgba8T blendColor;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+        if (blendPathParam->isSvg) {
+            DrawCanvas::RenderBlendSolidSvg(paint, blendColor, isStroke);
+        } else {
+            DrawCanvas::RenderBlendSolid(paint, blendColor, isStroke);
+        }
+#else
         DrawCanvas::RenderBlendSolid(paint, blendColor, isStroke);
+#endif
         SpanSoildColor spanBlendSoildColor(blendColor);
         BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
                       scanline1, scanline2, renBase, allocator1, spanBlendSoildColor, spanGen);
@@ -1623,26 +1754,55 @@ void UICanvas::BlendRaster(const Paint& paint,
     FillInterpolator interpolatorTypeBlend(gradientMatrixBlend);
     FillGradientLut gradientColorModeBlend;
     if (paint.GetStyle() == Paint::GRADIENT) {
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+        if (blendPathParam->isSvg) {
+            DrawCanvas::BuildGradientColorSvg(paint, gradientColorModeBlend);
+        } else {
+            DrawCanvas::BuildGradientColor(paint, gradientColorModeBlend);
+        }
+#else
         DrawCanvas::BuildGradientColor(paint, gradientColorModeBlend);
+#endif
         if (paint.GetGradient() == Paint::Linear) {
             float distance = 0;
-            DrawCanvas::BuildLineGradientMatrix(paint, gradientMatrixBlend, transform, distance);
-            GradientLinearCalculate gradientLinearCalculate;
-            FillGradient span(interpolatorTypeBlend, gradientLinearCalculate,
-                                    gradientColorModeBlend, 0, distance);
-            BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
-                          scanline1, scanline2, renBase, allocator1, span, spanGen);
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+            if (blendPathParam->isSvg) {
+                DrawCanvas::BuildLineGradientMatrixSvg(paint, gradientMatrixBlend, transform, distance);
+                GradientLinearCalculateSvg svgCalc;
+                FillGradientSvg span(interpolatorTypeBlend, svgCalc, gradientColorModeBlend, 0, distance);
+                BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
+                    scanline1, scanline2, renBase, allocator1, span, spanGen);
+            } else
+#endif
+            {
+                DrawCanvas::BuildLineGradientMatrix(paint, gradientMatrixBlend, transform, distance);
+                GradientLinearCalculate gradientLinearCalculate;
+                FillGradient span(interpolatorTypeBlend, gradientLinearCalculate, gradientColorModeBlend, 0, distance);
+                BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
+                    scanline1, scanline2, renBase, allocator1, span, spanGen);
+            }
         } else if (paint.GetGradient() == Paint::Radial) {
             Paint::RadialGradientPoint radialPoint = paint.GetRadialGradientPoint();
             float startRadius = 0;
             float endRadius = 0;
-            DrawCanvas::BuildRadialGradientMatrix(paint, gradientMatrixBlend, transform, startRadius, endRadius);
-            GradientRadialCalculate gradientRadialCalculate(endRadius, radialPoint.x0 - radialPoint.x1,
-                                                            radialPoint.y0 - radialPoint.y1);
-            FillGradient span(interpolatorTypeBlend, gradientRadialCalculate, gradientColorModeBlend,
-                                    startRadius, endRadius);
-            BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
-                          scanline1, scanline2, renBase, allocator1, span, spanGen);
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+            if (blendPathParam->isSvg) {
+                DrawCanvas::BuildRadialGradientMatrixSvg(paint, gradientMatrixBlend, transform, startRadius, endRadius);
+                GradientRadialCalculateSvg svgCalc = BuildSvgRadialGradientCalculate(radialPoint, endRadius);
+                FillGradientSvg span(interpolatorTypeBlend, svgCalc, gradientColorModeBlend, startRadius, endRadius);
+                BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
+                    scanline1, scanline2, renBase, allocator1, span, spanGen);
+            } else
+#endif
+            {
+                DrawCanvas::BuildRadialGradientMatrix(paint, gradientMatrixBlend, transform, startRadius, endRadius);
+                GradientRadialCalculate gradientRadialCalculate(endRadius, radialPoint.x0 - radialPoint.x1,
+                                                                radialPoint.y0 - radialPoint.y1);
+                FillGradient span(interpolatorTypeBlend, gradientRadialCalculate, gradientColorModeBlend,
+                                  startRadius, endRadius);
+                BlendScanLine(paint.GetGlobalCompositeOperation(), blendRasterizer, rasterizer,
+                    scanline1, scanline2, renBase, allocator1, span, spanGen);
+            }
         }
     }
 #endif

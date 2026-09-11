@@ -120,6 +120,27 @@ if (os_level != "standard") {
           sources += [ "layout/flex_layout_enhancement_unit_test.cpp" ]
         }
 
+        if (ui_lite_enable_svg_component_config) {
+          sources += [
+            "svg/svg_animation_node_unit_test.cpp",
+            "svg/svg_animator_unit_test.cpp",
+            "svg/svg_attribute_parser_unit_test.cpp",
+            "svg/svg_container_nodes_unit_test.cpp",
+            "svg/svg_document_unit_test.cpp",
+            "svg/svg_engine_unit_test.cpp",
+            "svg/svg_generic_node_unit_test.cpp",
+            "svg/svg_image_node_unit_test.cpp",
+            "svg/svg_leaf_node_unit_test.cpp",
+            "svg/svg_paint_servers_unit_test.cpp",
+            "svg/svg_paint_state_unit_test.cpp",
+            "svg/svg_path_parser_unit_test.cpp",
+            "svg/svg_path_point_at_unit_test.cpp",
+            "svg/svg_shape_nodes_unit_test.cpp",
+            "svg/svg_text_nodes_unit_test.cpp",
+            "svg/svg_xml_parser_unit_test.cpp",
+          ]
+        }
+
         deps = [
           "//foundation/arkui/ui_lite:ui",
           "//third_party/freetype:freetype",

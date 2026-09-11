@@ -39,6 +39,9 @@ struct PathParam : public HeapBase {
     UICanvasVertices* vertices;
     ImageParam* imageParam = nullptr;
     bool isStroke;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    bool isSvg = false;
+#endif
 };
 #endif
 
@@ -113,6 +116,29 @@ public:
                                           TransAffine& transform,
                                           float& startRadius,
                                           float& endRadius);
+
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    static void RenderGradientSvg(const Paint& paint,
+                               RasterizerScanlineAntialias& rasterizer,
+                               TransAffine& transform,
+                               RenderBase& renBase,
+                               RenderBuffer& renderBuffer,
+                               FillBase& allocator,
+                               const Rect& invalidatedArea);
+
+    static void BuildGradientColorSvg(const Paint& paint, FillGradientLut& gradientColorMode);
+
+    static void BuildLineGradientMatrixSvg(const Paint& paint,
+                                           TransAffine& gradientMatrix,
+                                           TransAffine& transform,
+                                           float& distance);
+
+    static void BuildRadialGradientMatrixSvg(const Paint& paint,
+                                             TransAffine& gradientMatrix,
+                                             TransAffine& transform,
+                                             float& startRadius,
+                                             float& endRadius);
+#endif
 #endif // GRAPHIC_ENABLE_GRADIENT_FILL_FLAG
 #if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
     /**
@@ -174,6 +200,14 @@ public:
             }
         }
     }
+
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    /**
+     * SVG-only solid color blend. Applies paint opacity on top of global alpha.
+     * This is a separate function from RenderBlendSolid to keep the baseline code unchanged.
+     */
+    static void RenderBlendSolidSvg(const Paint& paint, Rgba8T& color, const bool& isStroke);
+#endif
 
     /**
      * Assembly parameter setting lineweight，LineCap，LineJoin

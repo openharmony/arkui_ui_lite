@@ -26,6 +26,15 @@ if (os_level != "standard") {
       "interfaces/kits",
       "interfaces/innerkits",
     ]
+    if (ui_lite_enable_svg_component_config) {
+      include_dirs += [ "interfaces/innerkits/svg" ]
+      defines += [
+        "FEATURE_COMPONENT_SVG=1",
+        "ENABLE_CANVAS_EXTEND=1"
+      ]
+    } else {
+      defines += [ "FEATURE_COMPONENT_SVG=0" ]
+    }
     defines += [
       "GRAPHIC_ENABLE_ELLIPSE_FLAG=1",
       "GRAPHIC_ENABLE_BEZIER_ARC_FLAG=1",
@@ -266,6 +275,30 @@ if (os_level != "standard") {
 
     if (ui_lite_enable_gradient_capability) {
       sources += [ "frameworks/components/linear_gradient_builder.cpp" ]
+    }
+
+    if (ui_lite_enable_svg_component_config) {
+      sources += [
+        "frameworks/components/ui_canvas_svg.cpp",
+        "frameworks/svg/svg_animation.cpp",
+        "frameworks/svg/svg_animator.cpp",
+        "frameworks/svg/svg_attribute_parser.cpp",
+        "frameworks/svg/svg_container_nodes.cpp",
+        "frameworks/svg/svg_document.cpp",
+        "frameworks/svg/svg_element_base.cpp",
+        "frameworks/svg/svg_dom_builder.cpp",
+        "frameworks/svg/svg_element_factory.cpp",
+        "frameworks/svg/svg_engine.cpp",
+        "frameworks/svg/svg_generic_node.cpp",
+        "frameworks/svg/svg_image_node.cpp",
+        "frameworks/svg/svg_leaf_node.cpp",
+        "frameworks/svg/svg_paint_servers.cpp",
+        "frameworks/svg/svg_paint_state.cpp",
+        "frameworks/svg/svg_path_parser.cpp",
+        "frameworks/svg/svg_shape_nodes.cpp",
+        "frameworks/svg/svg_text_nodes.cpp",
+        "frameworks/svg/svg_xml_parser.cpp",
+      ]
     }
 
     if (ohos_kernel_type == "liteos_m") {

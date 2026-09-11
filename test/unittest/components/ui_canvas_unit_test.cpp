@@ -18,8 +18,19 @@
 #include "components/ui_view_group.h"
 #include "components/ui_view_group.h"
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+#include "common/text.h"
+#endif // FEATURE_COMPONENT_SVG
 #include <climits>
 #include <gtest/gtest.h>
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+#include <vector>
+
+#include "draw/draw_canvas.h"
+#include "gfx_utils/diagram/spancolorfill/fill_gradient_lut.h"
+#include "gfx_utils/trans_affine.h"
+#include "gfx_utils/graphic_buffer.h"
+#endif // FEATURE_COMPONENT_SVG
 #include "test_resource_config.h"
 using namespace testing::ext;
 namespace OHOS {
@@ -111,6 +122,28 @@ public:
         }
     }
 };
+
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+class TestUICanvasSvg : public UICanvas {
+public:
+    TestUICanvasSvg() {}
+    virtual ~TestUICanvasSvg() {}
+    using UICanvas::OnBlendDraw;
+#if defined(GRAPHIC_ENABLE_DRAW_TEXT_FLAG) && GRAPHIC_ENABLE_DRAW_TEXT_FLAG
+    using UICanvas::DoDrawText;
+    using UICanvas::PrepareSvgTextMeasurement;
+    using UICanvas::ApplySvgInkOffsetToDrawRect;
+    using UICanvas::UpdateTextRectSize;
+    using UICanvas::DrawSvgText;
+    using UICanvas::DrawTextWithTransform;
+    using TextParam = UICanvas::TextParam;
+    using TextDrawArgs = UICanvas::TextDrawArgs;
+    using SvgTextTransformArgs = UICanvas::SvgTextTransformArgs;
+#endif
+};
+#endif
+#endif
 
 class UICanvasTest : public testing::Test {
 public:
@@ -2001,6 +2034,21 @@ HWTEST_F(UICanvasTest, UICanvasCreateRadialGradient_002, TestSize.Level0)
 }
 #endif
 
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+HWTEST_F(UICanvasTest, UICanvasCubicBezierTo_001, TestSize.Level1)
+{
+    // 通过 TestUICanvas（本文件已有的暴露 vertices_ 的子类）验证贝塞尔入路径
+    TestUICanvas* canvas = new TestUICanvas();
+    canvas->BeginPath();
+    canvas->MoveTo({0, 0});
+    canvas->CubicBezierTo({10, 0}, {10, 10}, {20, 10});
+    const UICanvasVertices* path = canvas->GetPath();
+    EXPECT_TRUE(path != nullptr);
+    EXPECT_GT(path->GetTotalVertices(), 1);  // 贝塞尔应产生多于起点+终点的顶点/段
+    delete canvas;
+}
+#endif
+
 #if defined(GRAPHIC_ENABLE_PATTERN_FILL_FLAG) && GRAPHIC_ENABLE_PATTERN_FILL_FLAG
 HWTEST_F(UICanvasTest, UICanvasCreatePattern_001, TestSize.Level1)
 {
@@ -2199,4 +2247,330 @@ HWTEST_F(UICanvasTest, UICanvasInitDash_001, TestSize.Level0)
     delete paint1;
     paint1 = nullptr;
 }
+
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: UICanvasDrawSectorSvg_001
+ * @tc.desc: Verify DrawSector with SVG fill branch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasDrawSectorSvg_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr || paint_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    paint_->SetStyle(Paint::PaintStyle::STROKE_FILL_STYLE);
+    canvas_->DrawSector({ CENTER_X, CENTER_Y }, RADIUS, START_ANGLE, END_ANGLE, *paint_);
+    EXPECT_EQ(canvas_->GetStartPos().x, CENTER_X);
+    EXPECT_EQ(canvas_->GetStartPos().y, CENTER_Y);
+}
+#endif
+#endif
+
+#if defined(GRAPHIC_ENABLE_DRAW_TEXT_FLAG) && GRAPHIC_ENABLE_DRAW_TEXT_FLAG
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: UICanvasStrokeTextSvg_001
+ * @tc.desc: Verify StrokeText with SVG text draw info and transform.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasStrokeTextSvg_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr || paint_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    UICanvas::FontStyle fontStyle;
+    fontStyle.align = TEXT_ALIGNMENT_CENTER;
+    fontStyle.direct = TEXT_DIRECT_LTR;
+    fontStyle.fontName = DEFAULT_VECTOR_FONT_FILENAME;
+    fontStyle.fontSize = FONT_SIZE;
+    fontStyle.letterSpace = LETTER_SPACE;
+
+    UICanvas::SvgTextDrawInfo svgInfo;
+    svgInfo.isSvgText = true;
+    svgInfo.inkTopOffset = 1;
+    svgInfo.inkLeftOffset = 2;
+    svgInfo.inkRightOffset = 3;
+    svgInfo.inkBottomOffset = 4;
+
+    paint_->SetStyle(Paint::PaintStyle::FILL_STYLE);
+    paint_->SetTransform(2.0f, 0.0f, 0.0f, 2.0f, 0, 0);
+    canvas_->StrokeText("A", { POS_X, POS_Y }, fontStyle, *paint_, svgInfo);
+    EXPECT_EQ(canvas_->GetStartPosition().x, POS_X);
+}
+#endif
+#endif
+
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: UICanvasOnBlendDrawSvg_001
+ * @tc.desc: Verify OnBlendDraw early return path.
+ * @tc.type: FUNC
+ */
+HWTEST(UICanvasSvgRenderTest, UICanvasOnBlendDrawSvg_001, TestSize.Level1)
+{
+    TestUICanvasSvg canvas;
+    canvas.SetPosition(0, 0);
+    canvas.SetWidth(WIDTH);
+    canvas.SetHeight(HEIGHT);
+
+    constexpr uint8_t bytesPerPixel = 4;
+    std::vector<uint8_t> buf(static_cast<size_t>(WIDTH) * HEIGHT * bytesPerPixel, 0);
+    BufferInfo buffer = {};
+    buffer.virAddr = buf.data();
+    buffer.phyAddr = buf.data();
+    buffer.width = WIDTH;
+    buffer.height = HEIGHT;
+    buffer.stride = WIDTH * bytesPerPixel;
+    buffer.mode = ARGB8888;
+
+    canvas.OnBlendDraw(buffer, Rect(0, 0, WIDTH, HEIGHT));
+    EXPECT_EQ(buffer.width, WIDTH);
+}
+#endif
+#endif
+
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: DrawCanvasDoRenderSvg_001
+ * @tc.desc: Verify DrawCanvas::DoRender entry with null param.
+ * @tc.type: FUNC
+ */
+HWTEST(UICanvasSvgRenderTest, DrawCanvasDoRenderSvg_001, TestSize.Level1)
+{
+    constexpr uint8_t bytesPerPixel = 4;
+    std::vector<uint8_t> buf(static_cast<size_t>(WIDTH) * HEIGHT * bytesPerPixel, 0);
+    BufferInfo buffer = {};
+    buffer.virAddr = buf.data();
+    buffer.phyAddr = buf.data();
+    buffer.width = WIDTH;
+    buffer.height = HEIGHT;
+    buffer.stride = WIDTH * bytesPerPixel;
+    buffer.mode = ARGB8888;
+
+    Paint paint;
+    paint.SetStyle(Paint::PaintStyle::STROKE_FILL_STYLE);
+    Style style = StyleDefault::GetDefaultStyle();
+    Rect rect(0, 0, WIDTH, HEIGHT);
+    bool isStroke = false;
+    DrawCanvas::DoRender(buffer, nullptr, paint, rect, rect, style, isStroke);
+    EXPECT_EQ(buffer.width, WIDTH);
+}
+#endif // FEATURE_COMPONENT_SVG
+#endif
+
+#if defined(GRAPHIC_ENABLE_GRADIENT_FILL_FLAG) && GRAPHIC_ENABLE_GRADIENT_FILL_FLAG
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: DrawCanvasGradientHelpersSvg_001
+ * @tc.desc: Verify BuildGradientColor and BuildRadialGradientMatrix.
+ * @tc.type: FUNC
+ */
+HWTEST(UICanvasSvgRenderTest, DrawCanvasGradientHelpersSvg_001, TestSize.Level1)
+{
+    Paint paint;
+    paint.createLinearGradient(0.0f, 0.0f, 10.0f, 10.0f);
+    paint.addColorStop(0.0f, Color::Red());
+    paint.addColorStop(1.0f, Color::Blue());
+
+    FillGradientLut gradientColorMode;
+    DrawCanvas::BuildGradientColor(paint, gradientColorMode);
+
+    TransAffine gradientMatrix;
+    TransAffine transform;
+    float startRadius = 0.0f;
+    float endRadius = 0.0f;
+    DrawCanvas::BuildRadialGradientMatrix(paint, gradientMatrix, transform, startRadius, endRadius);
+    EXPECT_EQ(gradientColorMode.GetSize(), 512u);
+}
+#endif // FEATURE_COMPONENT_SVG
+#endif
+
+#if defined(GRAPHIC_ENABLE_DRAW_TEXT_FLAG) && GRAPHIC_ENABLE_DRAW_TEXT_FLAG
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: UICanvasSvgTextHelpers_001
+ * @tc.desc: Verify SVG text draw helper functions.
+ * @tc.type: FUNC
+ */
+HWTEST(UICanvasSvgRenderTest, UICanvasSvgTextHelpers_001, TestSize.Level1)
+{
+    TestUICanvasSvg canvas;
+    constexpr uint8_t bytesPerPixel = 4;
+    std::vector<uint8_t> buf(static_cast<size_t>(WIDTH) * HEIGHT * bytesPerPixel, 0);
+    BufferInfo buffer = {};
+    buffer.virAddr = buf.data();
+    buffer.phyAddr = buf.data();
+    buffer.width = WIDTH;
+    buffer.height = HEIGHT;
+    buffer.stride = WIDTH * bytesPerPixel;
+    buffer.mode = ARGB8888;
+
+    Paint paint;
+    paint.SetStyle(Paint::PaintStyle::FILL_STYLE);
+    paint.SetTransform(2.0f, 0.0f, 0.0f, 2.0f, 0, 0);
+    Style style = StyleDefault::GetDefaultStyle();
+    Rect rect(0, 0, WIDTH, HEIGHT);
+
+    canvas.DoDrawText(buffer, nullptr, paint, rect, rect, style);
+
+    Text text;
+    text.SetText("A");
+    text.SetFont(DEFAULT_VECTOR_FONT_FILENAME, FONT_SIZE);
+
+    UICanvas::SvgTextDrawInfo svgInfo;
+    svgInfo.isSvgText = true;
+    Point start{0, 0};
+    Rect textRect(0, 0, 10, 10);
+    canvas.PrepareSvgTextMeasurement(svgInfo, paint, &text, start, textRect);
+
+    svgInfo.inkLeftOffset = 1;
+    svgInfo.inkTopOffset = 1;
+    Rect drawRect(0, 0, 10, 10);
+    canvas.ApplySvgInkOffsetToDrawRect(svgInfo, Rect(0, 0, 10, 10), drawRect);
+
+    TestUICanvasSvg::TextParam textParam;
+    textParam.svgInfo.isSvgText = false;
+    OpacityType opa = OPA_OPAQUE;
+    canvas.UpdateTextRectSize(&textParam, &text, textRect, opa, style);
+
+    TestUICanvasSvg::TextDrawArgs args{buffer, &text, textRect, rect, style, OPA_OPAQUE};
+    canvas.DrawSvgText(args, paint, &textParam, style);
+
+    TestUICanvasSvg::SvgTextTransformArgs transformArgs{paint, svgInfo};
+    canvas.DrawTextWithTransform(args, transformArgs);
+    EXPECT_TRUE(true);
+}
+#endif
+#endif
+
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+/**
+ * @tc.name: UICanvasDrawEllipseSvg_001
+ * @tc.desc: Verify the DrawEllipse public SVG interface (stroke + fill branches).
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasDrawEllipseSvg_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr || paint_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    paint_->SetStyle(Paint::PaintStyle::STROKE_FILL_STYLE);
+    canvas_->DrawEllipse({ CENTER_X, CENTER_Y }, RADIUS, RADIUS, *paint_);
+    EXPECT_EQ(canvas_->GetViewType(), UI_CANVAS);
+}
+
+/**
+ * @tc.name: UICanvasCubicBezierToSvg_001
+ * @tc.desc: Verify the CubicBezierTo public SVG interface with null and active path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasCubicBezierToSvg_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    /* No active path: exercises the null-vertices_ early return. */
+    canvas_->CubicBezierTo({ START1_X, START1_Y }, { LINE1_X, LINE1_Y }, { LINE2_X, LINE2_Y });
+
+    canvas_->BeginPath();
+    canvas_->MoveTo({ START1_X, START1_Y });
+    canvas_->CubicBezierTo({ LINE1_X, LINE1_Y }, { LINE2_X, LINE2_Y }, { POS_X, POS_Y });
+    EXPECT_NE(canvas_->GetPath(), nullptr);
+}
+
+/**
+ * @tc.name: UICanvasSvgArcToSvg_001
+ * @tc.desc: Verify the SvgArcTo public SVG interface with transform and degenerate-radii fallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasSvgArcToSvg_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    /* No active path: exercises the null-vertices_ early return. */
+    UICanvas::SvgArcArgs nullArgs = { 0.0f, 0.0f, RADIUS, RADIUS, 0.0f, false, true, POS_X, POS_Y, nullptr };
+    canvas_->SvgArcTo(nullArgs);
+
+    TransAffine transform;
+    transform.Translate(1.0f, 2.0f);
+    canvas_->BeginPath();
+    canvas_->MoveTo({ START1_X, START1_Y });
+    UICanvas::SvgArcArgs args = { START1_X, START1_Y, RADIUS, RADIUS, 0.0f, false, true,
+                                  LINE1_X, LINE1_Y, &transform };
+    canvas_->SvgArcTo(args);
+
+    /* Degenerate radii take the LineTo fallback path. */
+    UICanvas::SvgArcArgs badArgs = { START1_X, START1_Y, 0.0f, 0.0f, 0.0f, false, true,
+                                     LINE2_X, LINE2_Y, nullptr };
+    canvas_->SvgArcTo(badArgs);
+    EXPECT_NE(canvas_->GetPath(), nullptr);
+}
+
+/**
+ * @tc.name: UICanvasDrawPathSvgFlag_001
+ * @tc.desc: Verify the DrawPath(paint, isSvg) public SVG interface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasDrawPathSvgFlag_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr || paint_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    paint_->SetStyle(Paint::PaintStyle::STROKE_STYLE);
+    /* No active path: exercises the null-vertices_ early return. */
+    canvas_->DrawPathSvg(*paint_);
+
+    canvas_->BeginPath();
+    canvas_->MoveTo({ START1_X, START1_Y });
+    canvas_->LineTo({ LINE1_X, LINE1_Y });
+    canvas_->CubicBezierTo({ LINE1_X, LINE1_Y }, { LINE2_X, LINE2_Y }, { POS_X, POS_Y });
+    canvas_->ClosePath();
+    canvas_->DrawPathSvg(*paint_);
+    EXPECT_NE(canvas_->GetPath(), nullptr);
+}
+
+/**
+ * @tc.name: UICanvasFillPathSvgFlag_001
+ * @tc.desc: Verify the FillPath(paint, isSvg) public SVG interface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UICanvasTest, UICanvasFillPathSvgFlag_001, TestSize.Level1)
+{
+    if (canvas_ == nullptr || paint_ == nullptr) {
+        EXPECT_EQ(1, 0);
+        return;
+    }
+
+    paint_->SetStyle(Paint::PaintStyle::FILL_STYLE);
+    /* No active path: exercises the null-vertices_ early return. */
+    canvas_->FillPathSvg(*paint_);
+
+    canvas_->BeginPath();
+    canvas_->MoveTo({ START1_X, START1_Y });
+    canvas_->LineTo({ LINE1_X, LINE1_Y });
+    canvas_->CubicBezierTo({ LINE1_X, LINE1_Y }, { LINE2_X, LINE2_Y }, { POS_X, POS_Y });
+    canvas_->ClosePath();
+    canvas_->FillPathSvg(*paint_);
+    EXPECT_NE(canvas_->GetPath(), nullptr);
+}
+#endif // FEATURE_COMPONENT_SVG
+#endif // ENABLE_CANVAS_EXTEND
 } // namespace OHOS

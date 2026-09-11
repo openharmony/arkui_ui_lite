@@ -98,6 +98,10 @@ enum UIViewType : uint8_t {
     UI_QRCODE,
     UI_FLEXLAYOUT,
     UI_MAP_CANVAS,
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    UI_SVG_CONTAINER,
+    UI_SVG_LEAF,
+#endif
     UI_NUMBER_MAX
 };
 

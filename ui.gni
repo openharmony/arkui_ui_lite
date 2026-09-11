@@ -14,6 +14,7 @@ ARKUI_UI_LITE_PATH = "//foundation/arkui/ui_lite"
 arkui_ui_lite_include_dirs = [
   "$ARKUI_UI_LITE_PATH/interfaces/kits",
   "$ARKUI_UI_LITE_PATH/interfaces/innerkits",
+  "$ARKUI_UI_LITE_PATH/interfaces/innerkits/svg",
 ]
 
 arkui_ui_lite_sources = [
@@ -147,6 +148,7 @@ declare_args() {
   ui_lite_enable_element_transition_capability = false
   ui_lite_enable_animation_capability = false
   ui_lite_enable_gradient_capability = false
+  ui_lite_enable_svg_component_config = false
 }
 
 arkui_ui_lite_capability_defines = []

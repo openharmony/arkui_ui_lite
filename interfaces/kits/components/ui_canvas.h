@@ -59,6 +59,16 @@
 namespace OHOS {
 class RenderBase;
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(GRAPHIC_ENABLE_PATTERN_FILL_FLAG) && GRAPHIC_ENABLE_PATTERN_FILL_FLAG
+struct ImageParam;
+struct PathParam;
+void SetImageParamInfo(ImageParam* imageParam, const Paint& paint, PathParam* pathParam);
+#endif
+#endif
+#endif
+
 /**
  * @brief Defines a canvas, which is used to draw multiple types of 2D graphs.
  *
@@ -228,6 +238,34 @@ public:
      */
     void DrawCircle(const Point& center, uint16_t radius, const Paint& paint);
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    /**
+     * @brief Draws a circle for the SVG rendering path.
+     *
+     * SVG shapes clone their geometry so that transforms (scale/rotate) can be applied.
+     * The public {@link DrawCircle} keeps the original non-SVG behavior.
+     *
+     * @param center Indicates the coordinates of the circle center.
+     * @param radius Indicates the radius of the circle.
+     * @param paint  Indicates the circle style.
+     * @since 3.0
+     * @version 5.0
+     */
+    void DrawCircleSvg(const Point& center, uint16_t radius, const Paint& paint);
+
+    /**
+     * @brief Draws an ellipse (uses the same Bezier-arc primitive as DrawCircle, with independent radii).
+     *
+     * @param center   Indicates the coordinates of the ellipse center.
+     * @param radiusX  Indicates the x-axis radius of the ellipse.
+     * @param radiusY  Indicates the y-axis radius of the ellipse.
+     * @param paint    Indicates the paint style (fill/stroke).
+     * @since 3.0
+     * @version 5.0
+     */
+    void DrawEllipse(const Point& center, uint16_t radiusX, uint16_t radiusY, const Paint& paint);
+#endif
+
     /**
      * @brief Draws a sector.
      *
@@ -295,6 +333,25 @@ public:
         const char* fontName;
     };
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    /**
+     * @brief Extra drawing information for SVG <text>.
+     *
+     * Keeps the SVG-specific parameters out of the generic StrokeText signature so
+     * the public API stays compact and future SVG-only options can be added here
+     * without changing the function prototype.
+     */
+    struct SvgTextDrawInfo : public HeapBase {
+        /** True when this text command is issued by the SVG module. */
+        bool isSvgText = false;
+        /** Ink overhang on each side, used to size the rotated glyph bitmap. */
+        int16_t inkTopOffset = 0;
+        int16_t inkLeftOffset = 0;
+        int16_t inkRightOffset = 0;
+        int16_t inkBottomOffset = 0;
+    };
+#endif
+
     struct DrawCmd : public HeapBase {
         Paint paint;
         void* param;
@@ -331,6 +388,19 @@ public:
      */
     void BeginPath();
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+    /**
+     * @brief Begins a new SVG path and releases the previous vertex buffer.
+     *
+     * Unlike {@link BeginPath}, this method always deletes any existing vertices_ so that
+     * SVG shapes, which clone their geometry into each draw command, do not leak the shared
+     * canvas vertex buffer between shapes.
+     */
+    void BeginSvgPath();
+#endif
+#endif
+
     /**
      * @brief Moves the start point of this path to a specified point.
      *
@@ -349,6 +419,24 @@ public:
      */
     void LineTo(const Point& point);
 
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    /**
+     * @brief Appends a cubic Bezier curve to this path, starting from the path's current end point.
+     *
+     * Unlike {@link DrawCurve}, which emits a standalone stroke command, this method adds the curve
+     * to the path being built, so it participates in {@link FillPath} and {@link DrawPath}. The
+     * curve is stored as a true Bezier segment and is flattened adaptively by the rasterizer, which
+     * yields smooth output regardless of the scale the path is later transformed to.
+     *
+     * @param control1 Indicates the coordinates of the first control point.
+     * @param control2 Indicates the coordinates of the second control point.
+     * @param endPoint Indicates the coordinates of the end point.
+     * @since 3.0
+     * @version 5.0
+     */
+    void CubicBezierTo(const Point& control1, const Point& control2, const Point& endPoint);
+#endif
+
     /**
      * @brief Creates an arc path.
      *
@@ -364,6 +452,40 @@ public:
      * @version 5.0
      */
     void ArcTo(const Point& center, uint16_t radius, int16_t startAngle, int16_t endAngle);
+
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    /**
+     * @brief Arguments for {@link SvgArcTo}, mirroring the SVG elliptical arc command.
+     * @since 3.0
+     * @version 5.0
+     */
+    struct SvgArcArgs {
+        float startX;            /**< x coordinate of the arc's start point (untransformed). */
+        float startY;            /**< y coordinate of the arc's start point (untransformed). */
+        float rx;                /**< x-axis radius. */
+        float ry;                /**< y-axis radius. */
+        float rotation;          /**< x-axis rotation in degrees. */
+        bool largeArc;           /**< true to choose the large arc. */
+        bool sweep;              /**< true to sweep in positive angle direction. */
+        float x;                 /**< x coordinate of the arc's end point (untransformed). */
+        float y;                 /**< y coordinate of the arc's end point (untransformed). */
+        const TransAffine* transform; /**< Optional affine transform applied to generated vertices. */
+    };
+
+    /**
+     * @brief Appends an SVG elliptical arc to the current path.
+     *
+     * The arc is generated in the untransformed coordinate space and then mapped to the path
+     * storage via the supplied transform. Under the extended path representation the underlying
+     * BezierArcSvg implementation is reused, avoiding a second arc-to-bezier conversion in the
+     * SVG path parser and preserving floating-point precision.
+     *
+     * @param args See {@link SvgArcArgs}.
+     * @since 3.0
+     * @version 5.0
+     */
+    void SvgArcTo(const SvgArcArgs& args);
+#endif
 
     /**
      * @brief Creates a rectangular path.
@@ -392,6 +514,11 @@ public:
      * @version 5.0
      */
     void DrawPath(const Paint& paint);
+#if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    void DrawPathSvg(const Paint& paint);
+#endif
+#endif
 
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
     /**
@@ -401,11 +528,18 @@ public:
      * @version 5.0
      */
     void FillPath(const Paint& paint);
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    void FillPathSvg(const Paint& paint);
+#endif
 #endif
 
 #if defined(GRAPHIC_ENABLE_DRAW_TEXT_FLAG) && GRAPHIC_ENABLE_DRAW_TEXT_FLAG
     /*  Draw text on canvas */
     void StrokeText(const char* text, const Point& point, const FontStyle& fontStyle, const Paint& paint);
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    void StrokeText(const char* text, const Point& point, const FontStyle& fontStyle, const Paint& paint,
+                    const SvgTextDrawInfo& svgInfo);
+#endif
 #endif
 
     /* Returns an object containing the specified text width */
@@ -452,6 +586,11 @@ public:
     static void DeleteImageParam(void* param);
     static void DeletePathParam(void* param);
 protected:
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    bool EnqueueCircleCmd(const Point& center, uint16_t radius, const Paint& paint);
+    static bool PaintStyleIncludesFill(const Paint& paint);
+    static UICanvasVertices* CloneVertices(UICanvasVertices* src);
+#endif
     constexpr static uint8_t MAX_CURVE_WIDTH = 3;
 
     struct LineParam : public HeapBase {
@@ -523,6 +662,9 @@ protected:
         uint8_t fontOpa;
         FontStyle fontStyle;
         Text* textComment;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+        SvgTextDrawInfo svgInfo;
+#endif
         TextParam() : text(nullptr), position({0, 0}), fontOpa(0)
         {
             fontColor.full = 0;
@@ -675,6 +817,53 @@ protected:
 #if defined(GRAPHIC_ENABLE_DRAW_TEXT_FLAG) && GRAPHIC_ENABLE_DRAW_TEXT_FLAG
     static void DoDrawText(BufferInfo& gfxDstBuffer, void* param, const Paint& paint, const Rect& rect,
                            const Rect& invalidatedArea, const Style& style);
+
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    static void DoDrawTextSvg(BufferInfo& gfxDstBuffer, void* param, const Paint& paint, const Rect& rect,
+                              const Rect& invalidatedArea, const Style& style);
+
+    /**
+     * @brief Text measure/draw state shared by the SVG and the generic text paths.
+     */
+    struct TextDrawSetup {
+        Point start;
+        Rect textRect;
+        Style drawStyle;
+    };
+
+    static TextDrawSetup PrepareTextDrawSetup(TextParam* textParam, Text* text, const Rect& rect,
+                                              const Rect& invalidatedArea, const Style& style);
+
+    /**
+     * @brief Common draw parameters bundled to keep the text draw helpers within
+     *        codecheck function-parameter limits.
+     */
+    struct TextDrawArgs {
+        BufferInfo& gfxDstBuffer;
+        Text* text;
+        Rect& textRect;
+        const Rect& invalidatedArea;
+        const Style& drawStyle;
+        OpacityType opa;
+    };
+
+    /**
+     * @brief Transform-specific draw parameters bundled to keep the transform text
+     *        draw helper within codecheck function-parameter limits.
+     */
+    struct SvgTextTransformArgs {
+        const Paint& paint;
+        const SvgTextDrawInfo& svgInfo;
+    };
+
+    static void PrepareSvgTextMeasurement(const SvgTextDrawInfo& svgInfo, const Paint& paint, Text* text,
+                                          const Point& start, Rect& textRect);
+    static void ApplySvgInkOffsetToDrawRect(const SvgTextDrawInfo& svgInfo, const Rect& imageRect, Rect& drawRect);
+    static void UpdateTextRectSize(TextParam* textParam, Text* text, Rect& textRect, OpacityType& opa,
+                                   const Style& style);
+    static void DrawTextWithTransform(TextDrawArgs& args, const SvgTextTransformArgs& transformArgs);
+    static void DrawSvgText(TextDrawArgs& args, const Paint& paint, TextParam* textParam, const Style& style);
+#endif
 #endif
     /**
      * Assembly parameter setting lineweight，LineCap，LineJoin
