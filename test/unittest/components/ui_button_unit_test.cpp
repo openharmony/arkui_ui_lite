@@ -16,9 +16,12 @@
 #include "components/ui_button.h"
 
 #include <climits>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "test_resource_config.h"
 #include "draw/draw_utils.h"
+#include "engines/gfx/gfx_engine_manager.h"
+#include "engines/gfx/soft_engine.h"
 
 using namespace testing::ext;
 
@@ -26,6 +29,37 @@ namespace OHOS {
 namespace {
     const Point INIT_POS = { 10, 12 };
 }
+#if DEFAULT_ANIMATION && GRAPHIC_ENABLE_BUTTON_FLAG
+class MockButtonSoftEngine : public SoftEngine {
+public:
+    MOCK_METHOD(void, DrawRect,
+        (BufferInfo&, const Rect&, const Rect&, const Style&, OpacityType), (override));
+};
+
+class TestUIButton : public UIButton {
+public:
+    void SetTestState(ButtonState state)
+    {
+        SetState(state);
+    }
+
+    void StartAnimator()
+    {
+        animator_.Start();
+    }
+
+    void RunAnimatorCallback()
+    {
+        animator_.Callback(this);
+    }
+
+    void RunAnimatorOnStop()
+    {
+        animator_.OnStop(*this);
+    }
+};
+#endif
+
 class UIButtonTest : public testing::Test {
 public:
     UIButtonTest() : button_(nullptr) {}
@@ -374,4 +408,282 @@ HWTEST_F(UIButtonTest, UIButtonEnableButtonAnimation_001, TestSize.Level0)
     button_->EnableButtonAnimation(enable);
     EXPECT_EQ(button_->GetEnableButtonAnimation(), enable);
 }
+
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+/**
+ * @tc.name: UIButtonEnableButtonAnimationCompatibility_001
+ * @tc.desc: Verify EnableButtonAnimation maps to the corresponding animation effect.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonEnableButtonAnimationCompatibility_001, TestSize.Level0)
+{
+    button_->EnableButtonAnimation(false);
+    EXPECT_FALSE(button_->GetEnableButtonAnimation());
+    EXPECT_EQ(button_->GetAnimationEffect(), UIButton::BUTTON_ANIMATION_NONE);
+    button_->EnableButtonAnimation(true);
+    EXPECT_TRUE(button_->GetEnableButtonAnimation());
+    EXPECT_EQ(button_->GetAnimationEffect(), UIButton::BUTTON_ANIMATION_SCALE);
+}
+
+/**
+ * @tc.name: UIButtonSetTouchExpand_001
+ * @tc.desc: Verify SetTouchExpand and GetTouchExpand function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetTouchExpand_001, TestSize.Level0)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    const int16_t left = 10;
+    const int16_t top = 20;
+    const int16_t right = 30;
+    const int16_t bottom = 40;
+    button_->SetTouchExpand(left, top, right, bottom);
+    int16_t retLeft = 0;
+    int16_t retTop = 0;
+    int16_t retRight = 0;
+    int16_t retBottom = 0;
+    button_->GetTouchExpand(retLeft, retTop, retRight, retBottom);
+    EXPECT_EQ(retLeft, left);
+    EXPECT_EQ(retTop, top);
+    EXPECT_EQ(retRight, right);
+    EXPECT_EQ(retBottom, bottom);
+}
+
+/**
+ * @tc.name: UIButtonSetTouchExpand_002
+ * @tc.desc: Verify SetTouchExpand function with invalid values restored to 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetTouchExpand_002, TestSize.Level1)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    button_->SetTouchExpand(-1, -1, -1, -1);
+    int16_t retLeft = 1;
+    int16_t retTop = 1;
+    int16_t retRight = 1;
+    int16_t retBottom = 1;
+    button_->GetTouchExpand(retLeft, retTop, retRight, retBottom);
+    EXPECT_EQ(retLeft, 0);
+    EXPECT_EQ(retTop, 0);
+    EXPECT_EQ(retRight, 0);
+    EXPECT_EQ(retBottom, 0);
+}
+
+/**
+ * @tc.name: UIButtonGetTouchableRect_001
+ * @tc.desc: Verify GetTouchableRect function expands the button rect by touch expand values.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonGetTouchableRect_001, TestSize.Level0)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    const int16_t posX = 50;
+    const int16_t posY = 100;
+    const int16_t width = 40;
+    const int16_t height = 30;
+    const int16_t left = 10;
+    const int16_t top = 20;
+    const int16_t right = 30;
+    const int16_t bottom = 40;
+    button_->SetPosition(posX, posY);
+    button_->SetWidth(width);
+    button_->SetHeight(height);
+    button_->SetTouchExpand(left, top, right, bottom);
+    Rect rect = button_->GetTouchableRect();
+    EXPECT_EQ(rect.GetLeft(), posX - left);
+    EXPECT_EQ(rect.GetTop(), posY - top);
+    EXPECT_EQ(rect.GetRight(), posX + width - 1 + right);
+    EXPECT_EQ(rect.GetBottom(), posY + height - 1 + bottom);
+}
+#endif
+
+#if DEFAULT_ANIMATION && GRAPHIC_ENABLE_BUTTON_FLAG
+/**
+ * @tc.name: UIButtonSetAnimationRepeatCount_001
+ * @tc.desc: Verify SetAnimationRepeatCount and GetAnimationRepeatCount function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetAnimationRepeatCount_001, TestSize.Level0)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    const uint16_t repeatCount = 3;
+    button_->SetAnimationRepeatCount(repeatCount);
+    EXPECT_EQ(button_->GetAnimationRepeatCount(), repeatCount);
+    button_->SetAnimationRepeatCount(0);
+    EXPECT_EQ(button_->GetAnimationRepeatCount(), 0);
+}
+
+/**
+ * @tc.name: UIButtonSetAnimationEffect_001
+ * @tc.desc: Verify SetAnimationEffect and GetAnimationEffect function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetAnimationEffect_001, TestSize.Level0)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    button_->SetAnimationEffect(UIButton::BUTTON_ANIMATION_NONE);
+    EXPECT_EQ(button_->GetAnimationEffect(), UIButton::BUTTON_ANIMATION_NONE);
+    EXPECT_EQ(button_->GetEnableButtonAnimation(), false);
+    button_->SetAnimationEffect(UIButton::BUTTON_ANIMATION_SCALE);
+    EXPECT_EQ(button_->GetAnimationEffect(), UIButton::BUTTON_ANIMATION_SCALE);
+    EXPECT_EQ(button_->GetEnableButtonAnimation(), true);
+    button_->SetAnimationEffect(static_cast<UIButton::ButtonAnimationEffect>(2));
+    EXPECT_EQ(button_->GetAnimationEffect(), UIButton::BUTTON_ANIMATION_SCALE);
+    EXPECT_EQ(button_->GetEnableButtonAnimation(), true);
+}
+
+/**
+ * @tc.name: UIButtonSetAnimationRepeatCount_002
+ * @tc.desc: Verify SetAnimationRepeatCount(0) disables the click animation.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetAnimationRepeatCount_002, TestSize.Level0)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    button_->SetAnimationRepeatCount(3);
+    EXPECT_TRUE(button_->GetEnableButtonAnimation());
+    button_->SetAnimationRepeatCount(0);
+    EXPECT_EQ(button_->GetAnimationRepeatCount(), 0);
+    EXPECT_FALSE(button_->GetEnableButtonAnimation());
+
+    PressEvent pressEvent(INIT_POS);
+    button_->OnPressEvent(pressEvent);
+    ReleaseEvent releaseEvent(INIT_POS);
+    button_->OnReleaseEvent(releaseEvent);
+}
+
+/**
+ * @tc.name: UIButtonSetAnimationEffect_002
+ * @tc.desc: Verify SetAnimationEffect(BUTTON_ANIMATION_NONE) disables the click animation.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetAnimationEffect_002, TestSize.Level0)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    button_->SetAnimationEffect(UIButton::BUTTON_ANIMATION_SCALE);
+    EXPECT_TRUE(button_->GetEnableButtonAnimation());
+    button_->SetAnimationEffect(UIButton::BUTTON_ANIMATION_NONE);
+    EXPECT_EQ(button_->GetAnimationEffect(), UIButton::BUTTON_ANIMATION_NONE);
+    EXPECT_FALSE(button_->GetEnableButtonAnimation());
+
+    PressEvent pressEvent(INIT_POS);
+    button_->OnPressEvent(pressEvent);
+    CancelEvent cancelEvent(INIT_POS);
+    button_->OnCancelEvent(cancelEvent);
+}
+
+/**
+ * @tc.name: UIButtonAnimationEventAndDraw_001
+ * @tc.desc: Verify enabled animation event paths and pressed-state mask drawing.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonAnimationEventAndDraw_001, TestSize.Level0)
+{
+    TestUIButton button;
+    button.SetPosition(0, 0, 40, 30);
+    button.SetAnimationRepeatCount(2);
+    button.SetAnimationEffect(UIButton::BUTTON_ANIMATION_SCALE);
+
+    PressEvent pressEvent(INIT_POS);
+    button.OnPressEvent(pressEvent);
+    ReleaseEvent releaseEvent(INIT_POS);
+    button.OnReleaseEvent(releaseEvent);
+    button.OnPressEvent(pressEvent);
+    CancelEvent cancelEvent(INIT_POS);
+    button.OnCancelEvent(cancelEvent);
+
+    MockButtonSoftEngine mockEngine;
+    BaseGfxEngine* originEngine = BaseGfxEngine::GetInstance();
+    BaseGfxEngine::InitGfxEngine(&mockEngine);
+    BufferInfo bufferInfo = {};
+    Rect invalidatedArea = button.GetRect();
+
+    button.SetTestState(UIButton::ButtonState::PRESSED);
+    EXPECT_CALL(mockEngine, DrawRect(testing::_, testing::_, testing::_, testing::_, testing::_)).Times(1);
+    button.OnPostDraw(bufferInfo, invalidatedArea);
+    testing::Mock::VerifyAndClearExpectations(&mockEngine);
+
+    button.SetTestState(UIButton::ButtonState::RELEASED);
+    EXPECT_CALL(mockEngine, DrawRect(testing::_, testing::_, testing::_, testing::_, testing::_)).Times(0);
+    button.OnPostDraw(bufferInfo, invalidatedArea);
+    BaseGfxEngine::InitGfxEngine(originEngine);
+}
+
+/**
+ * @tc.name: UIButtonAnimatorState_001
+ * @tc.desc: Verify animator callback, reset, repeat, and disabled branches.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonAnimatorState_001, TestSize.Level0)
+{
+    TestUIButton button;
+    button.SetPosition(0, 0, 40, 30);
+    button.SetAnimationRepeatCount(2);
+    button.SetAnimationEffect(UIButton::BUTTON_ANIMATION_SCALE);
+    button.SetTestState(UIButton::ButtonState::PRESSED);
+    button.StartAnimator();
+    button.RunAnimatorCallback();
+    button.RunAnimatorOnStop();
+
+    button.SetTestState(UIButton::ButtonState::RELEASED);
+    button.RunAnimatorOnStop();
+
+    button.StartAnimator();
+    button.RunAnimatorCallback();
+    button.SetAnimationEffect(UIButton::BUTTON_ANIMATION_NONE);
+    EXPECT_FALSE(button.GetEnableButtonAnimation());
+    button.RunAnimatorCallback();
+    button.StartAnimator();
+
+    button.SetAnimationEffect(UIButton::BUTTON_ANIMATION_SCALE);
+    button.SetAnimationRepeatCount(0);
+    EXPECT_FALSE(button.GetEnableButtonAnimation());
+}
+#endif
+
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+/**
+ * @tc.name: UIButtonSetTouchExpand_003
+ * @tc.desc: Verify SetTouchExpand function with values greater than screen size restored to 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIButtonTest, UIButtonSetTouchExpand_003, TestSize.Level1)
+{
+    if (button_ == nullptr) {
+        EXPECT_NE(0, 0);
+        return;
+    }
+    button_->SetTouchExpand(INT16_MAX, INT16_MAX, INT16_MAX, INT16_MAX);
+    int16_t retLeft = 1;
+    int16_t retTop = 1;
+    int16_t retRight = 1;
+    int16_t retBottom = 1;
+    button_->GetTouchExpand(retLeft, retTop, retRight, retBottom);
+    EXPECT_EQ(retLeft, 0);
+    EXPECT_EQ(retTop, 0);
+    EXPECT_EQ(retRight, 0);
+    EXPECT_EQ(retBottom, 0);
+}
+#endif
 } // namespace OHOS

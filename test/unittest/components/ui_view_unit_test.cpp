@@ -17,6 +17,9 @@
 
 #include <climits>
 #include <gtest/gtest.h>
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+#include "components/ui_button.h"
+#endif
 
 using namespace testing::ext;
 namespace OHOS {
@@ -1223,4 +1226,89 @@ HWTEST_F(UIViewTest, Graphic_UIView_Test_SetNextRenderSibling_001, TestSize.Leve
     delete view;
     delete viewGroup;
 }
+
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+/**
+ * @tc.name: UIViewGetTouchableRect_001
+ * @tc.desc: Verify the default GetTouchableRect returns the same rectangle as GetRect.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, UIViewGetTouchableRect_001, TestSize.Level1)
+{
+    view_->SetPosition(POS_X, POS_Y, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+    EXPECT_EQ(view_->GetTouchableRect().GetLeft(), view_->GetRect().GetLeft());
+    EXPECT_EQ(view_->GetTouchableRect().GetTop(), view_->GetRect().GetTop());
+    EXPECT_EQ(view_->GetTouchableRect().GetRight(), view_->GetRect().GetRight());
+    EXPECT_EQ(view_->GetTouchableRect().GetBottom(), view_->GetRect().GetBottom());
+}
+
+/**
+ * @tc.name: UIViewGroupGetTargetViewWithTouchExpand_001
+ * @tc.desc: Verify GetTargetView considers the button touch expand area inside a view group.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, UIViewGroupGetTargetViewWithTouchExpand_001, TestSize.Level1)
+{
+    UIViewGroup viewGroup;
+    viewGroup.SetPosition(0, 0, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+
+    UIButton button;
+    button.SetPosition(50, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+    button.SetTouchExpand(20, 20, 20, 20);
+    viewGroup.Add(&button);
+
+    Point point = {45, 45};
+    UIView* last = nullptr;
+    viewGroup.GetTargetView(point, &last);
+    EXPECT_EQ(last, &button);
+
+    UIView* current = nullptr;
+    UIView* target = nullptr;
+    viewGroup.GetTargetView(point, &current, &target);
+    EXPECT_EQ(current, &button);
+    EXPECT_EQ(target, &button);
+}
+
+/**
+ * @tc.name: UIViewGroupGetTargetViewWithoutTouchExpand_001
+ * @tc.desc: Verify GetTargetView does not hit the button when the point is outside both rect and expand area.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, UIViewGroupGetTargetViewWithoutTouchExpand_001, TestSize.Level1)
+{
+    UIViewGroup viewGroup;
+    viewGroup.SetPosition(0, 0, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+
+    UIButton button;
+    button.SetPosition(50, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+    button.SetTouchExpand(5, 5, 5, 5);
+    viewGroup.Add(&button);
+
+    Point point = {40, 40};
+    UIView* last = nullptr;
+    viewGroup.GetTargetView(point, &last);
+    EXPECT_NE(last, &button);
+}
+
+/**
+ * @tc.name: UIViewGroupGetTargetViewWithoutTouchExpandThreeArgs_001
+ * @tc.desc: Verify the three-argument GetTargetView does not hit outside the expanded area.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, UIViewGroupGetTargetViewWithoutTouchExpandThreeArgs_001, TestSize.Level1)
+{
+    UIViewGroup viewGroup;
+    viewGroup.SetPosition(0, 0, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+    UIButton button;
+    button.SetPosition(50, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+    button.SetTouchExpand(5, 5, 5, 5);
+    viewGroup.Add(&button);
+    Point point = {40, 40};
+    UIView* current = nullptr;
+    UIView* target = nullptr;
+    viewGroup.GetTargetView(point, &current, &target);
+    EXPECT_NE(current, &button);
+    EXPECT_NE(target, &button);
+}
+#endif
 } // namespace OHOS

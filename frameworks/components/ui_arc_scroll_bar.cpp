@@ -24,13 +24,17 @@ constexpr uint16_t RIGHT_SIDE_START_ANGLE_IN_DEGREE = 60;
 constexpr uint16_t RIGHT_SIDE_END_ANGLE_IN_DEGREE = 120;
 constexpr uint16_t LEFT_SIDE_START_ANGLE_IN_DEGREE = 240;
 constexpr uint16_t LEFT_SIDE_END_ANGLE_IN_DEGREE = 300;
+#if !GRAPHIC_ENABLE_SCROLL_FLAG
 constexpr uint16_t SCROLL_BAR_MIN_ARC = 10;
+#endif
 } // namespace
 
 namespace OHOS {
 UIArcScrollBar::UIArcScrollBar()
     : radius_(0),
+#if !GRAPHIC_ENABLE_SCROLL_FLAG
       width_(0),
+#endif
       startAngle_(RIGHT_SIDE_START_ANGLE_IN_DEGREE),
       endAngle_(RIGHT_SIDE_END_ANGLE_IN_DEGREE),
       center_({0, 0}),
@@ -62,18 +66,32 @@ void UIArcScrollBar::SetScrollBarSide(uint8_t side)
 
 void UIArcScrollBar::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, uint8_t backgroundOpa)
 {
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    DrawBackground(gfxDstBuffer, invalidatedArea, GetBackgroundOpacity(backgroundOpa));
+    DrawForeground(gfxDstBuffer, invalidatedArea, GetSliderOpacity(backgroundOpa));
+#else
     // 8: Shift right 8 bits
     backgroundOpa = (backgroundOpa == OPA_OPAQUE) ? opacity_ : (static_cast<uint16_t>(backgroundOpa) * opacity_) >> 8;
     DrawBackground(gfxDstBuffer, invalidatedArea, backgroundOpa);
     DrawForeground(gfxDstBuffer, invalidatedArea, backgroundOpa);
+#endif
 }
 
 void UIArcScrollBar::DrawForeground(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, uint8_t backgroundOpa)
 {
     uint16_t foregoundAngleRange = static_cast<uint16_t>(foregroundProportion_ * (endAngle_ - startAngle_));
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    if (foregoundAngleRange < minLength_) {
+        foregoundAngleRange = minLength_;
+    }
+    if (foregoundAngleRange > endAngle_ - startAngle_) {
+        foregoundAngleRange = endAngle_ - startAngle_;
+    }
+#else
     if (foregoundAngleRange < SCROLL_BAR_MIN_ARC) {
         foregoundAngleRange = SCROLL_BAR_MIN_ARC;
     }
+#endif
     int16_t startAngle;
     int16_t endAngle;
     int16_t minAngle;

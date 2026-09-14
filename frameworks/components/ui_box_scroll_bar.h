@@ -29,6 +29,11 @@ public:
 
     void OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, uint8_t backgroundOpa) override;
 
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+private:
+    int16_t GetClampedForegroundLength(int16_t length, int16_t maxLength) const;
+#endif
+
 protected:
     Rect backgroundRect_;
 };

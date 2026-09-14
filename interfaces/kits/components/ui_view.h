@@ -823,6 +823,14 @@ public:
      */
     Rect GetRect() const;
 
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    /**
+     * @brief Obtains the absolute touchable rectangle area of the view.
+     * @return Returns the touchable rectangle area.
+     */
+    virtual Rect GetTouchableRect() const;
+#endif
+
     /**
      * @brief Obtains the visible absolute rectangle area of the view.
      * @return Returns the visible absolute rectangle area.

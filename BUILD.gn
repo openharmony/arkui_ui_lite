@@ -14,6 +14,7 @@ if (os_level != "standard") {
   import("//build/lite/config/component/lite_component.gni")
   import("//build/lite/config/subsystem/graphic/config.gni")
   import("//build/lite/ndk/ndk.gni")
+  import("//foundation/arkui/ui_lite/ui.gni")
 
   lite_component("ui_lite") {
     features = [ ":ui" ]
@@ -36,6 +37,22 @@ if (os_level != "standard") {
       "GRAPHIC_ENABLE_SHADOW_EFFECT_FLAG=1",
       "GRAPHIC_ENABLE_DRAW_TEXT_FLAG=1",
     ]
+
+    if (ui_lite_enable_switch_config) {
+      defines += [ "GRAPHIC_ENABLE_SWITCH_FLAG=1" ]
+    }
+
+    if (ui_lite_enable_slider_config) {
+      defines += [ "GRAPHIC_ENABLE_SLIDER_FLAG=1" ]
+    }
+
+    if (ui_lite_enable_scroller_indicator_style_adapt) {
+      defines += [ "GRAPHIC_ENABLE_SCROLL_FLAG=1" ]
+    }
+    if (ui_lite_enable_button_animation_touch_extend_config) {
+      defines += [ "GRAPHIC_ENABLE_BUTTON_FLAG=1" ]
+    }
+
     if (defined(board_toolchain_type) && board_toolchain_type == "iccarm") {
       cflags = [
         "--diag_suppress",

@@ -252,6 +252,18 @@ public:
         BTN_STATE_NUM,
     };
 
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    /**
+     * @brief Enumerates button animation effects.
+     */
+    enum ButtonAnimationEffect : uint8_t {
+        /* An enum constant representing no button animation */
+        BUTTON_ANIMATION_NONE = 0,
+        /* An enum constant representing the scale animation effect */
+        BUTTON_ANIMATION_SCALE,
+    };
+#endif
+
     /**
      * @brief Obtains the width of this image.
      *
@@ -334,6 +346,14 @@ public:
         contentRect.SetHeight(GetHeight());
         return contentRect;
     }
+
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    /**
+     * @brief Obtains the button touchable area.
+     * @return Returns the button rectangle expanded by touch expand settings.
+     */
+    Rect GetTouchableRect() const override;
+#endif
 
     /**
      * @brief Obtains the value of a style.
@@ -418,6 +438,23 @@ public:
     }
 
 #if DEFAULT_ANIMATION
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    void EnableButtonAnimation(bool enable)
+    {
+        SetAnimationEffect(enable ? BUTTON_ANIMATION_SCALE : BUTTON_ANIMATION_NONE);
+    }
+
+    /**
+     * @brief Obtains the value of a style.
+     *
+     * @param enableAnimation.
+     * @return Returns enableAnimation_.
+     */
+    bool GetEnableButtonAnimation() const
+    {
+        return IsAnimationEnabled();
+    }
+#else
     void EnableButtonAnimation(bool enable)
     {
         enableAnimation_ = enable;
@@ -432,6 +469,67 @@ public:
     bool GetEnableButtonAnimation() const
     {
         return enableAnimation_;
+    }
+#endif
+#endif
+
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    /**
+     * @brief Sets the button touch expand area.
+     *
+     * The touchable rect is expanded from the button rect by the given values on each side.
+     * Values less than 0 or greater than the screen size on the corresponding axis are
+     * restored to the default value 0 with a warning log.
+     *
+     * @param left Indicates the left expansion.
+     * @param top Indicates the top expansion.
+     * @param right Indicates the right expansion.
+     * @param bottom Indicates the bottom expansion.
+     */
+    void SetTouchExpand(int16_t left, int16_t top, int16_t right, int16_t bottom);
+
+    /**
+     * @brief Obtains the button touch expand area.
+     *
+     * @param left Indicates the left expansion.
+     * @param top Indicates the top expansion.
+     * @param right Indicates the right expansion.
+     * @param bottom Indicates the bottom expansion.
+     */
+    void GetTouchExpand(int16_t& left, int16_t& top, int16_t& right, int16_t& bottom) const;
+#endif
+
+#if DEFAULT_ANIMATION && GRAPHIC_ENABLE_BUTTON_FLAG
+    /**
+     * @brief Sets the button click animation repeat count.
+     *
+     * @param repeatCount Indicates the repeat count. Value 0 disables the click animation.
+     */
+    void SetAnimationRepeatCount(uint16_t repeatCount);
+
+    /**
+     * @brief Obtains the button click animation repeat count.
+     * @return Returns the repeat count.
+     */
+    uint16_t GetAnimationRepeatCount() const
+    {
+        return animationRepeatCount_;
+    }
+
+    /**
+     * @brief Sets the button animation effect.
+     *
+     * @param effect Indicates the animation effect.
+     */
+    void SetAnimationEffect(ButtonAnimationEffect effect);
+
+    /**
+     * @brief Obtains the button animation effect.
+     * @return Returns the animation effect.
+     */
+    ButtonAnimationEffect GetAnimationEffect() const
+    {
+        return animationEffect_;
     }
 #endif
 
@@ -450,7 +548,12 @@ protected:
     ButtonState styleState_;
     Style* buttonStyles_[BTN_STATE_NUM];
 #if DEFAULT_ANIMATION
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    uint16_t animationRepeatCount_ = 0;
+    ButtonAnimationEffect animationEffect_ = BUTTON_ANIMATION_NONE;
+#else
     bool enableAnimation_;
+#endif
     friend class ButtonAnimator;
     class ButtonAnimator final : public AnimatorCallback {
     public:
@@ -459,10 +562,23 @@ protected:
         ButtonAnimator& operator=(const ButtonAnimator&) = delete;
         ButtonAnimator(ButtonAnimator&&) = delete;
         ButtonAnimator& operator=(ButtonAnimator&&) = delete;
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+        ButtonAnimator(UIButton& button) : animator_(this, &button, 0, false), button_(button) {}
+#else
         ButtonAnimator(UIButton& button) : animator_(this, nullptr, 0, false), button_(button) {}
+#endif
         ~ButtonAnimator() {}
 
         void Start();
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+        /**
+         * @brief Stops the running animation and restores the button scale to 1.0.
+         *
+         * Called when the button animation is disabled while an animation is running,
+         * so that the button does not stay in a scaled state.
+         */
+        void ResetScale();
+#endif
         void DrawMask(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea);
         void Callback(UIView* view) override;
         void OnStop(UIView& view) override;
@@ -470,17 +586,30 @@ protected:
     private:
         Animator animator_;
         bool isReverseAnimation_ = false;
+        bool resetInProgress_ = false;
         float scale_ = 1.0f;
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+        uint16_t curRepeatCount_ = 0;
+#endif
         UIButton& button_;
     } animator_;
 #endif
     bool buttonStyleAllocFlag_;
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    int16_t touchExpandLeft_ = 0;
+    int16_t touchExpandTop_ = 0;
+    int16_t touchExpandRight_ = 0;
+    int16_t touchExpandBottom_ = 0;
+#endif
 
 private:
     /** Sets up the theme styles */
     void SetupThemeStyles();
 
     void DrawImg(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, OpacityType opaScale);
+#if DEFAULT_ANIMATION && GRAPHIC_ENABLE_BUTTON_FLAG
+    bool IsAnimationEnabled() const;
+#endif
 };
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_BUTTON_H

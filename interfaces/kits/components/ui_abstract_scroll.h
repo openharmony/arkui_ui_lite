@@ -39,10 +39,32 @@
 #include "animator/animator.h"
 #include "animator/easing_equation.h"
 #include "components/ui_view_group.h"
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+#include "gfx_utils/color.h"
+#endif
 
 namespace OHOS {
 class BarEaseInOutAnimator;
 class UIAbstractScrollBar;
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+
+/**
+ * @brief Defines the scroll indicator style, including the width, minimum slider length,
+ *        border radius, color and opacity of the scroll indicator.
+ */
+struct ScrollIndicatorStyle {
+    /* indicator width in pixels. Value 0 falls back to the default width */
+    uint16_t width = 0;
+    /* minimum slider length in pixels. Value 0 falls back to the default minimum length */
+    uint16_t minLength = 0;
+    /* border radius of the slider in pixels. Value 0 indicates a square slider */
+    uint16_t borderRadius = 0;
+    /* slider color */
+    ColorType color = Color::Black();
+    /* slider opacity, ranging from 0 (transparent) to 255 (opaque) */
+    uint8_t opacity = OPA_OPAQUE;
+};
+#endif
 /**
  * @brief Defines the attributes of a scroll, including the scroll direction, blank size of a scroll view, velocity and
  *        effects of a scroll animation.
@@ -344,6 +366,127 @@ public:
 
     void SetYScrollBarVisible(bool visible);
 
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    /**
+     * @brief Sets the scroll indicator style.
+     *
+     * Fields width and minLength set to 0 or greater than INT16_MAX fall back to their
+     * default values with a warning log.
+     *
+     * @param style Indicates the indicator style to set.
+     */
+    void SetIndicatorStyle(const ScrollIndicatorStyle& style);
+
+    /**
+     * @brief Obtains the scroll indicator style.
+     *
+     * @return Returns the indicator style.
+     */
+    ScrollIndicatorStyle GetIndicatorStyle() const
+    {
+        return indicatorStyle_;
+    }
+
+    /**
+     * @brief Resets the scroll indicator style to the default style.
+     */
+    void ResetIndicatorStyle();
+
+    /**
+     * @brief Sets the scroll indicator width.
+     *
+     * @param width Indicates the indicator width in pixels. Value 0 falls back to the default width.
+     */
+    void SetIndicatorWidth(uint16_t width);
+
+    /**
+     * @brief Obtains the scroll indicator width.
+     *
+     * @return Returns the indicator width in pixels.
+     */
+    uint16_t GetIndicatorWidth() const
+    {
+        return indicatorStyle_.width;
+    }
+
+    /**
+     * @brief Sets the scroll indicator color.
+     *
+     * The alpha channel of the color does not take effect. Use SetIndicatorOpacity() to
+     * control the slider opacity.
+     *
+     * @param color Indicates the indicator color to set.
+     */
+    void SetIndicatorColor(ColorType color);
+
+    /**
+     * @brief Obtains the scroll indicator color.
+     *
+     * @return Returns the indicator color.
+     */
+    ColorType GetIndicatorColor() const
+    {
+        return indicatorStyle_.color;
+    }
+
+    /**
+     * @brief Sets the border radius of the scroll indicator.
+     *
+     * No upper limit is applied: a radius larger than half of the slider size is not
+     * clamped, and its rendering result depends on the graphics engine.
+     *
+     * @param borderRadius Indicates the border radius in pixels. Value 0 indicates a square slider.
+     */
+    void SetIndicatorBorderRadius(uint16_t borderRadius);
+
+    /**
+     * @brief Obtains the border radius of the scroll indicator.
+     *
+     * @return Returns the border radius in pixels.
+     */
+    uint16_t GetIndicatorBorderRadius() const
+    {
+        return indicatorStyle_.borderRadius;
+    }
+
+    /**
+     * @brief Sets the minimum slider length of the scroll indicator.
+     *
+     * Value 0 or greater than INT16_MAX falls back to the default minimum length with a
+     * warning log.
+     *
+     * @param minLength Indicates the minimum slider length in pixels.
+     */
+    void SetIndicatorMinLength(uint16_t minLength);
+
+    /**
+     * @brief Obtains the minimum slider length of the scroll indicator.
+     *
+     * @return Returns the minimum slider length in pixels.
+     */
+    uint16_t GetIndicatorMinLength() const
+    {
+        return indicatorStyle_.minLength;
+    }
+
+    /**
+     * @brief Sets the scroll indicator opacity.
+     *
+     * @param opacity Indicates the indicator opacity, ranging from 0 (transparent) to 255 (opaque).
+     */
+    void SetIndicatorOpacity(uint8_t opacity);
+
+    /**
+     * @brief Obtains the scroll indicator opacity.
+     *
+     * @return Returns the indicator opacity.
+     */
+    uint8_t GetIndicatorOpacity() const
+    {
+        return indicatorStyle_.opacity;
+    }
+#endif
+
     void SetScrollBarSide(uint8_t side)
     {
         scrollBarSide_ = side;
@@ -519,6 +662,23 @@ protected:
 
     void RefreshAnimator();
 
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    void SyncIndicatorStyle(UIAbstractScrollBar* scrollBar);
+
+    uint16_t GetScrollBarWidth() const;
+
+    void RefreshScrollBarParams();
+
+    void DrawScrollBarOnRect(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, const Rect& scrollRect,
+                             uint8_t opa);
+
+    void DrawScrollBarOnCircle(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, const Rect& scrollRect,
+                               uint8_t opa);
+
+    void DrawScrollBars(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, const Rect& scrollRect,
+                        uint8_t opa);
+#endif
+
     virtual void FixDistance(int16_t& distanceX, int16_t& distanceY) {}
 
     uint16_t scrollBlankSize_ = 0;
@@ -549,6 +709,14 @@ protected:
     uint8_t scrollBarSide_;
     Point scrollBarCenter_;
     bool scrollBarCenterSetFlag_;
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    ScrollIndicatorStyle indicatorStyle_ {};
+    bool indicatorWidthSet_ : 1;
+    bool indicatorColorSet_ : 1;
+    bool indicatorBorderRadiusSet_ : 1;
+    bool indicatorMinLengthSet_ : 1;
+    bool indicatorOpacitySet_ : 1;
+#endif
     bool dragBack_ = true;
 #if DEFAULT_ANIMATION
     friend class BarEaseInOutAnimator;
