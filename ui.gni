@@ -143,4 +143,5 @@ declare_args() {
   ui_lite_enable_slider_config = false
   ui_lite_enable_scroller_indicator_style_adapt = false
   ui_lite_enable_button_animation_touch_extend_config = false
+  ui_lite_enable_flex_layout_config = false
 }
