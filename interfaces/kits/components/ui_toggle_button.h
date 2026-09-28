@@ -115,6 +115,111 @@ public:
     void EnableRtl(bool isRtl);
 
     bool IsRtl();
+
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+    /**
+     * @brief Sets the thumb radius when the toggle button is in the ON state.
+     *
+     * @param radius Indicates the thumb radius for the ON state.
+     */
+    void SetOnThumbSize(uint16_t radius);
+
+    /**
+     * @brief Sets the thumb radius when the toggle button is in the OFF state.
+     *
+     * @param radius Indicates the thumb radius for the OFF state.
+     */
+    void SetOffThumbSize(uint16_t radius);
+
+    /**
+     * @brief Obtains the thumb radius when the toggle button is in the ON state.
+     *
+     * @return Returns the thumb radius for the ON state.
+     */
+    uint16_t GetOnThumbSize() const
+    {
+        return onThumbRadius_;
+    }
+
+    /**
+     * @brief Obtains the thumb radius when the toggle button is in the OFF state.
+     *
+     * @return Returns the thumb radius for the OFF state.
+     */
+    uint16_t GetOffThumbSize() const
+    {
+        return offThumbRadius_;
+    }
+
+    /**
+     * @brief Sets the thumb color when the toggle button is in the ON state.
+     *
+     * @param color Indicates the thumb color for the ON state.
+     */
+    void SetOnThumbColor(ColorType color);
+
+    /**
+     * @brief Sets the thumb color when the toggle button is in the OFF state.
+     *
+     * @param color Indicates the thumb color for the OFF state.
+     */
+    void SetOffThumbColor(ColorType color);
+
+    /**
+     * @brief Obtains the thumb color when the toggle button is in the ON state.
+     *
+     * @return Returns the thumb color for the ON state.
+     */
+    ColorType GetOnThumbColor() const
+    {
+        return onThumbColor_;
+    }
+
+    /**
+     * @brief Obtains the thumb color when the toggle button is in the OFF state.
+     *
+     * @return Returns the thumb color for the OFF state.
+     */
+    ColorType GetOffThumbColor() const
+    {
+        return offThumbColor_;
+    }
+
+    /**
+     * @brief Sets the thumb border color when the toggle button is in the ON state.
+     *
+     * @param color Indicates the thumb border color for the ON state.
+     */
+    void SetOnBorderColor(ColorType color);
+
+    /**
+     * @brief Sets the thumb border color when the toggle button is in the OFF state.
+     *
+     * @param color Indicates the thumb border color for the OFF state.
+     */
+    void SetOffBorderColor(ColorType color);
+
+    /**
+     * @brief Obtains the thumb border color when the toggle button is in the ON state.
+     *
+     * @return Returns the thumb border color for the ON state.
+     */
+    ColorType GetOnBorderColor() const
+    {
+        return onBorderColor_;
+    }
+
+    /**
+     * @brief Obtains the thumb border color when the toggle button is in the OFF state.
+     *
+     * @return Returns the thumb border color for the OFF state.
+     */
+    ColorType GetOffBorderColor() const
+    {
+        return offBorderColor_;
+    }
+
+#endif
 protected:
     void CalculateSize() override;
 #if DEFAULT_ANIMATION
@@ -123,6 +228,11 @@ protected:
 #endif
 
 private:
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+    void UpdateDrawState();
+    int16_t GetThumbDrawRadius();
+    void DrawThumb(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, Style& styleUnSelect, int16_t drawRadius);
+#endif
     uint16_t corner_ = 0;
     uint16_t radius_ = 0;
     int16_t rectWidth_ = 0;
@@ -132,6 +242,23 @@ private:
     ColorType bgColor_ = Color::White();
     Rect rectMid_ = {0, 0, 0, 0};
     bool isRtl_ = false;
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+    ColorType thumbColor_ = Color::White();
+    ColorType onThumbColor_ = Color::White();
+    ColorType offThumbColor_ = Color::White();
+    ColorType onBorderColor_ = Color::White();
+    ColorType offBorderColor_ = Color::White();
+    uint16_t onThumbRadius_ = 0;
+    uint16_t offThumbRadius_ = 0;
+    bool hasOnThumbSize_ : 1;
+    bool hasOffThumbSize_ : 1;
+    bool hasWarnedOnThumbRadius_ : 1;
+    bool hasWarnedOffThumbRadius_ : 1;
+    bool hasOnThumbColor_ : 1;
+    bool hasOffThumbColor_ : 1;
+    bool hasOnBorderColor_ : 1;
+    bool hasOffBorderColor_ : 1;
+#endif
 }; // class UIToggleButton
 } // namespace OHOS
 #endif // GRAPHIC_LITE_UI_TOGGLE_BUTTON_H

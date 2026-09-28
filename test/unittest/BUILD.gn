@@ -110,6 +110,7 @@ if (os_level != "standard") {
         deps = [
           "//foundation/arkui/ui_lite:ui",
           "//third_party/freetype:freetype",
+          "//test/xts/tools/lite/hcpptest:gmock",
         ]
 
         if (ui_lite_enable_video_component_config) {

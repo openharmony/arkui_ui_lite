@@ -22,6 +22,9 @@
 #include "components/ui_abstract_scroll_bar.h"
 #include "components/ui_arc_scroll_bar.h"
 #include "components/ui_box_scroll_bar.h"
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+#include "gfx_utils/graphic_log.h"
+#endif
 #if DEFAULT_ANIMATION
 #include "graphic_timer.h"
 #endif
@@ -146,6 +149,18 @@ UIAbstractScroll::UIAbstractScroll()
     touchable_ = true;
     draggable_ = true;
     dragParentInstead_ = false;
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    indicatorWidthSet_ = false;
+    indicatorColorSet_ = false;
+    indicatorBorderRadiusSet_ = false;
+    indicatorMinLengthSet_ = false;
+    indicatorOpacitySet_ = false;
+    indicatorStyle_.width = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH;
+    indicatorStyle_.minLength = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_MIN_LEN;
+    indicatorStyle_.borderRadius = 0;
+    indicatorStyle_.color = StyleDefault::GetScrollBarForegroundStyle().bgColor_;
+    indicatorStyle_.opacity = OPA_OPAQUE;
+#endif
 }
 
 UIAbstractScroll::~UIAbstractScroll()
@@ -402,6 +417,9 @@ void UIAbstractScroll::SetXScrollBarVisible(bool visible)
         return;
     } else if (visible && xScrollBar_ == nullptr) {
         xScrollBar_ = new UIBoxScrollBar();
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+        SyncIndicatorStyle(xScrollBar_);
+#endif
     }
     xScrollBarVisible_ = visible;
 #if DEFAULT_ANIMATION
@@ -420,6 +438,9 @@ void UIAbstractScroll::SetYScrollBarVisible(bool visible)
         } else {
             yScrollBar_ = new UIBoxScrollBar();
         }
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+        SyncIndicatorStyle(yScrollBar_);
+#endif
     }
 #if DEFAULT_ANIMATION
     if (yScrollBarVisible_ && barEaseInOutAnimator_ == nullptr) {
@@ -428,10 +449,95 @@ void UIAbstractScroll::SetYScrollBarVisible(bool visible)
 #endif
 }
 
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+void UIAbstractScroll::RefreshScrollBarParams()
+{
+    if (!xScrollBarVisible_ && !yScrollBarVisible_) {
+        return;
+    }
+    Rect childrenRect = GetAllChildRelativeRect();
+    // use int32_t to avoid int16_t overflow when content is large
+    // 2: two blank spaces on both sides
+    int32_t totalLen = static_cast<int32_t>(childrenRect.GetHeight()) + 2 * scrollBlankSize_;
+    int32_t len = GetHeight();
+    if (yScrollBarVisible_ && (totalLen > 0)) {
+        yScrollBar_->SetForegroundProportion(static_cast<float>(len) / totalLen);
+        if (totalLen > len) {
+            yScrollBar_->SetScrollProgress(static_cast<float>(scrollBlankSize_ - childrenRect.GetTop()) /
+                                           (totalLen - len));
+        }
+    }
+    if (xScrollBarVisible_) {
+        // 2: two blank spaces on both sides
+        totalLen = static_cast<int32_t>(childrenRect.GetWidth()) + 2 * scrollBlankSize_;
+        len = GetWidth();
+        if (totalLen > 0) {
+            xScrollBar_->SetForegroundProportion(static_cast<float>(len) / totalLen);
+            if (totalLen > len) {
+                xScrollBar_->SetScrollProgress(static_cast<float>(scrollBlankSize_ - childrenRect.GetLeft()) /
+                                               (totalLen - len));
+            }
+        }
+    }
+}
+
+void UIAbstractScroll::DrawScrollBarOnRect(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea,
+                                           const Rect& scrollRect, uint8_t opa)
+{
+    const int16_t barWidth = static_cast<int16_t>(GetScrollBarWidth());
+    constexpr int16_t PIXEL_ALIGN_OFFSET = 1;
+    if (yScrollBarVisible_) {
+        if (scrollBarSide_ == SCROLL_BAR_RIGHT_SIDE) {
+            yScrollBar_->SetPosition(scrollRect.GetRight() - barWidth + PIXEL_ALIGN_OFFSET,
+                                     scrollRect.GetTop(), barWidth,
+                                     scrollRect.GetHeight());
+        } else {
+            yScrollBar_->SetPosition(scrollRect.GetLeft(), scrollRect.GetTop(), barWidth, scrollRect.GetHeight());
+        }
+        yScrollBar_->OnDraw(gfxDstBuffer, invalidatedArea, opa);
+    }
+    if (xScrollBarVisible_) {
+        if (scrollBarSide_ == SCROLL_BAR_RIGHT_SIDE) {
+            xScrollBar_->SetPosition(scrollRect.GetLeft(),
+                                     scrollRect.GetBottom() - barWidth + PIXEL_ALIGN_OFFSET,
+                                     scrollRect.GetWidth() - barWidth, barWidth);
+        } else {
+            xScrollBar_->SetPosition(scrollRect.GetLeft() + barWidth,
+                                     scrollRect.GetBottom() - barWidth + PIXEL_ALIGN_OFFSET,
+                                     scrollRect.GetWidth() - barWidth, barWidth);
+        }
+        xScrollBar_->OnDraw(gfxDstBuffer, invalidatedArea, opa);
+    }
+}
+
+void UIAbstractScroll::DrawScrollBarOnCircle(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea,
+                                             const Rect& scrollRect, uint8_t opa)
+{
+    if (!yScrollBarVisible_) {
+        return;
+    }
+    yScrollBar_->SetScrollBarSide(scrollBarSide_);
+    int16_t x;
+    int16_t y;
+    if (scrollBarCenterSetFlag_) {
+        x = scrollRect.GetX() + scrollBarCenter_.x;
+        y = scrollRect.GetY() + scrollBarCenter_.y;
+    } else {
+        x = scrollRect.GetX() + (GetWidth() / 2);  // 2: half
+        y = scrollRect.GetY() + (GetHeight() / 2); // 2: half
+    }
+    yScrollBar_->SetPosition(x, y, GetScrollBarWidth(), GetWidth() / 2); // 2: half
+    yScrollBar_->OnDraw(gfxDstBuffer, invalidatedArea, opa);
+}
+#endif // GRAPHIC_ENABLE_SCROLL_FLAG
+
 void UIAbstractScroll::OnPostDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
     Rect scrollRect = GetRect();
     uint8_t opa = GetMixOpaScale();
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+    DrawScrollBars(gfxDstBuffer, invalidatedArea, scrollRect, opa);
+#else
     if (Screen::GetInstance().GetScreenShape() == ScreenShape::RECTANGLE) {
         if (yScrollBarVisible_) {
             if (scrollBarSide_ == SCROLL_BAR_RIGHT_SIDE) {
@@ -470,6 +576,7 @@ void UIAbstractScroll::OnPostDraw(BufferInfo& gfxDstBuffer, const Rect& invalida
             yScrollBar_->OnDraw(gfxDstBuffer, invalidatedArea, opa);
         }
     }
+#endif
     UIView::OnPostDraw(gfxDstBuffer, invalidatedArea);
 }
 
@@ -479,4 +586,150 @@ void UIAbstractScroll::RefreshAnimator()
     barEaseInOutAnimator_->RefreshBar();
 #endif
 }
+
+#if GRAPHIC_ENABLE_SCROLL_FLAG
+void UIAbstractScroll::SetIndicatorStyle(const ScrollIndicatorStyle& style)
+{
+    indicatorStyle_ = style;
+    indicatorWidthSet_ = true;
+    indicatorColorSet_ = true;
+    indicatorBorderRadiusSet_ = true;
+    indicatorMinLengthSet_ = true;
+    indicatorOpacitySet_ = true;
+    if ((indicatorStyle_.width == 0) || (indicatorStyle_.width > INT16_MAX)) {
+        GRAPHIC_LOGW("UIAbstractScroll::SetIndicatorStyle invalid width %u, restore default %u",
+                     indicatorStyle_.width, UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH);
+        indicatorStyle_.width = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH;
+    }
+    if ((indicatorStyle_.minLength == 0) || (indicatorStyle_.minLength > INT16_MAX)) {
+        GRAPHIC_LOGW("UIAbstractScroll::SetIndicatorStyle invalid minLength %u, restore default %u",
+                     indicatorStyle_.minLength, UIAbstractScrollBar::DEFAULT_SCROLL_BAR_MIN_LEN);
+        indicatorStyle_.minLength = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_MIN_LEN;
+    }
+    if (xScrollBar_ != nullptr) {
+        SyncIndicatorStyle(xScrollBar_);
+    }
+    if (yScrollBar_ != nullptr) {
+        SyncIndicatorStyle(yScrollBar_);
+    }
+    Invalidate();
+}
+
+void UIAbstractScroll::ResetIndicatorStyle()
+{
+    indicatorWidthSet_ = false;
+    indicatorColorSet_ = false;
+    indicatorBorderRadiusSet_ = false;
+    indicatorMinLengthSet_ = false;
+    indicatorOpacitySet_ = false;
+    indicatorStyle_.width = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH;
+    indicatorStyle_.minLength = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_MIN_LEN;
+    indicatorStyle_.borderRadius = 0;
+    indicatorStyle_.color = StyleDefault::GetScrollBarForegroundStyle().bgColor_;
+    indicatorStyle_.opacity = OPA_OPAQUE;
+    if (xScrollBar_ != nullptr) {
+        xScrollBar_->ResetIndicatorStyle();
+    }
+    if (yScrollBar_ != nullptr) {
+        yScrollBar_->ResetIndicatorStyle();
+    }
+    Invalidate();
+}
+
+void UIAbstractScroll::SetIndicatorWidth(uint16_t width)
+{
+    if ((width == 0) || (width > INT16_MAX)) {
+        GRAPHIC_LOGW("UIAbstractScroll::SetIndicatorWidth invalid width %u, restore default %u",
+                     width, UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH);
+        width = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH;
+    }
+    indicatorStyle_.width = width;
+    indicatorWidthSet_ = true;
+    SyncIndicatorStyle(xScrollBar_);
+    SyncIndicatorStyle(yScrollBar_);
+    Invalidate();
+}
+
+void UIAbstractScroll::SetIndicatorColor(ColorType color)
+{
+    indicatorStyle_.color = color;
+    indicatorColorSet_ = true;
+    SyncIndicatorStyle(xScrollBar_);
+    SyncIndicatorStyle(yScrollBar_);
+    Invalidate();
+}
+
+void UIAbstractScroll::SetIndicatorBorderRadius(uint16_t borderRadius)
+{
+    indicatorStyle_.borderRadius = borderRadius;
+    indicatorBorderRadiusSet_ = true;
+    SyncIndicatorStyle(xScrollBar_);
+    SyncIndicatorStyle(yScrollBar_);
+    Invalidate();
+}
+
+void UIAbstractScroll::SetIndicatorMinLength(uint16_t minLength)
+{
+    if ((minLength == 0) || (minLength > INT16_MAX)) {
+        GRAPHIC_LOGW("UIAbstractScroll::SetIndicatorMinLength invalid minLength %u, restore default %u",
+                     minLength, UIAbstractScrollBar::DEFAULT_SCROLL_BAR_MIN_LEN);
+        minLength = UIAbstractScrollBar::DEFAULT_SCROLL_BAR_MIN_LEN;
+    }
+    indicatorStyle_.minLength = minLength;
+    indicatorMinLengthSet_ = true;
+    SyncIndicatorStyle(xScrollBar_);
+    SyncIndicatorStyle(yScrollBar_);
+    Invalidate();
+}
+
+void UIAbstractScroll::SetIndicatorOpacity(uint8_t opacity)
+{
+    indicatorStyle_.opacity = opacity;
+    indicatorOpacitySet_ = true;
+    SyncIndicatorStyle(xScrollBar_);
+    SyncIndicatorStyle(yScrollBar_);
+    Invalidate();
+}
+
+void UIAbstractScroll::SyncIndicatorStyle(UIAbstractScrollBar* scrollBar)
+{
+    if (scrollBar == nullptr) {
+        return;
+    }
+    scrollBar->ResetIndicatorStyle();
+    if (indicatorWidthSet_) {
+        scrollBar->SetIndicatorWidth(indicatorStyle_.width);
+    }
+    if (indicatorColorSet_) {
+        scrollBar->SetIndicatorColor(indicatorStyle_.color);
+    }
+    if (indicatorBorderRadiusSet_) {
+        scrollBar->SetIndicatorBorderRadius(indicatorStyle_.borderRadius);
+    }
+    if (indicatorMinLengthSet_) {
+        scrollBar->SetIndicatorMinLength(indicatorStyle_.minLength);
+    }
+    if (indicatorOpacitySet_) {
+        scrollBar->SetIndicatorOpacity(indicatorStyle_.opacity);
+    }
+}
+
+uint16_t UIAbstractScroll::GetScrollBarWidth() const
+{
+    return indicatorWidthSet_ ? indicatorStyle_.width : UIAbstractScrollBar::DEFAULT_SCROLL_BAR_WIDTH;
+}
+
+void UIAbstractScroll::DrawScrollBars(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea,
+                                      const Rect& scrollRect, uint8_t opa)
+{
+    // refresh scrollbar params by content size, so the slider length is correct before the first scroll.
+    // Do not call RefreshAnimator here to avoid triggering the fade-in/out animation at startup.
+    RefreshScrollBarParams();
+    if (Screen::GetInstance().GetScreenShape() == ScreenShape::RECTANGLE) {
+        DrawScrollBarOnRect(gfxDstBuffer, invalidatedArea, scrollRect, opa);
+    } else {
+        DrawScrollBarOnCircle(gfxDstBuffer, invalidatedArea, scrollRect, opa);
+    }
+}
+#endif // GRAPHIC_ENABLE_SCROLL_FLAG
 } // namespace OHOS

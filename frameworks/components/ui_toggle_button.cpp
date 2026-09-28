@@ -17,12 +17,16 @@
 
 #include "common/image.h"
 #include "engines/gfx/gfx_engine_manager.h"
+#include "gfx_utils/graphic_log.h"
 #include "imgdecode/cache_manager.h"
 namespace {
 constexpr int16_t TOGGLE_BTN_WIDTH = 32;
 constexpr int16_t TOGGLE_BTN_CORNER_RADIUS = 11;
 constexpr int16_t TOGGLE_BTN_RADIUS_DIFF = 2;
 constexpr uint8_t TOGGLE_BTN_UNSELECTED_OPA = 97;
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+constexpr int16_t TOGGLE_BTN_BORDER_WIDTH = 1;
+#endif
 #if DEFAULT_ANIMATION
 constexpr int16_t DEFAULT_ANIMATOR_TIME = 150;
 constexpr float BEZIER_CONTROL_POINT_X_1 = 0.2;
@@ -35,6 +39,16 @@ UIToggleButton::UIToggleButton()
       radius_(TOGGLE_BTN_CORNER_RADIUS - TOGGLE_BTN_RADIUS_DIFF),
       rectWidth_(TOGGLE_BTN_WIDTH)
 {
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+    hasOnThumbSize_ = false;
+    hasOffThumbSize_ = false;
+    hasWarnedOnThumbRadius_ = false;
+    hasWarnedOffThumbRadius_ = false;
+    hasOnThumbColor_ = false;
+    hasOffThumbColor_ = false;
+    hasOnBorderColor_ = false;
+    hasOffBorderColor_ = false;
+#endif
     backgroundOpacity_ = TOGGLE_BTN_UNSELECTED_OPA;
     image_[UNSELECTED].SetSrc("");
     image_[SELECTED].SetSrc("");
@@ -54,6 +68,66 @@ void UIToggleButton::SetState(bool state)
     Invalidate();
 }
 
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+void UIToggleButton::SetOnThumbSize(uint16_t radius)
+{
+    onThumbRadius_ = radius;
+    hasOnThumbSize_ = true;
+    hasWarnedOnThumbRadius_ = false;
+}
+
+void UIToggleButton::SetOffThumbSize(uint16_t radius)
+{
+    offThumbRadius_ = radius;
+    hasOffThumbSize_ = true;
+    hasWarnedOffThumbRadius_ = false;
+}
+
+void UIToggleButton::SetOnThumbColor(ColorType color)
+{
+    onThumbColor_ = color;
+    hasOnThumbColor_ = true;
+}
+
+void UIToggleButton::SetOffThumbColor(ColorType color)
+{
+    offThumbColor_ = color;
+    hasOffThumbColor_ = true;
+}
+
+void UIToggleButton::SetOnBorderColor(ColorType color)
+{
+    onBorderColor_ = color;
+    hasOnBorderColor_ = true;
+}
+
+void UIToggleButton::SetOffBorderColor(ColorType color)
+{
+    offBorderColor_ = color;
+    hasOffBorderColor_ = true;
+}
+#endif
+
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+void UIToggleButton::UpdateDrawState()
+{
+#if DEFAULT_ANIMATION
+    if (checkBoxAnimator_.GetState() == Animator::START) {
+        return;
+    }
+#endif
+    if (IsRtl()) {
+        currentCenter_ = (state_ == SELECTED) ? leftCenter_ : rightCenter_;
+    } else {
+        currentCenter_ = (state_ == SELECTED) ? rightCenter_ : leftCenter_;
+    }
+    backgroundOpacity_ = (state_ == SELECTED) ? OPA_OPAQUE : TOGGLE_BTN_UNSELECTED_OPA;
+    bgColor_ = (state_ == SELECTED) ? selectedStateColor_ : Color::White();
+    thumbColor_ = (state_ == SELECTED) ? (hasOnThumbColor_ ? onThumbColor_ : Color::White())
+                                       : (hasOffThumbColor_ ? offThumbColor_ : Color::White());
+}
+#endif
+
 void UIToggleButton::CalculateSize()
 {
     width_ = GetWidth();
@@ -71,6 +145,9 @@ void UIToggleButton::CalculateSize()
     int16_t y = contentRect.GetY() + dy;
     leftCenter_ = {static_cast<int16_t>(x + corner_), static_cast<int16_t>(y + corner_)};
     rightCenter_ = {static_cast<int16_t>(x + rectWidth_ - corner_), static_cast<int16_t>(y + corner_)};
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+    UpdateDrawState();
+#else
 #if DEFAULT_ANIMATION
     if (checkBoxAnimator_.GetState() != Animator::START) {
         if (IsRtl()) {
@@ -90,8 +167,63 @@ void UIToggleButton::CalculateSize()
     backgroundOpacity_ = (state_ == SELECTED) ? OPA_OPAQUE : TOGGLE_BTN_UNSELECTED_OPA;
     bgColor_ = (state_ == SELECTED) ? selectedStateColor_ : Color::White();
 #endif
+#endif
     rectMid_.SetRect(x, y, x + rectWidth_, y + (corner_ << 1) + 1);
 }
+
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+int16_t UIToggleButton::GetThumbDrawRadius()
+{
+    int16_t drawRadius = static_cast<int16_t>(radius_);
+    if (state_ == SELECTED) {
+        if (hasOnThumbSize_ && ((onThumbRadius_ == 0) || (onThumbRadius_ > corner_))) {
+            if (!hasWarnedOnThumbRadius_) {
+                hasWarnedOnThumbRadius_ = true;
+                GRAPHIC_LOGW("UIToggleButton::GetThumbDrawRadius invalid on thumb radius: %d, restore default\n",
+                             onThumbRadius_);
+            }
+        } else if (hasOnThumbSize_) {
+            drawRadius = onThumbRadius_;
+        }
+    } else if (hasOffThumbSize_ && ((offThumbRadius_ == 0) || (offThumbRadius_ > corner_))) {
+        if (!hasWarnedOffThumbRadius_) {
+            hasWarnedOffThumbRadius_ = true;
+            GRAPHIC_LOGW("UIToggleButton::GetThumbDrawRadius invalid off thumb radius: %d, restore default\n",
+                         offThumbRadius_);
+        }
+    } else if (hasOffThumbSize_) {
+        drawRadius = offThumbRadius_;
+    }
+    return drawRadius;
+}
+
+void UIToggleButton::DrawThumb(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, Style& styleUnSelect,
+                               int16_t drawRadius)
+{
+    ArcInfo arcInfoLeft = {currentCenter_, {0}, static_cast<uint16_t>(drawRadius), 0, CIRCLE_IN_DEGREE, nullptr};
+    bool hasThumbBorder = false;
+    ColorType thumbBorderColor = Color::White();
+    if (state_ == SELECTED) {
+        hasThumbBorder = hasOnBorderColor_;
+        thumbBorderColor = onBorderColor_;
+    } else {
+        hasThumbBorder = hasOffBorderColor_;
+        thumbBorderColor = offBorderColor_;
+    }
+    if (hasThumbBorder && (drawRadius > TOGGLE_BTN_BORDER_WIDTH)) {
+        styleUnSelect.lineColor_ = thumbBorderColor;
+        styleUnSelect.lineWidth_ = drawRadius;
+        BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoLeft, invalidatedArea, styleUnSelect, OPA_OPAQUE,
+                                              CapType::CAP_NONE);
+        drawRadius -= TOGGLE_BTN_BORDER_WIDTH;
+        arcInfoLeft.radius = static_cast<uint16_t>(drawRadius);
+    }
+    styleUnSelect.lineColor_ = thumbColor_;
+    styleUnSelect.lineWidth_ = drawRadius;
+    BaseGfxEngine::GetInstance()->DrawArc(gfxDstBuffer, arcInfoLeft, invalidatedArea, styleUnSelect, OPA_OPAQUE,
+                                          CapType::CAP_NONE);
+}
+#endif
 
 void UIToggleButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
@@ -112,11 +244,15 @@ void UIToggleButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         styleUnSelect.bgOpa_ = backgroundOpacity_;
         styleUnSelect.borderRadius_ = corner_;
         baseGfxEngine->DrawRect(gfxDstBuffer, rectMid_, trunc, styleUnSelect, opaScale_);
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+        DrawThumb(gfxDstBuffer, trunc, styleUnSelect, GetThumbDrawRadius());
+#else
         ArcInfo arcInfoLeft = {currentCenter_, {0}, radius_, 0, CIRCLE_IN_DEGREE, nullptr};
         styleUnSelect.lineColor_ = Color::White();
         styleUnSelect.lineWidth_ = radius_;
         baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoLeft, trunc, styleUnSelect, OPA_OPAQUE,
                                CapType::CAP_NONE);
+#endif
     }
 }
 #if DEFAULT_ANIMATION
@@ -136,6 +272,11 @@ void UIToggleButton::Callback(UIView* view)
             static_cast<uint8_t>(TOGGLE_BTN_UNSELECTED_OPA + (OPA_OPAQUE - TOGGLE_BTN_UNSELECTED_OPA) * coefficient);
         bgColor_ =
             Color::GetMixColor(selectedStateColor_, Color::White(), static_cast<uint8_t>(OPA_OPAQUE * coefficient));
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+        ColorType onColor = hasOnThumbColor_ ? onThumbColor_ : Color::White();
+        ColorType offColor = hasOffThumbColor_ ? offThumbColor_ : Color::White();
+        thumbColor_ = Color::GetMixColor(onColor, offColor, static_cast<uint8_t>(OPA_OPAQUE * coefficient));
+#endif
     } else {
         currentCenter_.y = leftCenter_.y;
         if (IsRtl()) {
@@ -146,6 +287,11 @@ void UIToggleButton::Callback(UIView* view)
         backgroundOpacity_ = static_cast<uint8_t>(OPA_OPAQUE - (OPA_OPAQUE - TOGGLE_BTN_UNSELECTED_OPA) * coefficient);
         bgColor_ = Color::GetMixColor(selectedStateColor_, Color::White(),
                                       static_cast<uint8_t>(OPA_OPAQUE * (1 - coefficient)));
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+        ColorType onColor = hasOnThumbColor_ ? onThumbColor_ : Color::White();
+        ColorType offColor = hasOffThumbColor_ ? offThumbColor_ : Color::White();
+        thumbColor_ = Color::GetMixColor(onColor, offColor, static_cast<uint8_t>(OPA_OPAQUE * (1 - coefficient)));
+#endif
     }
     Invalidate();
 }
@@ -158,6 +304,10 @@ void UIToggleButton::OnStop(UIView& view)
         bgColor_ = Color::White();
     }
     backgroundOpacity_ = (state_ == SELECTED) ? OPA_OPAQUE : TOGGLE_BTN_UNSELECTED_OPA;
+#if GRAPHIC_ENABLE_SWITCH_FLAG
+    thumbColor_ = (state_ == SELECTED) ? (hasOnThumbColor_ ? onThumbColor_ : Color::White())
+                                       : (hasOffThumbColor_ ? offThumbColor_ : Color::White());
+#endif
     Invalidate();
 }
 #endif

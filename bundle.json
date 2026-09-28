@@ -19,7 +19,11 @@
       "ui_lite_enable_blur_effect_config",
       "ui_lite_enable_video_component_config",
       "ui_lite_enable_graphic_font_config",
-      "ui_lite_enable_smarthomehost_config"
+      "ui_lite_enable_smarthomehost_config",
+      "ui_lite_enable_switch_config",
+      "ui_lite_enable_slider_config",
+      "ui_lite_enable_scroller_indicator_style_adapt",
+      "ui_lite_enable_button_animation_touch_extend_config"
     ],
     "adapted_system_type": [ "mini","small","standard" ],
     "rom": "900KB",

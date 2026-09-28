@@ -881,7 +881,11 @@ void UIView::GetTargetView(const Point& point, UIView** last)
         return;
     }
     UIView* par = parent_;
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    Rect rect = GetTouchableRect();
+#else
     Rect rect = GetRect();
+#endif
 
     if (par != nullptr) {
         rect.Intersect(par->GetContentRect(), rect);
@@ -898,7 +902,11 @@ void UIView::GetTargetView(const Point& point, UIView** current, UIView** target
         return;
     }
     UIView* par = parent_;
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    Rect rect = GetTouchableRect();
+#else
     Rect rect = GetRect();
+#endif
 
     if (par != nullptr) {
         rect.Intersect(par->GetOrigContentRect(), rect);
@@ -960,6 +968,13 @@ Rect UIView::GetRect() const
     }
     return GetOrigRect();
 }
+
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+Rect UIView::GetTouchableRect() const
+{
+    return GetRect();
+}
+#endif
 
 Rect UIView::GetContentRect()
 {

@@ -16,6 +16,9 @@
 #include "components/ui_button.h"
 #include "animator/interpolation.h"
 #include "common/image.h"
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+#include "common/screen.h"
+#endif
 #include "draw/draw_image.h"
 #include "engines/gfx/gfx_engine_manager.h"
 #include "gfx_utils/graphic_log.h"
@@ -35,7 +38,12 @@ UIButton::UIButton()
       state_(RELEASED),
       styleState_(RELEASED),
 #if DEFAULT_ANIMATION
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+      animationRepeatCount_(1),
+      animationEffect_(BUTTON_ANIMATION_SCALE),
+#else
       enableAnimation_(true),
+#endif
       animator_(*this),
 #endif
       buttonStyleAllocFlag_(false)
@@ -161,7 +169,11 @@ bool UIButton::OnPressEvent(const PressEvent& event)
     Resize(contentWidth_, contentHeight_);
     Invalidate();
 #if DEFAULT_ANIMATION
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    if (IsAnimationEnabled()) {
+#else
     if (enableAnimation_) {
+#endif
         animator_.Start();
     }
 #endif
@@ -175,7 +187,11 @@ bool UIButton::OnReleaseEvent(const ReleaseEvent& event)
     Resize(contentWidth_, contentHeight_);
     Invalidate();
 #if DEFAULT_ANIMATION
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    if (IsAnimationEnabled()) {
+#else
     if (enableAnimation_) {
+#endif
         animator_.Start();
     }
 #endif
@@ -189,7 +205,11 @@ bool UIButton::OnCancelEvent(const CancelEvent& event)
     Resize(contentWidth_, contentHeight_);
     Invalidate();
 #if DEFAULT_ANIMATION
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    if (IsAnimationEnabled()) {
+#else
     if (enableAnimation_) {
+#endif
         animator_.Start();
     }
 #endif
@@ -285,10 +305,79 @@ bool UIButton::OnPreDraw(Rect& invalidatedArea) const
     return false;
 }
 
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+Rect UIButton::GetTouchableRect() const
+{
+    Rect rect = GetRect();
+    rect.SetLeft(rect.GetLeft() - touchExpandLeft_);
+    rect.SetTop(rect.GetTop() - touchExpandTop_);
+    rect.SetRight(rect.GetRight() + touchExpandRight_);
+    rect.SetBottom(rect.GetBottom() + touchExpandBottom_);
+    return rect;
+}
+
+void UIButton::SetTouchExpand(int16_t left, int16_t top, int16_t right, int16_t bottom)
+{
+    uint16_t maxWidth = Screen::GetInstance().GetWidth();
+    uint16_t maxHeight = Screen::GetInstance().GetHeight();
+    const auto validateExpand = [](int16_t value, uint16_t maxValue, const char* name) {
+        if ((value < 0) || (value > maxValue)) {
+            GRAPHIC_LOGW("UIButton::SetTouchExpand invalid %s %d, restore default 0", name, value);
+            return static_cast<int16_t>(0);
+        }
+        return value;
+    };
+    touchExpandLeft_ = validateExpand(left, maxWidth, "left");
+    touchExpandTop_ = validateExpand(top, maxHeight, "top");
+    touchExpandRight_ = validateExpand(right, maxWidth, "right");
+    touchExpandBottom_ = validateExpand(bottom, maxHeight, "bottom");
+}
+
+void UIButton::GetTouchExpand(int16_t& left, int16_t& top, int16_t& right, int16_t& bottom) const
+{
+    left = touchExpandLeft_;
+    top = touchExpandTop_;
+    right = touchExpandRight_;
+    bottom = touchExpandBottom_;
+}
+#endif // GRAPHIC_ENABLE_BUTTON_FLAG
+
+#if DEFAULT_ANIMATION && GRAPHIC_ENABLE_BUTTON_FLAG
+void UIButton::SetAnimationRepeatCount(uint16_t repeatCount)
+{
+    animationRepeatCount_ = repeatCount;
+    if (repeatCount == 0) {
+        animator_.ResetScale();
+    }
+}
+
+bool UIButton::IsAnimationEnabled() const
+{
+    return (animationRepeatCount_ > 0) && (animationEffect_ != BUTTON_ANIMATION_NONE);
+}
+
+void UIButton::SetAnimationEffect(ButtonAnimationEffect effect)
+{
+    if (effect > BUTTON_ANIMATION_SCALE) {
+        GRAPHIC_LOGW("UIButton::SetAnimationEffect invalid effect %d, restore default BUTTON_ANIMATION_SCALE",
+                     effect);
+        effect = BUTTON_ANIMATION_SCALE;
+    }
+    animationEffect_ = effect;
+    if (effect == BUTTON_ANIMATION_NONE) {
+        animator_.ResetScale();
+    }
+}
+#endif // DEFAULT_ANIMATION && GRAPHIC_ENABLE_BUTTON_FLAG
+
 #if DEFAULT_ANIMATION
 void UIButton::OnPostDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    if (state_ == ButtonState::PRESSED && IsAnimationEnabled()) {
+#else
     if (state_ == ButtonState::PRESSED && enableAnimation_) {
+#endif
         animator_.DrawMask(gfxDstBuffer, invalidatedArea);
     }
     UIView::OnPostDraw(gfxDstBuffer, invalidatedArea);
@@ -302,9 +391,29 @@ constexpr uint32_t RECOVER_DURATION = 200;
 constexpr int64_t MASK_OPA = 25;
 constexpr float BEZIER_CONTROL = 0.2f;
 } // namespace
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+void UIButton::ButtonAnimator::ResetScale()
+{
+    if (animator_.GetState() == Animator::START) {
+        resetInProgress_ = true;
+        animator_.Stop();
+        resetInProgress_ = false;
+    }
+    if (!FloatEqual(scale_, FULL_SCALE)) {
+        scale_ = FULL_SCALE;
+        button_.ResetTransParameter();
+        button_.Invalidate();
+    }
+}
+#endif // GRAPHIC_ENABLE_BUTTON_FLAG
 
 void UIButton::ButtonAnimator::Start()
 {
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    if (!button_.IsAnimationEnabled()) {
+        return;
+    }
+#endif
     bool isReverse = (button_.state_ == UIButton::ButtonState::PRESSED);
     float targetScale = isReverse ? SHRINK_SCALE : FULL_SCALE;
     if ((animator_.GetState() == Animator::STOP) && FloatEqual(targetScale, scale_)) {
@@ -316,6 +425,9 @@ void UIButton::ButtonAnimator::Start()
     } else {
         animator_.SetTime(RECOVER_DURATION);
     }
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    curRepeatCount_ = 0;
+#endif
     animator_.Start();
     /* reverse the animator direction */
     float x = isReverseAnimation_ ? (FULL_SCALE - scale_) : (scale_ - SHRINK_SCALE);
@@ -344,6 +456,11 @@ static inline void ScaleButton(UIButton& button, float scale)
 
 void UIButton::ButtonAnimator::Callback(UIView* view)
 {
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    if (!button_.IsAnimationEnabled()) {
+        return;
+    }
+#endif
     float x = static_cast<float>(animator_.GetRunTime()) / animator_.GetTime();
     float offset = Interpolation::GetBezierY(x, BEZIER_CONTROL, 0, BEZIER_CONTROL, FULL_SCALE);
     float scale = (FULL_SCALE - SHRINK_SCALE) * offset;
@@ -357,10 +474,25 @@ void UIButton::ButtonAnimator::OnStop(UIView& view)
     if (isReverseAnimation_) {
         scale_ = SHRINK_SCALE;
         ScaleButton(button_, SHRINK_SCALE);
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+        curRepeatCount_++;
+#endif
     } else {
         scale_ = FULL_SCALE;
         button_.ResetTransParameter();
     }
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+    // Repeat the whole shrink+recover animation instead of repeating each half separately:
+    //   while the button stays pressed, the two halves alternate until the configured count
+    //   is reached. The last recover half is triggered by the release/cancel event.
+    if (!resetInProgress_ && (button_.state_ == UIButton::ButtonState::PRESSED) &&
+        button_.IsAnimationEnabled() &&
+        (curRepeatCount_ < button_.animationRepeatCount_)) {
+        isReverseAnimation_ = !isReverseAnimation_;
+        animator_.SetTime(isReverseAnimation_ ? SHRINK_DURATION : RECOVER_DURATION);
+        animator_.Start();
+    }
+#endif
 }
 #endif
 } // namespace OHOS

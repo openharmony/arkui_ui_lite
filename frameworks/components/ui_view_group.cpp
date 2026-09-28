@@ -194,7 +194,11 @@ void UIViewGroup::GetTargetView(const Point& point, UIView** last)
     UIView* view = GetChildrenRenderHead();
     while (view != nullptr) {
         if (!view->IsViewGroup()) {
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+            rect = view->GetTouchableRect();
+#else
             rect = view->GetRect();
+#endif
             if (rect.IsContains(point)) {
                 view->GetTargetView(point, last);
             }
@@ -239,7 +243,11 @@ void UIViewGroup::GetTargetView(const Point& point, UIView** current, UIView** t
     UIView* view = GetChildrenRenderHead();
     while (view != nullptr) {
         if (!view->IsViewGroup()) {
+#if GRAPHIC_ENABLE_BUTTON_FLAG
+            rect = view->GetTouchableRect();
+#else
             rect = view->GetRect();
+#endif
             if (rect.IsContains(pointTran)) {
                 view->GetTargetView(pointTran, current, target);
             }

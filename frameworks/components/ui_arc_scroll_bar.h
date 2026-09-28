@@ -34,7 +34,9 @@ protected:
     void DrawForeground(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, uint8_t backgroundOpa);
     void DrawBackground(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea, uint8_t backgroundOpa);
     int16_t radius_;
+#if !GRAPHIC_ENABLE_SCROLL_FLAG
     int16_t width_;
+#endif
     uint16_t startAngle_;
     uint16_t endAngle_;
     Point center_;
