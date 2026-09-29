@@ -29,6 +29,10 @@ if (os_level == "standard") {
     }
   }
 
+  config("updater_capability_defines") {
+    defines = arkui_ui_lite_capability_defines
+  }
+
   ohos_shared_library("libupdater_layout") {
     defines = [
       "__LITEOS_M__",
@@ -84,6 +88,7 @@ if (os_level == "standard") {
     public_configs = [
       ":libupdater_layout_header_files",
       ":updater_blur_effect_config",
+      ":updater_capability_defines",
     ]
 
     external_deps = [

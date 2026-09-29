@@ -894,6 +894,9 @@ void UICanvas::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
             curDraw->data_.DrawGraphics(gfxDstBuffer, param, curDraw->data_.paint, rect, trunc, *style_);
         }
     }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND

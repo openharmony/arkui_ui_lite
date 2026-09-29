@@ -251,4 +251,64 @@ int16_t EasingEquation::SineEaseInOut(int16_t startPos, int16_t endPos, uint16_t
     }
     return SineEaseOut(halfStep, endPos, curTime - halfTime, halfTime);
 }
+
+#if defined(GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG) && GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+static constexpr float BOUNCE_AMPLITUDE = 7.5625f;
+static constexpr float BOUNCE_PERIOD_DIVISOR = 2.75f;
+static constexpr float BOUNCE_PHASE1_END = 1.0f / BOUNCE_PERIOD_DIVISOR;
+static constexpr float BOUNCE_PHASE2_END = 2.0f / BOUNCE_PERIOD_DIVISOR;
+static constexpr float BOUNCE_PHASE3_END = 2.5f / BOUNCE_PERIOD_DIVISOR;
+static constexpr float BOUNCE_PHASE1_OFFSET = 1.5f / BOUNCE_PERIOD_DIVISOR;
+static constexpr float BOUNCE_PHASE2_OFFSET = 2.25f / BOUNCE_PERIOD_DIVISOR;
+static constexpr float BOUNCE_PHASE3_OFFSET = 2.625f / BOUNCE_PERIOD_DIVISOR;
+static constexpr float BOUNCE_PHASE1_HEIGHT = 0.75f;
+static constexpr float BOUNCE_PHASE2_HEIGHT = 0.9375f;
+static constexpr float BOUNCE_PHASE3_HEIGHT = 0.984375f;
+
+int16_t EasingEquation::BounceEaseOut(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime)
+{
+    if (durationTime == 0) {
+        return endPos;
+    }
+    if (curTime >= durationTime) {
+        return endPos;
+    }
+    double t = static_cast<double>(curTime) / durationTime;
+    double x = 0.0;
+    if (t < BOUNCE_PHASE1_END) {
+        x = BOUNCE_AMPLITUDE * t * t;
+    } else if (t < BOUNCE_PHASE2_END) {
+        t -= BOUNCE_PHASE1_OFFSET;
+        x = BOUNCE_AMPLITUDE * t * t + BOUNCE_PHASE1_HEIGHT;
+    } else if (t < BOUNCE_PHASE3_END) {
+        t -= BOUNCE_PHASE2_OFFSET;
+        x = BOUNCE_AMPLITUDE * t * t + BOUNCE_PHASE2_HEIGHT;
+    } else {
+        t -= BOUNCE_PHASE3_OFFSET;
+        x = BOUNCE_AMPLITUDE * t * t + BOUNCE_PHASE3_HEIGHT;
+    }
+    return static_cast<int16_t>((x * (static_cast<int32_t>(endPos) - startPos)) + startPos);
+}
+
+int16_t EasingEquation::BounceEaseIn(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime)
+{
+    if (durationTime == 0) {
+        return endPos;
+    }
+    if (curTime >= durationTime) {
+        return endPos;
+    }
+    return BounceEaseOut(endPos, startPos, static_cast<uint16_t>(durationTime - curTime), durationTime);
+}
+
+int16_t EasingEquation::BounceEaseInOut(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime)
+{
+    uint16_t halfTime = durationTime >> 1;
+    int16_t halfStep = (endPos >> 1) + (startPos >> 1);
+    if (curTime < halfTime) {
+        return BounceEaseIn(startPos, halfStep, curTime, halfTime);
+    }
+    return BounceEaseOut(halfStep, endPos, curTime - halfTime, halfTime);
+}
+#endif // GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
 } // namespace OHOS

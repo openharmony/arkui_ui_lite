@@ -249,7 +249,11 @@ void DrawCanvas::BuildGradientColor(const Paint& paint, FillGradientLut& gradien
         gradientColorMode.AddColor(iter->data_.stop, sRgba8);
         iter = iter->next_;
     }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    gradientColorMode.BuildLutNoSort();
+#else
     gradientColorMode.BuildLut();
+#endif
 }
 
 void DrawCanvas::BuildRadialGradientMatrix(const Paint& paint,
@@ -267,6 +271,36 @@ void DrawCanvas::BuildRadialGradientMatrix(const Paint& paint,
     endRadius = radialPoint.r1;
 }
 #endif // GRAPHIC_ENABLE_GRADIENT_FILL_FLAG
+
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+void DrawCanvas::RenderGradientFill(BufferInfo& gfxDstBuffer,
+                                    UICanvasVertices& vertices,
+                                    const Paint& paint,
+                                    const Rect& rect,
+                                    const Rect& invalidatedArea)
+{
+    /* Default style: zero padding and border width, so the transform only
+     * translates the path to the origin of the target rect. */
+    Style style;
+    TransAffine transform;
+    RenderBuffer renderBuffer;
+    InitRenderAndTransform(gfxDstBuffer, renderBuffer, rect, transform, style, paint);
+
+    RasterizerScanlineAntialias rasterizer;
+    rasterizer.ClipBox(0, 0, gfxDstBuffer.width, gfxDstBuffer.height);
+    SetRasterizer(vertices, paint, rasterizer, transform, false);
+
+    RenderPixfmtRgbaBlend pixFormat(renderBuffer);
+    RenderBase renBase(pixFormat);
+    FillBase allocator;
+
+    renBase.ResetClipping(true);
+    renBase.ClipBox(invalidatedArea.GetLeft(), invalidatedArea.GetTop(), invalidatedArea.GetRight(),
+                    invalidatedArea.GetBottom());
+
+    RenderGradient(paint, rasterizer, transform, renBase, renderBuffer, allocator, invalidatedArea);
+}
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 
 #if defined(GRAPHIC_ENABLE_PATTERN_FILL_FLAG) && GRAPHIC_ENABLE_PATTERN_FILL_FLAG
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND

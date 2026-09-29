@@ -50,6 +50,17 @@ void Animator::Stop()
 #endif
 }
 
+#if defined(GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG) && GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+void Animator::Cancel()
+{
+    SetState(STOP);
+    if (callback_ != nullptr && view_ != nullptr) {
+        callback_->OnCancel(*view_);
+    }
+    AnimatorManager::GetInstance()->Remove(this);
+}
+#endif // GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+
 void Animator::Pause()
 {
     SetState(PAUSE);

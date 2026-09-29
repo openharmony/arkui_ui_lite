@@ -17,6 +17,12 @@
 
 #include "graphic_config.h"
 #include "test_animator/ui_test_animator.h"
+#if GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+#include "test_transition/ui_test_transition.h"
+#endif // GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+#if GRAPHIC_ENABLE_PATH_ANIMATOR_FLAG
+#include "test_path_animator_callback/ui_test_path_animator_callback.h"
+#endif // GRAPHIC_ENABLE_PATH_ANIMATOR_FLAG
 #include "test_anti_aliasing/ui_test_anti_aliasing.h"
 #include "test_arc_label/ui_test_arc_label.h"
 #include "test_border_margin_padding/ui_test_border_margin_padding.h"
@@ -43,6 +49,12 @@
 #include "test_layout/ui_test_advanced_layout.h"
 #include "test_layout/ui_test_basic_layout.h"
 #include "test_opacity/ui_test_opacity.h"
+#if GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+#include "test_transition_animator/ui_test_transition_animator.h"
+#endif // GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+#if GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+#include "test_gradient/ui_test_gradient.h"
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 #include "test_picker/ui_test_ui_picker.h"
 #include "test_progress_bar/ui_test_box_progress.h"
 #include "test_progress_bar/ui_test_circle_progress.h"
@@ -114,6 +126,7 @@ void UITestGroup::SetUpTestCase()
     testCaseList_.PushBack(TestCaseInfo { "Circle_Progress", new UITestCircleProgress() });
     testCaseList_.PushBack(TestCaseInfo { "Slider", new UITestSlider() });
     testCaseList_.PushBack(TestCaseInfo { "Animator", new UITestAnimator() });
+    SetUpFeatureTestCases();
     testCaseList_.PushBack(TestCaseInfo { "Canvas", new UITestCanvas() });
     testCaseList_.PushBack(TestCaseInfo { "Draw_Rect", new UITestDrawRect() });
     testCaseList_.PushBack(TestCaseInfo { "Draw_Line", new UITestDrawLine() });
@@ -126,6 +139,22 @@ void UITestGroup::SetUpTestCase()
     testCaseList_.PushBack(TestCaseInfo { "Font", new UITestFont() });
     testCaseList_.PushBack(TestCaseInfo { "Arc_Label", new UITestArcLabel() });
     SetUpTestCase001();
+}
+
+void UITestGroup::SetUpFeatureTestCases()
+{
+#if GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+    testCaseList_.PushBack(TestCaseInfo { "Transition", new UITestTransition() });
+#endif // GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+#if GRAPHIC_ENABLE_PATH_ANIMATOR_FLAG
+    testCaseList_.PushBack(TestCaseInfo { "PathAnimator", new UITestPathAnimatorCallback() });
+#endif // GRAPHIC_ENABLE_PATH_ANIMATOR_FLAG
+#if GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+    testCaseList_.PushBack(TestCaseInfo { "Property_Transition", new UITestPropertyTransition() });
+#endif // GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+#if GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    testCaseList_.PushBack(TestCaseInfo { "Gradient", new UITestGradient() });
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 void UITestGroup::SetUpTestCase001()

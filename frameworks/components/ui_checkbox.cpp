@@ -260,6 +260,9 @@ void UICheckBox::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
         }
 #endif
     }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 void UICheckBox::SetSelectedStateColor(ColorType color)

@@ -413,6 +413,57 @@ public:
      */
     static int16_t SineEaseInOut(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime);
 
+#if defined(GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG) && GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+    /**
+     * @brief Eases in with a bounce.
+     *
+     * The animation starts with bounce-like reverse motion and ends at the target value.
+     *
+     * @param startPos     Indicates the start value of this animation.
+     * @param endPos       Indicates the end value of this animation.
+     * @param curTime      Indicates the current time of this animation.
+     * @param durationTime Indicates the total duration of this animation.
+     *
+     * @return Returns the value for the current time.
+     * @see BounceEaseOut | BounceEaseInOut
+     * @since 1.0
+     * @version 1.0
+     */
+    static int16_t BounceEaseIn(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime);
+
+    /**
+     * @brief Eases out with a bounce.
+     *
+     * The animation approaches the end value with bounce-like overshoot and settle.
+     *
+     * @param startPos     Indicates the start value of this animation.
+     * @param endPos       Indicates the end value of this animation.
+     * @param curTime      Indicates the current time of this animation.
+     * @param durationTime Indicates the total duration of this animation.
+     *
+     * @return Returns the value for the current time.
+     * @see BounceEaseIn | BounceEaseInOut
+     * @since 1.0
+     * @version 1.0
+     */
+    static int16_t BounceEaseOut(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime);
+
+    /**
+     * @brief Eases in and then out with a bounce.
+     *
+     * @param startPos     Indicates the start value of this animation.
+     * @param endPos       Indicates the end value of this animation.
+     * @param curTime      Indicates the current time of this animation.
+     * @param durationTime Indicates the total duration of this animation.
+     *
+     * @return Returns the value for the current time.
+     * @see BounceEaseIn | BounceEaseOut
+     * @since 1.0
+     * @version 1.0
+     */
+    static int16_t BounceEaseInOut(int16_t startPos, int16_t endPos, uint16_t curTime, uint16_t durationTime);
+#endif // GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+
 private:
     static constexpr uint16_t INTERPOLATION_RANGE = 1024;
     static constexpr uint16_t INTERPOLATION_RANGE_OFFSET = 10;

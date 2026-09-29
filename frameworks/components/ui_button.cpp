@@ -100,6 +100,9 @@ void UIButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
     OpacityType opa = GetMixOpaScale();
     BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, GetOrigRect(), invalidatedArea, *buttonStyles_[state_], opa);
     DrawImg(gfxDstBuffer, invalidatedArea, opa);
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 void UIButton::SetupThemeStyles()
@@ -151,7 +154,11 @@ void UIButton::SetStyleForState(uint8_t key, int64_t value, ButtonState state)
             }
             buttonStyleAllocFlag_ = true;
         }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+        SwitchStyle(*buttonStyles_[RELEASED]);
+#else
         style_ = buttonStyles_[RELEASED];
+#endif
         int16_t width = GetWidth();
         int16_t height = GetHeight();
         int16_t x = GetX();
@@ -260,7 +267,11 @@ void UIButton::Enable()
 void UIButton::SetState(ButtonState state)
 {
     state_ = state;
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    SwitchStyle(*buttonStyles_[state_]);
+#else
     style_ = buttonStyles_[state_];
+#endif
     Invalidate();
 }
 

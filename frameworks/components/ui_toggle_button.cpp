@@ -253,6 +253,9 @@ void UIToggleButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedAre
         baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoLeft, trunc, styleUnSelect, OPA_OPAQUE,
                                CapType::CAP_NONE);
 #endif
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+        DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
     }
 }
 #if DEFAULT_ANIMATION

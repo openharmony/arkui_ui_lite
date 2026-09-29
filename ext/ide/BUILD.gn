@@ -41,6 +41,7 @@ if (os_level != "standard" || build_ohos_sdk == true) {
       "ENABLE_ICU=1",
       "ENABLE_MULTI_FONT=1",
     ]
+    defines += arkui_ui_lite_capability_defines
   }
 
   config("graphic_config_ide") {

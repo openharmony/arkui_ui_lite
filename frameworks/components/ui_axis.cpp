@@ -96,6 +96,9 @@ void UIAxis::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
     BaseGfxEngine::GetInstance()->DrawLine(gfxDstBuffer, start_, end_, invalidatedArea, style_->lineWidth_,
                                            style_->lineColor_, style_->lineOpa_);
     DrawAxisMark(gfxDstBuffer, invalidatedArea);
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 void UIXAxis::DrawAxisMark(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)

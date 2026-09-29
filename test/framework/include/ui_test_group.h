@@ -36,6 +36,7 @@ public:
     static void AddTestCase(TestCaseInfo testCaseInfo);
 
 private:
+    static void SetUpFeatureTestCases();
     static List<TestCaseInfo> testCaseList_;
 };
 } // namespace OHOS

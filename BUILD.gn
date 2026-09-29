@@ -37,6 +37,9 @@ if (os_level != "standard") {
       "GRAPHIC_ENABLE_SHADOW_EFFECT_FLAG=1",
       "GRAPHIC_ENABLE_DRAW_TEXT_FLAG=1",
     ]
+
+    defines += arkui_ui_lite_capability_defines
+
     if (ui_lite_enable_switch_config) {
       defines += [ "GRAPHIC_ENABLE_SWITCH_FLAG=1" ]
     }
@@ -248,6 +251,22 @@ if (os_level != "standard") {
       "frameworks/window/window_impl.cpp",
       "frameworks/path/path_base.cpp",
     ]
+
+    if (ui_lite_enable_element_transition_capability) {
+      sources += [ "frameworks/animator/view_transition.cpp", ]
+    }
+
+    if (ui_lite_enable_animation_capability) {
+      sources += [
+        "frameworks/animator/offset_path_parser.cpp",
+        "frameworks/animator/path_animator_callback.cpp",
+        "frameworks/animator/transition_animator_callback.cpp",
+      ]
+    }
+
+    if (ui_lite_enable_gradient_capability) {
+      sources += [ "frameworks/components/linear_gradient_builder.cpp" ]
+    }
 
     if (ohos_kernel_type == "liteos_m") {
       target_type = "static_library"

@@ -216,6 +216,9 @@ void UIAnalogClock::UpdateClock(bool clockInit)
 void UIAnalogClock::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
     BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, GetRect(), invalidatedArea, *style_, opaScale_);
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 void UIAnalogClock::OnPostDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)

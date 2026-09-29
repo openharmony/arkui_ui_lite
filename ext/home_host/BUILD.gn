@@ -19,6 +19,10 @@ if (os_level == "standard" && (ui_lite_enable_smarthomehost_config)) {
     include_dirs += [ "$ARKUI_UI_LITE_PATH/frameworks" ]
   }
 
+  config("home_host_capability_defines") {
+    defines = arkui_ui_lite_capability_defines
+  }
+
   ohos_shared_library("libhome_host_layout") {
     defines = [
       "__LITEOS_M__",
@@ -38,7 +42,10 @@ if (os_level == "standard" && (ui_lite_enable_smarthomehost_config)) {
     include_dirs = arkui_ui_lite_include_dirs
     include_dirs += [ "$ARKUI_UI_LITE_PATH/frameworks" ]
 
-    public_configs = [ ":libhome_host_layout_header_files" ]
+    public_configs = [
+      ":libhome_host_layout_header_files",
+      ":home_host_capability_defines",
+    ]
 
     external_deps = [
       "bounds_checking_function:libsec_static",
