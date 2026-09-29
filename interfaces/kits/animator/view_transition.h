@@ -263,6 +263,27 @@ public:
     }
 
     /**
+     * @brief Stops this transition and clears all the view references WITHOUT restoring
+     *        the view snapshots.
+     *
+     * Intended for the teardown path (the owning component/page is being destroyed): the
+     *        target views may already have been destroyed, so they must not be touched. The
+     *        animator is still cancelled and detached from the AnimatorManager.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    void Abort()
+    {
+        if (animator_.GetState() != Animator::STOP) {
+            animator_.Cancel();  // stop and detach from AnimatorManager; do NOT touch views
+        }
+        outView_ = nullptr;
+        inView_ = nullptr;
+        sharedElement_ = nullptr;
+    }
+
+    /**
      * @brief Obtains the current state of this transition.
      *
      * @return Returns the current animator state. For details, see {@link Animator::GetState}.
