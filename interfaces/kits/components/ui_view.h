@@ -57,6 +57,9 @@
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
 #include "gfx_utils/list.h"
 #endif
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+#include "ui_view_flex_props.h"
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 
 namespace OHOS {
 /* Enumerates view types. */
@@ -157,6 +160,13 @@ const char* const VIEW_TYPE_STRING[UI_NUMBER_MAX] = {
     "UIRepeatButton",   "UITextureMapper",    "UIDialog",         "UIQrcode",
 };
 #endif // ENABLE_DEBUG
+
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+enum OverflowMode : uint8_t {
+    OVERFLOW_VISIBLE = 0,
+    OVERFLOW_HIDDEN = 1
+};
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 
 /**
  * @brief Defines the base class of a view, providing basic view attributes and operations. All views are derived
@@ -761,6 +771,10 @@ public:
      */
     bool IsVisible() const;
 
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+#include "ui_view_flex_public.h"
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
+
     /**
      * @brief Sets whether the view is touchable.
      * @param touchable Specifies whether to set the view touchable. Value <b>true</b> means to set the view touchable,
@@ -864,6 +878,19 @@ public:
      * @version 1.0
      */
     virtual Rect GetContentRect();
+
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+    /**
+     * @brief Obtains the padding box of the view in absolute coordinates, that is, the rectangle
+     *        area shrunk by the border width only. This is the clip domain applied to the
+     *        subtree when overflow is hidden, and is shared by the draw path and the
+     *        invalidate path so that both use the same clip boundary.
+     * @return Returns the padding box rectangle area.
+     * @since 5.0
+     * @version 3.0
+     */
+    Rect GetPaddingBoxRect() const;
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 
     virtual Rect GetOrigContentRect();
 
@@ -1598,6 +1625,10 @@ public:
     UIView* GetNextRenderSibling() const;
 
 protected:
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+    void InvalidateChildrenArea();
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
+
     bool touchable_ : 1;
     bool visible_ : 1;
     bool draggable_ : 1;
@@ -1612,6 +1643,17 @@ protected:
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
     bool isRemeasure_ : 1;
 #endif
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+    FlexItemProps flexItemProps_;
+    OverflowMode overflow_;
+    uint8_t alignSelf_ = ALIGN_SELF_AUTO;
+    uint8_t hasExplicitWidth_ : 1;
+    uint8_t hasExplicitHeight_ : 1;
+    uint8_t originalWidthSaved_ : 1;
+    uint8_t originalHeightSaved_ : 1;
+    int16_t originalWidth_ = 0;
+    int16_t originalHeight_ = 0;
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
     uint8_t opaScale_;
     int16_t index_;
     int16_t zIndex_;

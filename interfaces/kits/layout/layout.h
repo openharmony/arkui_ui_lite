@@ -64,6 +64,34 @@ const AlignType ALIGN_EVENLY = 3;
 const AlignType ALIGN_AROUND = 4;
 /* Evenly places all child views between the start point and end point. No left or right margin is reserved. */
 const AlignType ALIGN_BETWEEN = 5;
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+/* Stretches child views to fill the cross axis of the container. */
+constexpr AlignType ALIGN_STRETCH = 6;
+
+using AlignContentType = uint8_t;
+/* Packs lines from the cross-start of the container. */
+constexpr AlignContentType ALIGN_CONTENT_START = 0;
+/* Centers lines in the cross axis of the container. */
+constexpr AlignContentType ALIGN_CONTENT_CENTER = 1;
+/* Packs lines from the cross-end of the container. */
+constexpr AlignContentType ALIGN_CONTENT_END = 2;
+/* Stretches lines to fill the remaining space in the cross axis. */
+constexpr AlignContentType ALIGN_CONTENT_STRETCH = 3;
+/* Evenly distributes lines with equal spacing between them. */
+constexpr AlignContentType ALIGN_CONTENT_BETWEEN = 4;
+
+/* CSS position types. Used by UIView::SetPositionType. POSITION_STATIC (0) is the default
+   and means the view participates in normal flex flow. POSITION_ABSOLUTE removes the view
+   from flow and positions it relative to the matched containing block using its insets. */
+enum class PositionType : uint8_t {
+    STATIC = 0,
+    RELATIVE = 1,
+    ABSOLUTE = 2
+};
+constexpr uint8_t POSITION_STATIC = static_cast<uint8_t>(PositionType::STATIC);
+constexpr uint8_t POSITION_RELATIVE = static_cast<uint8_t>(PositionType::RELATIVE);
+constexpr uint8_t POSITION_ABSOLUTE = static_cast<uint8_t>(PositionType::ABSOLUTE);
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 
 /**
  * @brief Defines the base class of the layout, which indicates the basic data types and operations that may be used in

@@ -730,8 +730,14 @@ void RootView::DrawTop(UIView* view, const Rect& rect)
                         g_maskStack[stackCount] = mask;
                         stackCount++;
                         curView = static_cast<UIViewGroup*>(curView)->GetChildrenRenderHead();
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+                        if (par->GetOverflow() != OVERFLOW_VISIBLE) {
+                            mask.Intersect(mask, par->GetPaddingBoxRect());
+                        }
+#else
                         mask = par->GetContentRect();
                         mask.Intersect(mask, curViewRect);
+#endif
                         continue;
                     }
 

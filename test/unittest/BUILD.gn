@@ -13,6 +13,7 @@ if (os_level != "standard") {
   if (defined(ohos_kernel_type) && ohos_kernel_type != "liteos_m") {
     import("//build/lite/config/subsystem/graphic/config.gni")
     import("//build/lite/config/test.gni")
+    import("//foundation/arkui/ui_lite/ui.gni")
 
     group("arkui_ui_lite_test") {
       if (ohos_build_type == "debug") {
@@ -37,6 +38,13 @@ if (os_level != "standard") {
         "-lstdc++",
         "-Wl,-rpath-link=$ohos_root_path/$root_out_dir",
       ]
+
+      # the guarded test cases must be compiled with the same macro value as the ui library
+      if (ui_lite_enable_flex_layout_config) {
+        defines = [ "GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT=1" ]
+      } else {
+        defines = [ "GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT=0" ]
+      }
     }
 
     if (ohos_build_type == "debug") {
@@ -106,6 +114,10 @@ if (os_level != "standard") {
           "rotate/ui_rotate_input_unit_test.cpp",
           "themes/theme_manager_unit_test.cpp",
         ]
+
+        if (ui_lite_enable_flex_layout_config) {
+          sources += [ "layout/flex_layout_enhancement_unit_test.cpp" ]
+        }
 
         deps = [
           "//foundation/arkui/ui_lite:ui",

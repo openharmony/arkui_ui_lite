@@ -37,7 +37,6 @@ if (os_level != "standard") {
       "GRAPHIC_ENABLE_SHADOW_EFFECT_FLAG=1",
       "GRAPHIC_ENABLE_DRAW_TEXT_FLAG=1",
     ]
-
     if (ui_lite_enable_switch_config) {
       defines += [ "GRAPHIC_ENABLE_SWITCH_FLAG=1" ]
     }
@@ -53,6 +52,11 @@ if (os_level != "standard") {
       defines += [ "GRAPHIC_ENABLE_BUTTON_FLAG=1" ]
     }
 
+    if (ui_lite_enable_flex_layout_config) {
+      defines += [ "GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT=1" ]
+    } else {
+      defines += [ "GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT=0" ]
+    }
     if (defined(board_toolchain_type) && board_toolchain_type == "iccarm") {
       cflags = [
         "--diag_suppress",

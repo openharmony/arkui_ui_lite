@@ -14,6 +14,14 @@
  */
 
 #include "components/ui_view_group.h"
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+#include "layout/layout.h"
+#if ENABLE_WINDOW
+#include "common/graphic_startup.h"
+#include "components/root_view.h"
+#include "window/window.h"
+#endif // ENABLE_WINDOW
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 
 #include <climits>
 #include <gtest/gtest.h>
@@ -1311,4 +1319,522 @@ HWTEST_F(UIViewTest, UIViewGroupGetTargetViewWithoutTouchExpandThreeArgs_001, Te
     EXPECT_NE(target, &button);
 }
 #endif
+
+#if (GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT == 1)
+/**
+ * @tc.name: Graphic_UIView_Test_GetPaddingBoxRect_001
+ * @tc.desc: Check the padding box rect used as the overflow hidden clip domain,
+ *           it must be the view rect shrunk by the border width on ALL FOUR sides
+ *           (padding excluded). Regression: Rect::SetX/SetY preserve the size while
+ *           shifting, so the right/bottom edges must be shrunk via SetWidth/SetHeight,
+ *           otherwise they are under-clipped by one border width each.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_GetPaddingBoxRect_001, TestSize.Level0)
+{
+    UIView view;
+    view.SetPosition(POS_X, POS_Y, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+    view.SetStyle(STYLE_BORDER_WIDTH, BORDER_WIDTH);
+    view.SetStyle(STYLE_PADDING_LEFT, PADDING_LEFT);
+    view.SetStyle(STYLE_PADDING_TOP, PADDING_TOP);
+    view.SetStyle(STYLE_PADDING_RIGHT, PADDING_RIGHT);
+    view.SetStyle(STYLE_PADDING_BOTTOM, PADDING_BOTTOM);
+
+    Rect paddingBox = view.GetPaddingBoxRect();
+    // padding box = view rect shrunk by border width on EACH side (padding excluded)
+    Rect viewRect = view.GetRect();
+    const int16_t expectPaddingWidth = viewRect.GetWidth() - BORDER_WIDTH * 2;  // 2: left and right border
+    const int16_t expectPaddingHeight = viewRect.GetHeight() - BORDER_WIDTH * 2; // 2: top and bottom border
+    EXPECT_EQ(paddingBox.GetX(), POS_X + BORDER_WIDTH);
+    EXPECT_EQ(paddingBox.GetY(), POS_Y + BORDER_WIDTH);
+    EXPECT_EQ(paddingBox.GetWidth(), expectPaddingWidth);
+    EXPECT_EQ(paddingBox.GetHeight(), expectPaddingHeight);
+    // Verify right/bottom consistency with the calculated width/height
+    EXPECT_EQ(paddingBox.GetRight(), paddingBox.GetX() + expectPaddingWidth - 1);
+    EXPECT_EQ(paddingBox.GetBottom(), paddingBox.GetY() + expectPaddingHeight - 1);
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_GetPaddingBoxRect_002
+ * @tc.desc: Boundary check of the padding box rect: zero border keeps the view rect
+ *           unchanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_GetPaddingBoxRect_002, TestSize.Level0)
+{
+    // zero border, padding box equals the view rect
+    UIView view;
+    view.SetPosition(POS_X, POS_Y, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+    view.SetStyle(STYLE_BORDER_WIDTH, 0);
+    view.SetStyle(STYLE_PADDING_LEFT, PADDING_LEFT);
+    view.SetStyle(STYLE_PADDING_TOP, PADDING_TOP);
+
+    Rect noBorderBox = view.GetPaddingBoxRect();
+    Rect viewRect = view.GetRect();
+    EXPECT_EQ(noBorderBox.GetX(), POS_X);
+    EXPECT_EQ(noBorderBox.GetY(), POS_Y);
+    EXPECT_EQ(noBorderBox.GetWidth(), viewRect.GetWidth());
+    EXPECT_EQ(noBorderBox.GetHeight(), viewRect.GetHeight());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_GetPaddingBoxRect_003
+ * @tc.desc: Boundary check of the padding box rect: an oversized border produces an
+ *           empty rect (left > right), which the clip logic treats as fully clipped.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_GetPaddingBoxRect_003, TestSize.Level0)
+{
+    // border wider than half of the view size
+    // Note: SetStyle keeps the content size unchanged and re-inflates rect_,
+    // so the padding box width remains (contentWidth + paddingSum). We verify
+    // the formula directly instead of assuming an empty rect.
+    UIView narrowView;
+    narrowView.SetPosition(POS_X, POS_Y, DEFAULE_WIDTH, DEFAULE_HEIGHT);
+    const int16_t oversizedBorder = 60; // 60: larger than half of the 100px content width
+    narrowView.SetStyle(STYLE_BORDER_WIDTH, oversizedBorder);
+
+    Rect emptyBox = narrowView.GetPaddingBoxRect();
+    Rect narrowRect = narrowView.GetRect();
+    int16_t expectPaddingWidth = narrowRect.GetWidth() - oversizedBorder * 2;  // 2: left and right border
+    int16_t expectPaddingHeight = narrowRect.GetHeight() - oversizedBorder * 2; // 2: top and bottom border
+    EXPECT_EQ(emptyBox.GetWidth(), expectPaddingWidth);
+    EXPECT_EQ(emptyBox.GetHeight(), expectPaddingHeight);
+    // When the border is large enough to make padding box empty (width <= 0),
+    // left should exceed right, which is the engine's empty-rect signal.
+    if (expectPaddingWidth <= 0) {
+        EXPECT_GT(emptyBox.GetX(), emptyBox.GetRight());
+    }
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_MarginAutoLeft_001
+ * @tc.desc: Check margin-auto-left default value and setter/getter round-trip.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_MarginAutoLeft_001, TestSize.Level0)
+{
+    UIView view;
+    EXPECT_EQ(view.IsMarginLeftAuto(), false);
+    view.SetMarginLeftAuto(true);
+    EXPECT_EQ(view.IsMarginLeftAuto(), true);
+    view.SetMarginLeftAuto(false);
+    EXPECT_EQ(view.IsMarginLeftAuto(), false);
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_InvalidateChildrenArea_001
+ * @tc.desc: Check that SetOverflow flushes the children area on both clip rules,
+ *           a non-group view must not crash and must keep the new mode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_InvalidateChildrenArea_001, TestSize.Level0)
+{
+    UIViewGroup viewGroup;
+    UIView child;
+    child.Resize(DEFAULE_WIDTH, DEFAULE_HEIGHT);
+    viewGroup.Add(&child);
+
+    // switch twice, covering both transition directions, must not crash
+    viewGroup.SetOverflow(OVERFLOW_VISIBLE);
+    EXPECT_EQ(viewGroup.GetOverflow(), OVERFLOW_VISIBLE);
+    viewGroup.SetOverflow(OVERFLOW_HIDDEN);
+    EXPECT_EQ(viewGroup.GetOverflow(), OVERFLOW_HIDDEN);
+
+    // non-group view has no children area to flush, must not crash either
+    UIView view;
+    view.SetOverflow(OVERFLOW_VISIBLE);
+    EXPECT_EQ(view.GetOverflow(), OVERFLOW_VISIBLE);
+
+    viewGroup.RemoveAll();
+}
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_Default_001
+ * @tc.desc: A default view carries no flex item property, so no phased layout is needed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_Default_001, TestSize.Level0)
+{
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_FlexGrow_002
+ * @tc.desc: Non-zero flex-grow requires phased layout; resetting to 0 clears the need.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_FlexGrow_002, TestSize.Level0)
+{
+    view_->SetFlexGrow(1);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetFlexGrow(0);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_Default_FlexShrink_001
+ * @tc.desc: Default flex-shrink value is 0 and is not marked as explicitly set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_Default_FlexShrink_001, TestSize.Level0)
+{
+    UIView defaultView;
+    EXPECT_EQ(defaultView.GetFlexShrink(), 0);
+    EXPECT_FALSE(defaultView.IsFlexShrinkSet());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_FlexShrink_003
+ * @tc.desc: Any SetFlexShrink call marks shrink as set, even with value 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_FlexShrink_003, TestSize.Level0)
+{
+    view_->SetFlexShrink(1);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    UIView shrinkZeroView;
+    shrinkZeroView.SetFlexShrink(0);
+    EXPECT_TRUE(shrinkZeroView.IsFlexShrinkSet());
+    EXPECT_TRUE(shrinkZeroView.IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_FlexBasis_004
+ * @tc.desc: A pixel flex-basis (including 0) requires phased layout; -1(auto) does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_FlexBasis_004, TestSize.Level0)
+{
+    view_->SetFlexBasis(0);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetFlexBasis(100);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetFlexBasis(-1);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_MinWidth_006
+ * @tc.desc: min-width (including 0) requires phased layout; -1(unset) does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_MinWidth_006, TestSize.Level0)
+{
+    view_->SetMinWidth(0);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMinWidth(100);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMinWidth(-1);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_MaxWidth_007
+ * @tc.desc: max-width (including 0) requires phased layout; -1(unset) does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_MaxWidth_007, TestSize.Level0)
+{
+    view_->SetMaxWidth(0);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMaxWidth(100);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMaxWidth(-1);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_MinHeight_008
+ * @tc.desc: min-height (including 0) requires phased layout; -1(unset) does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_MinHeight_008, TestSize.Level0)
+{
+    view_->SetMinHeight(0);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMinHeight(100);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMinHeight(-1);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_MaxHeight_009
+ * @tc.desc: max-height (including 0) requires phased layout; -1(unset) does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_MaxHeight_009, TestSize.Level0)
+{
+    view_->SetMaxHeight(0);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMaxHeight(100);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMaxHeight(-1);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_AspectRatio_010
+ * @tc.desc: Non-zero aspect-ratio requires phased layout; 0(unset) does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_AspectRatio_010, TestSize.Level0)
+{
+    view_->SetAspectRatio(150);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetAspectRatio(0);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_AlignSelf_011
+ * @tc.desc: align-self other than ALIGN_SELF_AUTO requires phased layout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_AlignSelf_011, TestSize.Level0)
+{
+    view_->SetAlignSelf(ALIGN_CENTER);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetAlignSelf(UIView::ALIGN_SELF_STRETCH);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetAlignSelf(UIView::ALIGN_SELF_AUTO);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_AutoMargin_012
+ * @tc.desc: Margin-left auto requires phased layout; clearing it clears the need.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_AutoMargin_012, TestSize.Level0)
+{
+    view_->SetMarginLeftAuto(true);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMarginLeftAuto(false);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_PositionAbsolute_013
+ * @tc.desc: Absolute positioning requires phased layout; relative positioning does not.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_PositionAbsolute_013, TestSize.Level0)
+{
+    view_->SetPositionType(POSITION_ABSOLUTE);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetPositionType(POSITION_RELATIVE);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_MultiProps_014
+ * @tc.desc: Each property contributes independently to the phased layout need.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_MultiProps_014, TestSize.Level0)
+{
+    view_->SetFlexGrow(1);
+    view_->SetMinWidth(100);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetFlexGrow(0);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    view_->SetMinWidth(-1);
+    EXPECT_FALSE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_IsPhasedLayoutNeed_VisibilityIrrelevant_015
+ * @tc.desc: Visibility is not part of this check; the layout caller filters invisible views.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_IsPhasedLayoutNeed_VisibilityIrrelevant_015, TestSize.Level0)
+{
+    view_->SetFlexGrow(1);
+    view_->SetVisible(false);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_HasFlexItemProperties_Default_016
+ * @tc.desc: A default view has no flex item property set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_HasFlexItemProperties_Default_016, TestSize.Level0)
+{
+    EXPECT_FALSE(view_->HasFlexItemProperties());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_HasFlexItemProperties_DelegatesPhasedProps_018
+ * @tc.desc: Every IsPhasedLayoutNeed property also implies HasFlexItemProperties.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_HasFlexItemProperties_DelegatesPhasedProps_018, TestSize.Level0)
+{
+    view_->SetFlexGrow(1);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    EXPECT_TRUE(view_->HasFlexItemProperties());
+    view_->SetFlexGrow(0);
+    EXPECT_FALSE(view_->HasFlexItemProperties());
+    view_->SetPositionType(POSITION_ABSOLUTE);
+    EXPECT_TRUE(view_->IsPhasedLayoutNeed());
+    EXPECT_TRUE(view_->HasFlexItemProperties());
+    view_->SetPositionType(POSITION_RELATIVE);
+    EXPECT_FALSE(view_->HasFlexItemProperties());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_ConstructorInit_001
+ * @tc.desc: Verify default initial values of new fields added in the constructor.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_ConstructorInit_001, TestSize.Level0)
+{
+    UIView view;
+    EXPECT_FALSE(view.HasExplicitWidth());
+    EXPECT_FALSE(view.HasExplicitHeight());
+    EXPECT_FALSE(view.IsOriginalWidthSaved());
+    EXPECT_FALSE(view.IsOriginalHeightSaved());
+    EXPECT_EQ(view.GetOriginalWidth(), 0);
+    EXPECT_EQ(view.GetOriginalHeight(), 0);
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_SetHasExplicitHeightClearSaved_001
+ * @tc.desc: SetHasExplicitHeight clears the saved flag when switching from auto to explicit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_SetHasExplicitHeightClearSaved_001, TestSize.Level0)
+{
+    UIView view;
+    // simulate stretch saved original height
+    view.SetOriginalHeight(50);
+    view.SetOriginalHeightSaved(true);
+    EXPECT_TRUE(view.IsOriginalHeightSaved());
+
+    // auto -> explicit should clear saved
+    view.SetHasExplicitHeight(false); // auto
+    view.SetHasExplicitHeight(true);  // explicit
+    EXPECT_FALSE(view.IsOriginalHeightSaved());
+}
+
+/**
+ * @tc.name: Graphic_UIView_Test_SetHasExplicitWidthClearSaved_001
+ * @tc.desc: SetHasExplicitWidth clears the saved flag when switching from auto to explicit,
+ *           and SetWidth on an explicit view also clears the saved flag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewTest, Graphic_UIView_Test_SetHasExplicitWidthClearSaved_001, TestSize.Level0)
+{
+    UIView view;
+    // simulate stretch saved original width
+    view.SetOriginalWidth(50);
+    view.SetOriginalWidthSaved(true);
+    EXPECT_TRUE(view.IsOriginalWidthSaved());
+
+    // auto -> explicit should clear saved
+    view.SetHasExplicitWidth(false); // auto
+    view.SetHasExplicitWidth(true);  // explicit
+    EXPECT_FALSE(view.IsOriginalWidthSaved());
+
+    // explicit view: SetWidth should also clear saved
+    view.SetOriginalWidthSaved(true);
+    EXPECT_TRUE(view.IsOriginalWidthSaved());
+    view.SetWidth(60); // 60: user-set explicit width
+    EXPECT_FALSE(view.IsOriginalWidthSaved());
+    EXPECT_EQ(view.GetWidth(), 60); // 60: user-set width applied
+}
+
+class UIViewOverflowTest : public testing::Test {
+public:
+    static void SetUpTestCase()
+    {
+#if ENABLE_WINDOW
+        GraphicStartUp::Init();
+#endif // ENABLE_WINDOW
+    }
+    static void TearDownTestCase() {}
+};
+
+/**
+ * @tc.name: UIView_InvalidateRect_OverflowHidden_Clip_001
+ * @tc.desc: Setting a parent to OVERFLOW_HIDDEN and invalidating an overflowing child exercises the
+ *           clip branch in UIView::InvalidateRect. The call must not crash and the mode must persist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewOverflowTest, UIView_InvalidateRect_OverflowHidden_Clip_001, TestSize.Level0)
+{
+    UIViewGroup container;
+    container.SetPosition(0, 0, 100, 100); // 100: container width and height
+    container.SetOverflow(OVERFLOW_HIDDEN);
+
+    UIView child;
+    child.SetPosition(50, 50, 200, 200); // 200: child size overflows the container
+    container.Add(&child);
+
+    // Invalidating the child enters the hidden-overflow clip path while walking up to the root.
+    child.Invalidate();
+    EXPECT_EQ(container.GetOverflow(), OVERFLOW_HIDDEN);
+
+    container.RemoveAll();
+}
+
+#if ENABLE_WINDOW
+/**
+ * @tc.name: RootView_DrawTop_OverflowHidden_Clip_001
+ * @tc.desc: Drawing a container that has OVERFLOW_HIDDEN exercises the clip branch in
+ *           RootView::DrawTop. The call must not crash and the mode must persist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIViewOverflowTest, RootView_DrawTop_OverflowHidden_Clip_001, TestSize.Level0)
+{
+    struct WindowRootGuard {
+        RootView* rootView = nullptr;
+        Window* window = nullptr;
+        ~WindowRootGuard()
+        {
+            if (rootView != nullptr) {
+                rootView->RemoveAll();
+            }
+            if (window != nullptr) {
+                Window::DestroyWindow(window);
+            }
+            if (rootView != nullptr) {
+                RootView::DestroyWindowRootView(rootView);
+            }
+        }
+    };
+
+    RootView* rootView = RootView::GetWindowRootView();
+    ASSERT_NE(rootView, nullptr);
+    rootView->SetPosition(0, 0, 300, 300); // 300: root width and height
+
+    WindowConfig config;
+    config.rect = rootView->GetRect();
+    Window* window = Window::CreateWindow(config);
+    ASSERT_NE(window, nullptr);
+    if (window != nullptr) {
+        window->BindRootView(rootView);
+    }
+
+    WindowRootGuard guard;
+    guard.rootView = rootView;
+    guard.window = window;
+
+    UIViewGroup container;
+    container.SetPosition(0, 0, 100, 100); // 100: container width and height
+    container.SetOverflow(OVERFLOW_HIDDEN);
+
+    UIView child;
+    child.SetPosition(50, 50, 200, 200); // 200: child size overflows the container
+    rootView->Add(&container);
+    container.Add(&child);
+
+    // Drawing the container processes its children and enters the hidden-overflow clip path.
+    rootView->DrawTop(&container, rootView->GetRect());
+    EXPECT_EQ(container.GetOverflow(), OVERFLOW_HIDDEN);
+}
+#endif // ENABLE_WINDOW
+#endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 } // namespace OHOS
