@@ -25,6 +25,7 @@ if (os_level != "standard") {
       include_dirs = [
         "../framework/include",
         "//foundation/arkui/ui_lite/frameworks",
+        "//foundation/arkui/ui_lite/interfaces/kits",
         "//foundation/arkui/ui_lite/test/framework",
         "//foundation/graphic/surface_lite/interfaces/kits",
         "//third_party/bounds_checking_function/include",
@@ -119,16 +120,52 @@ if (os_level != "standard") {
           sources += [ "layout/flex_layout_enhancement_unit_test.cpp" ]
         }
 
+        if (ui_lite_enable_svg_component_config) {
+          sources += [
+            "svg/svg_animation_node_unit_test.cpp",
+            "svg/svg_animator_unit_test.cpp",
+            "svg/svg_attribute_parser_unit_test.cpp",
+            "svg/svg_container_nodes_unit_test.cpp",
+            "svg/svg_document_unit_test.cpp",
+            "svg/svg_engine_unit_test.cpp",
+            "svg/svg_generic_node_unit_test.cpp",
+            "svg/svg_image_node_unit_test.cpp",
+            "svg/svg_leaf_node_unit_test.cpp",
+            "svg/svg_paint_servers_unit_test.cpp",
+            "svg/svg_paint_state_unit_test.cpp",
+            "svg/svg_path_parser_unit_test.cpp",
+            "svg/svg_path_point_at_unit_test.cpp",
+            "svg/svg_shape_nodes_unit_test.cpp",
+            "svg/svg_text_nodes_unit_test.cpp",
+            "svg/svg_xml_parser_unit_test.cpp",
+          ]
+        }
+
         deps = [
           "//foundation/arkui/ui_lite:ui",
           "//third_party/freetype:freetype",
           "//test/xts/tools/lite/hcpptest:gmock",
         ]
 
+        if (ui_lite_enable_gradient_capability) {
+          sources += [ "components/ui_view_gradient_unit_test.cpp" ]
+        }
+
         if (ui_lite_enable_video_component_config) {
           sources += [ "components/ui_video_unit_test.cpp" ]
 
           deps += [ "//foundation/multimedia/media_lite/frameworks/player_lite:player_lite" ]
+        }
+
+        if (ui_lite_enable_element_transition_capability) {
+          sources += ["animator/view_transition_unit_test.cpp"]
+        }
+
+        if (ui_lite_enable_animation_capability) {
+          sources += [
+            "animator/offset_path_parser_unit_test.cpp",
+            "animator/path_animator_callback_unit_test.cpp",
+          ]
         }
       }
     }

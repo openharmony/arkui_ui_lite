@@ -115,6 +115,9 @@ void UIRadioButton::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea
             baseGfxEngine->DrawArc(gfxDstBuffer, arcInfoSmall, trunc, style, OPA_OPAQUE,
                                    CapType::CAP_NONE);
         }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+        DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
     }
 }
 

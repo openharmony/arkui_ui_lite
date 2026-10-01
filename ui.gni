@@ -14,6 +14,7 @@ ARKUI_UI_LITE_PATH = "//foundation/arkui/ui_lite"
 arkui_ui_lite_include_dirs = [
   "$ARKUI_UI_LITE_PATH/interfaces/kits",
   "$ARKUI_UI_LITE_PATH/interfaces/innerkits",
+  "$ARKUI_UI_LITE_PATH/interfaces/innerkits/svg",
 ]
 
 arkui_ui_lite_sources = [
@@ -144,4 +145,49 @@ declare_args() {
   ui_lite_enable_scroller_indicator_style_adapt = false
   ui_lite_enable_button_animation_touch_extend_config = false
   ui_lite_enable_flex_layout_config = false
+  ui_lite_enable_element_transition_capability = false
+  ui_lite_enable_animation_capability = false
+  ui_lite_enable_gradient_capability = false
+  ui_lite_enable_svg_component_config = false
+}
+
+arkui_ui_lite_capability_defines = []
+if (ui_lite_enable_element_transition_capability) {
+  arkui_ui_lite_capability_defines += [ "GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG=1" ]
+} else {
+  arkui_ui_lite_capability_defines += [ "GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG=0" ]
+}
+
+if (ui_lite_enable_animation_capability) {
+  arkui_ui_lite_capability_defines += [
+    "GRAPHIC_ENABLE_PATH_ANIMATOR_FLAG=1",
+    "GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG=1",
+  ]
+} else {
+  arkui_ui_lite_capability_defines += [
+    "GRAPHIC_ENABLE_PATH_ANIMATOR_FLAG=0",
+    "GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG=0",
+  ]
+}
+
+if (ui_lite_enable_gradient_capability) {
+  arkui_ui_lite_capability_defines += [ "GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG=1" ]
+} else {
+  arkui_ui_lite_capability_defines += [ "GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG=0" ]
+}
+
+if (ui_lite_enable_animation_capability) {
+  arkui_ui_lite_sources += [
+    "$ARKUI_UI_LITE_PATH/frameworks/animator/offset_path_parser.cpp",
+    "$ARKUI_UI_LITE_PATH/frameworks/animator/path_animator_callback.cpp",
+    "$ARKUI_UI_LITE_PATH/frameworks/animator/transition_animator_callback.cpp",
+  ]
+}
+
+if (ui_lite_enable_gradient_capability) {
+  arkui_ui_lite_sources += [ "$ARKUI_UI_LITE_PATH/frameworks/components/linear_gradient_builder.cpp" ]
+}
+
+if (ui_lite_enable_element_transition_capability) {
+  arkui_ui_lite_sources += [ "$ARKUI_UI_LITE_PATH/frameworks/animator/view_transition.cpp", ]
 }

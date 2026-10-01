@@ -98,6 +98,10 @@ enum UIViewType : uint8_t {
     UI_QRCODE,
     UI_FLEXLAYOUT,
     UI_MAP_CANVAS,
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    UI_SVG_CONTAINER,
+    UI_SVG_LEAF,
+#endif
     UI_NUMBER_MAX
 };
 
@@ -1377,6 +1381,28 @@ public:
      */
     const Style& GetStyleConst() const;
 
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    /**
+     * @brief Sets the linear gradient background of this view.
+     *
+     * The view takes ownership of @p info: any previously held payload is
+     * released first, and @p info is deleted right away when it is rejected,
+     * so the caller must never free it nor keep using it after this call.
+     * Passing nullptr clears the gradient and falls back to the plain
+     * background color. A payload that is invalid or carries fewer than
+     * GRADIENT_MIN_COLOR_STOP_COUNT stops is rejected the same way.
+     *
+     * The view is invalidated on every path so the change is repainted.
+     *
+     * @param info Gradient payload to take ownership of, may be nullptr.
+     *
+     * @note Virtual so that stateful subclasses (e.g. UIButton with per-state
+     * styles) can take over payload handling entirely. No behavior change for
+     * classes that do not override it.
+     */
+    virtual void SetGradientInfo(GradientInfo* info);
+#endif
+
     /**
      * @brief Sets the opacity for the view.
      *
@@ -1640,6 +1666,21 @@ protected:
 #if ENABLE_FOCUS_MANAGER
     bool focusable_ : 1;
 #endif
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    /**
+     * @brief Linear gradient payload owned by this view.
+     *
+     * Kept separate from style_ so that subclasses which switch styles (e.g.
+     * UIButton with per-state styles) do not lose the gradient on state changes.
+     */
+    GradientInfo* gradientInfo_ = nullptr;
+
+    /**
+     * @brief Switches to another style, releasing the currently owned private
+     *        style (if any). Does not touch gradient state.
+     */
+    void SwitchStyle(Style& style);
+#endif
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
     bool isRemeasure_ : 1;
 #endif
@@ -1681,6 +1722,44 @@ protected:
     void UpdateRectInfo(uint8_t key, const Rect& rect);
     void ReDrawComponents(BufferInfo &bufInfo, const Rect &mask);
 
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    /**
+     * @brief Tells whether this view holds a gradient that can be painted.
+     *
+     * Single source of truth for the "is the gradient path usable" question,
+     * shared by OnDraw(), DoDrawLinearGradient() and DrawLinearGradient() so
+     * that the three of them can never disagree.
+     *
+     * @return true when a valid payload with enough color stops is attached.
+     */
+    bool HasRenderableGradient() const;
+
+    /**
+     * @brief Entry point of the gradient draw path, called from OnDraw().
+     *
+     * Re-checks the payload because it may have been replaced between the
+     * OnDraw() dispatch and the actual draw, then delegates the geometry work
+     * to DrawLinearGradient().
+     *
+     * @param gfxDstBuffer    Destination frame buffer.
+     * @param invalidatedArea Clipping region in absolute coordinates.
+     */
+    void DoDrawLinearGradient(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea);
+
+    /**
+     * @brief Draws the gradient background when the view owns a usable payload,
+     *        otherwise falls back to the plain background color. Encapsulates
+     *        the OnDraw() background logic so UIView and its subclasses can
+     *        share a single entry point.
+     * @param gfxDstBuffer Destination frame buffer.
+     * @param invalidatedArea Clipping region in absolute coordinates.
+     * @return Returns <b>true</b> if a draw path was entered; returns <b>false</b>
+     *         when style_ is null.
+     * @since 1.0
+     * @version 1.0
+     */
+    bool DrawGradientBackground(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 private:
     Rect rect_;
     Rect* visibleRect_;
@@ -1691,6 +1770,19 @@ private:
     void LayoutOfParent(const RelativeLayoutInfo &layoutInfo);
     void AlignToSibling(const RelativeLayoutInfo &layoutInfo);
     void LayoutToSibling(const RelativeLayoutInfo &layoutInfo);
+#endif
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    /**
+     * @brief Computes the content box and paints the gradient into it.
+     *
+     * Subtracts the border on all four sides, guards every degenerate size,
+     * and falls back to a flat fill with the first color stop when the
+     * rasterizer refuses the request, so a view never ends up unpainted.
+     *
+     * @param gfxDstBuffer    Destination frame buffer.
+     * @param invalidatedArea Clipping region in absolute coordinates.
+     */
+    void DrawLinearGradient(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea);
 #endif
 };
 } // namespace OHOS

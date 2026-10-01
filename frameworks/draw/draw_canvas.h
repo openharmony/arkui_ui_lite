@@ -39,6 +39,9 @@ struct PathParam : public HeapBase {
     UICanvasVertices* vertices;
     ImageParam* imageParam = nullptr;
     bool isStroke;
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    bool isSvg = false;
+#endif
 };
 #endif
 
@@ -113,7 +116,53 @@ public:
                                           TransAffine& transform,
                                           float& startRadius,
                                           float& endRadius);
+
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    static void RenderGradientSvg(const Paint& paint,
+                               RasterizerScanlineAntialias& rasterizer,
+                               TransAffine& transform,
+                               RenderBase& renBase,
+                               RenderBuffer& renderBuffer,
+                               FillBase& allocator,
+                               const Rect& invalidatedArea);
+
+    static void BuildGradientColorSvg(const Paint& paint, FillGradientLut& gradientColorMode);
+
+    static void BuildLineGradientMatrixSvg(const Paint& paint,
+                                           TransAffine& gradientMatrix,
+                                           TransAffine& transform,
+                                           float& distance);
+
+    static void BuildRadialGradientMatrixSvg(const Paint& paint,
+                                             TransAffine& gradientMatrix,
+                                             TransAffine& transform,
+                                             float& startRadius,
+                                             float& endRadius);
+#endif
 #endif // GRAPHIC_ENABLE_GRADIENT_FILL_FLAG
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    /**
+     * @brief Renders a gradient-filled closed path into the destination buffer.
+     *
+     * Encapsulates the whole scanline pipeline (transform, rasterizer, render
+     * base and gradient span) so that callers such as the UIView gradient
+     * adapter only need to prepare vertices and a gradient paint.
+     * Unlike DoRender(), this function does not depend on ENABLE_CANVAS_EXTEND.
+     *
+     * @param gfxDstBuffer    destination frame buffer
+     * @param vertices        closed path to fill, in coordinates relative to
+     *                        the origin of @p rect (same space as the paint's
+     *                        gradient endpoints)
+     * @param paint           paint with style Paint::GRADIENT
+     * @param rect            target rect in absolute coordinates
+     * @param invalidatedArea dirty area used for clipping
+     */
+    static void RenderGradientFill(BufferInfo& gfxDstBuffer,
+                                   UICanvasVertices& vertices,
+                                   const Paint& paint,
+                                   const Rect& rect,
+                                   const Rect& invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 
 #if defined(GRAPHIC_ENABLE_PATTERN_FILL_FLAG) && GRAPHIC_ENABLE_PATTERN_FILL_FLAG
 #if defined(ENABLE_CANVAS_EXTEND) && ENABLE_CANVAS_EXTEND
@@ -151,6 +200,14 @@ public:
             }
         }
     }
+
+#if defined(FEATURE_COMPONENT_SVG) && FEATURE_COMPONENT_SVG
+    /**
+     * SVG-only solid color blend. Applies paint opacity on top of global alpha.
+     * This is a separate function from RenderBlendSolid to keep the baseline code unchanged.
+     */
+    static void RenderBlendSolidSvg(const Paint& paint, Rgba8T& color, const bool& isStroke);
+#endif
 
     /**
      * Assembly parameter setting lineweight，LineCap，LineJoin

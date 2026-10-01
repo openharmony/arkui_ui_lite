@@ -1424,8 +1424,8 @@ void UITestCanvas::RM008UIKitCanvasTest007()
     canvas->FillPath(paint);
 }
 
-void DrawRectangle(UICanvas *canvas, const int16_t line1,
-                   const int16_t line2, const int16_t line3, const int16_t line4)
+void UITestCanvas::DrawRectangle(UICanvas *canvas, const int16_t line1,
+    const int16_t line2, const int16_t line3, const int16_t line4)
 {
     canvas->BeginPath();
     canvas->MoveTo({line1, line3});

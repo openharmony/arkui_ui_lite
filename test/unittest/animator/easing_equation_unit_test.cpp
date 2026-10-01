@@ -337,4 +337,114 @@ HWTEST_F(EasingEquationTest, EasingEquationSineEaseInOut_001, TestSize.Level1)
     EXPECT_EQ(EasingEquation::SineEaseInOut(START_POS, END_POS, i++, DURATION_TIME), 85); // 85:the value for 3th s;
     EXPECT_EQ(EasingEquation::SineEaseInOut(START_POS, END_POS, i++, DURATION_TIME), END_POS);
 }
+
+#if GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+/**
+ * @tc.name: EasingEquationBounceEaseOut_001
+ * @tc.desc: Verify bounce-out returns the expected values at timeline boundaries.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseOut_001, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, 0, duration), START_POS);
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, duration, duration), END_POS);
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, 0, 0), END_POS);
+}
+
+/**
+ * @tc.name: EasingEquationBounceEaseOut_002
+ * @tc.desc: Verify the first bounce-out equation segment.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseOut_002, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    const uint16_t firstSegmentTime = 10;
+    const int16_t firstSegmentValue = 7;
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, firstSegmentTime, duration), firstSegmentValue);
+}
+
+/**
+ * @tc.name: EasingEquationBounceEaseOut_003
+ * @tc.desc: Verify the second bounce-out equation segment.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseOut_003, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    const uint16_t secondSegmentTime = 50;
+    const int16_t secondSegmentValue = 76;
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, secondSegmentTime, duration), secondSegmentValue);
+}
+
+/**
+ * @tc.name: EasingEquationBounceEaseOut_004
+ * @tc.desc: Verify the third bounce-out equation segment.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseOut_004, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    const uint16_t thirdSegmentTime = 80;
+    const int16_t thirdSegmentValue = 93;
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, thirdSegmentTime, duration), thirdSegmentValue);
+}
+
+/**
+ * @tc.name: EasingEquationBounceEaseOut_005
+ * @tc.desc: Verify the fourth bounce-out equation segment.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseOut_005, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    const uint16_t fourthSegmentTime = 95;
+    const int16_t fourthSegmentValue = 98;
+    EXPECT_EQ(EasingEquation::BounceEaseOut(START_POS, END_POS, fourthSegmentTime, duration), fourthSegmentValue);
+}
+
+/**
+ * @tc.name: EasingEquationBounceEaseIn_001
+ * @tc.desc: Verify bounce-in reverses the bounce-out curve and handles boundaries.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseIn_001, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    const uint16_t firstQuarterTime = 25;
+    const uint16_t thirdQuarterTime = 75;
+    int16_t firstQuarter = EasingEquation::BounceEaseIn(START_POS, END_POS, firstQuarterTime, duration);
+    int16_t thirdQuarter = EasingEquation::BounceEaseIn(START_POS, END_POS, thirdQuarterTime, duration);
+    EXPECT_LT(firstQuarter, thirdQuarter);
+    EXPECT_EQ(EasingEquation::BounceEaseIn(START_POS, END_POS, duration, duration), END_POS);
+    EXPECT_EQ(EasingEquation::BounceEaseIn(START_POS, END_POS, 0, 0), END_POS);
+}
+
+/**
+ * @tc.name: EasingEquationBounceEaseInOut_001
+ * @tc.desc: Verify bounce-in-out uses both curve halves and reaches the target value.
+ * @tc.type: FUNC
+ * @tc.require: AR000DSMQM
+ */
+HWTEST_F(EasingEquationTest, EasingEquationBounceEaseInOut_001, TestSize.Level1)
+{
+    const uint16_t duration = 100;
+    const uint16_t firstHalfTime = 25;
+    const uint16_t secondHalfTime = 75;
+    const int16_t halfPosition = END_POS / 2;
+    int16_t firstHalf = EasingEquation::BounceEaseInOut(START_POS, END_POS, firstHalfTime, duration);
+    int16_t secondHalf = EasingEquation::BounceEaseInOut(START_POS, END_POS, secondHalfTime, duration);
+    EXPECT_LT(firstHalf, halfPosition);
+    EXPECT_GT(secondHalf, halfPosition);
+    EXPECT_EQ(EasingEquation::BounceEaseInOut(START_POS, END_POS, duration, duration), END_POS);
+    EXPECT_EQ(EasingEquation::BounceEaseInOut(START_POS, END_POS, 0, 0), END_POS);
+}
+#endif // GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
 } // namespace OHOS

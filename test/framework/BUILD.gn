@@ -11,6 +11,7 @@
 
 import("//build/lite/config/component/lite_component.gni")
 import("//build/lite/config/subsystem/graphic/config.gni")
+import("//foundation/arkui/ui_lite/ui.gni")
 
 config("graphic_test_config") {
   if (ohos_kernel_type == "linux") {
@@ -77,6 +78,19 @@ test_sources = [
   "src/ui_test_app.cpp",
   "src/ui_test_group.cpp",
 ]
+
+if (ui_lite_enable_element_transition_capability) {
+  test_sources += [ "../uitest/test_transition/ui_test_transition.cpp" ]
+}
+
+if (ui_lite_enable_animation_capability) {
+  test_sources += [ "../uitest/test_path_animator_callback/ui_test_path_animator_callback.cpp" ]
+  test_sources += [ "../uitest/test_transition_animator/ui_test_transition_animator.cpp" ]
+}
+
+if (ui_lite_enable_gradient_capability) {
+  test_sources += [ "../uitest/test_gradient/ui_test_gradient.cpp" ]
+}
 
 if (ui_lite_enable_video_component_config) {
   test_sources += [ "../uitest/test_video/ui_test_video.cpp" ]

@@ -29,6 +29,11 @@
 #endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
 #include "securec.h"
 #include "themes/theme_manager.h"
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+#include "gfx_utils/gradient_info.h"
+#include "components/linear_gradient_builder.h"
+#include "draw/draw_canvas.h"
+#endif
 
 namespace OHOS {
 
@@ -64,6 +69,9 @@ UIView::UIView()
       nextSibling_(nullptr),
       nextRenderSibling_(nullptr),
       style_(nullptr),
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+      gradientInfo_(nullptr),
+#endif
       transMap_(nullptr),
       onClickListener_(nullptr),
       onLongPressListener_(nullptr),
@@ -111,6 +119,12 @@ UIView::~UIView()
         style_ = nullptr;
         styleAllocFlag_ = false;
     }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    if (gradientInfo_ != nullptr) {
+        delete gradientInfo_;
+        gradientInfo_ = nullptr;
+    }
+#endif
 #if defined(CONFIG_DYNAMIC_LAYOUT) && (CONFIG_DYNAMIC_LAYOUT == 1)
     if (dynamicLayoutInfo_ != nullptr) {
         if (dynamicLayoutInfo_->layoutList != nullptr) {
@@ -156,6 +170,9 @@ void UIView::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
 {
     uint8_t opa = GetMixOpaScale();
     BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, GetOrigRect(), invalidatedArea, *style_, opa);
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 
 void UIView::OnPostDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
@@ -377,6 +394,14 @@ void UIView::SetupThemeStyles()
 
 void UIView::SetStyle(Style& style)
 {
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    SwitchStyle(style);
+    GradientInfo* copied = (style.gradientInfo_ != nullptr) ? style.gradientInfo_->DeepCopy() : nullptr;
+    delete gradientInfo_;
+    gradientInfo_ = copied;
+    Invalidate();
+    return;
+#endif
     if (styleAllocFlag_) {
         delete style_;
         styleAllocFlag_ = false;
@@ -2102,4 +2127,138 @@ bool UIView::HasFlexItemProperties() const
     return IsPhasedLayoutNeed();
 }
 #endif // GRAPHIC_ENABLE_FLEX_LAYOUT_ENHANCEMENT
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+namespace {
+/** A border is subtracted on both sides of each axis. */
+constexpr int16_t BORDER_SIDES_PER_AXIS = 2;
+
+/**
+ * Rect(left, top, right, bottom) takes inclusive boundary coordinates, so the
+ * right/bottom edge of a size-based box is (origin + size - 1).
+ */
+constexpr int16_t RECT_INCLUSIVE_EDGE_ADJUST = 1;
+
+/** Index of the color stop used when the gradient fill has to be given up. */
+constexpr uint8_t GRADIENT_FALLBACK_STOP_INDEX = 0;
+} // namespace
+
+void UIView::SwitchStyle(Style& style)
+{
+    if (styleAllocFlag_) {
+        delete style_;
+        styleAllocFlag_ = false;
+    }
+    style_ = &style;
+}
+
+void UIView::SetGradientInfo(GradientInfo* info)
+{
+    /*
+     * The caller transfers ownership of info to this view. The view will delete
+     * an invalid payload immediately, and will delete the owned payload when it
+     * is replaced or the view is destroyed.
+     */
+    GradientInfo* payload = info;
+    if (payload != nullptr &&
+        (!payload->isValid || payload->colorCount < GRADIENT_MIN_COLOR_STOP_COUNT)) {
+        delete payload;
+        payload = nullptr;
+    }
+    delete gradientInfo_;
+    gradientInfo_ = payload;
+    Invalidate();
+}
+
+bool UIView::HasRenderableGradient() const
+{
+    return (gradientInfo_ != nullptr) && gradientInfo_->isValid &&
+           (gradientInfo_->colorCount >= GRADIENT_MIN_COLOR_STOP_COUNT);
+}
+
+void UIView::DrawLinearGradient(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
+{
+    /*
+     * Guard 1: the payload may have been cleared between the OnDraw() dispatch
+     * and this call, so it is re-checked instead of being assumed valid.
+     */
+    if (!HasRenderableGradient()) {
+        return;
+    }
+    /*
+     * Guard 2: an empty border box means the view has not been laid out yet or
+     * is currently hidden; there is nothing to shade.
+     */
+    Rect rect(GetRect());
+    if (rect.GetWidth() <= 0 || rect.GetHeight() <= 0) {
+        return;
+    }
+    /*
+     * Guard 3: style_ carries the border width and is also reused to build the
+     * fallback fill, so a null style rules the gradient path out entirely.
+     */
+    if (style_ == nullptr) {
+        return;
+    }
+    /* Content box: the border is subtracted on both sides of each axis. */
+    const int16_t borderWidth = style_->borderWidth_;
+    const int16_t contentX = rect.GetX() + borderWidth;
+    const int16_t contentY = rect.GetY() + borderWidth;
+    const int16_t contentWidth = rect.GetWidth() - borderWidth * BORDER_SIDES_PER_AXIS;
+    const int16_t contentHeight = rect.GetHeight() - borderWidth * BORDER_SIDES_PER_AXIS;
+    /* Guard 4: a border thicker than the view leaves no content box. */
+    if (contentWidth <= 0 || contentHeight <= 0) {
+        return;
+    }
+    /*
+     * Rect(left, top, right, bottom) takes inclusive boundary coordinates, not
+     * a size. Passing the width and the height directly would make bottom_ end
+     * up above top_ for any view placed at a non zero origin, and GetHeight()
+     * would then return a negative value.
+     */
+    Rect targetRect(contentX, contentY,
+                    contentX + contentWidth - RECT_INCLUSIVE_EDGE_ADJUST,
+                    contentY + contentHeight - RECT_INCLUSIVE_EDGE_ADJUST);
+
+    auto params = LinearGradientBuilder::Build(gradientInfo_, contentWidth, contentHeight);
+    if (params.valid) {
+        DrawCanvas::RenderGradientFill(gfxDstBuffer, params.vertices, params.paint, targetRect, invalidatedArea);
+        return;
+    }
+    /*
+     * The rasterizer gave up, most often because the clipping region does not
+     * intersect the content box. Painting the first color stop keeps the view
+     * opaque instead of leaving a hole in the background.
+     */
+    Style fallbackStyle = *style_;
+    fallbackStyle.bgColor_ = gradientInfo_->colorStops[GRADIENT_FALLBACK_STOP_INDEX].color;
+    BaseGfxEngine::GetInstance()->DrawRect(gfxDstBuffer, targetRect, invalidatedArea, fallbackStyle, GetMixOpaScale());
+}
+
+void UIView::DoDrawLinearGradient(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
+{
+    /*
+     * Re-validate: the payload can be replaced by another thread between the
+     * OnDraw() dispatch and the actual draw in asynchronous rendering setups.
+     */
+    if (!HasRenderableGradient()) {
+        return;
+    }
+    DrawLinearGradient(gfxDstBuffer, invalidatedArea);
+}
+
+bool UIView::DrawGradientBackground(BufferInfo& gfxDstBuffer, const Rect& invalidatedArea)
+{
+    /*
+     * Gradient background path: taken only when this very view owns a usable
+     * payload. Each view holds its own GradientInfo, so no state leaks between
+     * siblings and the plain color path stays the default.
+     */
+    if (HasRenderableGradient()) {
+        DoDrawLinearGradient(gfxDstBuffer, invalidatedArea);
+        return true;
+    }
+    return false;
+}
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+
 } // namespace OHOS

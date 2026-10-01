@@ -130,5 +130,8 @@ void UICircleProgress::OnDraw(BufferInfo& gfxDstBuffer, const Rect& invalidatedA
     if (trunc.Intersect(trunc, GetOrigRect())) {
         DrawCommonCircle(gfxDstBuffer, trunc);
     }
+#if defined(GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG) && GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
+    DrawGradientBackground(gfxDstBuffer, invalidatedArea);
+#endif // GRAPHIC_ENABLE_COMPONENT_GRADIENT_FLAG
 }
 } // namespace OHOS

@@ -70,6 +70,19 @@ public:
      */
     virtual void OnStop(UIView& view) {}
 
+#if defined(GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG) && GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+    /**
+     * @brief Called when an animator is cancelled. This is a virtual function, which can be overridden to
+     *        implement specific logic when the animator is cancelled.
+     *
+     * @param view Indicates the <b>UIView</b> instance, which is added from the constructor of
+     *             the <b>Animator</b> class.
+     * @since 1.0
+     * @version 1.0
+     */
+    virtual void OnCancel(UIView& view) {}
+#endif // GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+
     /**
      * @brief A default destructor used to delete an <b>AnimatorCallback</b> instance.
      *
@@ -159,6 +172,17 @@ public:
      * @version 1.0
      */
     void Stop();
+
+#if defined(GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG) && GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
+    /**
+     * @brief Cancels this animator.
+     *
+     * @see Start
+     * @since 1.0
+     * @version 1.0
+     */
+    void Cancel();
+#endif // GRAPHIC_ENABLE_ELEMENT_TRANSITION_FLAG
 
     /**
      * @brief Pauses this animator.
@@ -256,6 +280,32 @@ public:
     {
         runTime_ = runTime;
     }
+
+#if defined(GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG) && GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
+    /**
+     * @brief Sets the <b>UIView</b> instance bound to this animator.
+     *
+     * @param view Indicates the <b>UIView</b> instance to set.
+     * @since 1.0
+     * @version 1.0
+     */
+    void SetView(UIView* view)
+    {
+        view_ = view;
+    }
+
+    /**
+     * @brief Obtains the <b>UIView</b> instance bound to this animator.
+     *
+     * @return Returns the <b>UIView</b> instance.
+     * @since 1.0
+     * @version 1.0
+     */
+    UIView* GetView() const
+    {
+        return view_;
+    }
+#endif // GRAPHIC_ENABLE_TRANSITION_ANIM_FLAG
 
     /**
      * @brief Checks whether this animator is repeated.
